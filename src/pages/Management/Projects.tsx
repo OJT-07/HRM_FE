@@ -1,9 +1,9 @@
 import Breadcrumb from '../../components/Breadcrumb';
 
-const FormLayout = () => {
+const Projects = () => {
   return (
     <>
-      <Breadcrumb pageName="FormLayout" />
+      <Breadcrumb pageName="Projects" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
         <div className="flex flex-col gap-9">
@@ -254,4 +254,4 @@ const FormLayout = () => {
   );
 };
 
-export default FormLayout;
+export default Projects;

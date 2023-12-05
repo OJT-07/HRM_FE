@@ -9,10 +9,10 @@ import SwitcherOne from '../../components/SwitcherOne';
 import SwitcherThree from '../../components/SwitcherThree';
 import SwitcherTwo from '../../components/SwitcherTwo';
 
-const FormElements = () => {
+const Employees = () => {
   return (
     <>
-      <Breadcrumb pageName="FormElements" />
+      <Breadcrumb pageName="Employees" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
         <div className="flex flex-col gap-9">
@@ -351,4 +351,4 @@ const FormElements = () => {
   );
 };
 
-export default FormElements;
+export default Employees;
