@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-query';
 import { Provider } from 'react-redux';
 import { store } from './store';
+import "./App.css";
 
 const queryClient = new QueryClient();
 
