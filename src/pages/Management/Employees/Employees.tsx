@@ -1,104 +1,82 @@
-import { useMemo, useState } from 'react';
+
+import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import axios from 'axios';
 
-
-type Person = {
-  employee_ID: number
-  code: string;
+interface Person {
+  id: number;
   name: string;
   phone: string;
   date_of_birth: string;
-  skill_ID: number;
   position: string;
-  manager: string;
-  is_manager: number;
-  description: string;
-
-
-};
-const data: Person[] = [
-  {
-    employee_ID: 1,
-    code: "EMP001",
-    name: "John Doe",
-    phone: "123456789",
-    date_of_birth: "1990-01-15",
-    skill_ID: 1,
-    position: "Developer",
-    manager: 'Tuan',
-    is_manager: 1,
-    description: "Senior Developer",
-  },
-
-];
+}
 
 const EmployeesList = () => {
+  const [data, setData] = useState<Person[]>([]);
+
+  // Fetch data from your API when the component mounts
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
+      setData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  // Columns definition
   const columns = useMemo<MRT_ColumnDef<Person>[]>(
     () => [
       {
-        accessorKey: 'employee_ID',
+        accessorKey: 'id',
         header: 'ID',
-        size: 100,
-      },
-
-      {
-        accessorKey: 'code',
-        header: 'Code',
         size: 100,
       },
       {
         accessorKey: 'name',
-        header: 'Full Name',
+        header: 'Name',
         size: 100,
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
         size: 100,
-      },
-      {
+      },  {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-      },
-      {
-        accessorKey: 'skill_ID',
-        header: 'Skill ID',
-        size: 100,
-      },
-      {
+      },  {
         accessorKey: 'position',
-        header: 'position',
+        header: 'Position',
         size: 100,
-      },
-      {
-        accessorKey: 'manager',
-        header: 'Manager',
-        size: 100,
-      },
-      {
-        accessorKey: 'is_manager',
-        header: 'Is Manager',
-        size: 100,
-      },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        size: 100,
-      },
+      },  
     ],
     [],
   );
- 
-  //DELETE action
-  const openDeleteConfirmModal = (row: MRT_Row<Person>) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUser(row.original.employee_ID);
+
+  // DELETE action
+  const deleteUser = async (id: number) => {
+    try {
+      await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
+      fetchData(); // Fetch updated data after deletion
+    } catch (error) {
+      console.error('Error deleting user:', error);
     }
   };
+
+  const openDeleteConfirmModal = (row: MRT_Row<Person>) => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      deleteUser(row.original.id);
+    }
+  };
+
   const table = useMaterialReactTable({
     columns,
     data,
@@ -118,19 +96,10 @@ const EmployeesList = () => {
           </IconButton>
         </Tooltip>
       </Box>
-
     ),
-
   });
 
-  return <MaterialReactTable table={table} />
+  return <MaterialReactTable table={table}  />;
 };
+
 export default EmployeesList;
-
-function openDeleteConfirmModal(row: MRT_Row<Person>): void {
-  throw new Error('Function not implemented.');
-}
-function deleteUser(employee_ID: number) {
-  throw new Error('Function not implemented.');
-}
-
