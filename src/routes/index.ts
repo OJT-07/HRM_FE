@@ -13,6 +13,7 @@ const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'))
 const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'))
 
 const coreRoutes = [
+
   {
     path: '/chart-employees',
     title: 'Chart Employees',

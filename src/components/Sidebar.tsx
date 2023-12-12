@@ -178,6 +178,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                               Projects
                             </NavLink>
                           </li>
+                         
                         </ul>
                       </div>
                       {/* <!-- Dropdown Menu End --> */}
