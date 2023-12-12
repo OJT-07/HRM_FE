@@ -6,12 +6,17 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from 'axios';
 
+interface Skill {
+  exp: string;
+  name: string;
+}
 interface Person {
   id: number;
   name: string;
   phone: string;
   date_of_birth: string;
-  position: string;
+  skills: Skill[];
+  
 }
 
 const EmployeesList = () => {
@@ -25,7 +30,8 @@ const EmployeesList = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
-      setData(response.data.data);
+    setData(response.data.data);
+    console.log(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -52,10 +58,20 @@ const EmployeesList = () => {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
       },  {
-        accessorKey: 'position',
-        header: 'Position',
+        accessorKey: 'skills[name]',
+        header: 'Skill',
         size: 100,
+        Cell: ({ row }) => (
+          <ul>
+            {row.original.skills.map((skill: Skill) => (
+              <li key={skill.name}>{skill.name} - {skill.exp} years</li>
+             
+
+            ))}
+          </ul>
+        ),
       },  
     ],
     [],
