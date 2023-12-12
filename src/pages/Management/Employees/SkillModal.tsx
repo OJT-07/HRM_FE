@@ -12,10 +12,10 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { projectMemberOption, projectPositionOption } from '../../../enum';
-import { FormMemberType, formMemberSchema } from '../../../utils/rules';
 import { useState } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { expOption, projectTechnicalOption } from '../../../enum';
+import { FormSkillType, formSkillSchema } from '../../../utils/rules';
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -38,13 +38,13 @@ const style = {
   zIndex: 21
 };
 
-function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
-  const [memberValue, setMemberValue] = useState<any>(initialValues.member || '');
-  const methods = useForm<FormMemberType>({
-    resolver: yupResolver(formMemberSchema),
+function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
+  const [skillValue, setSkillValue] = useState<any>(initialValues.member || '');
+  const methods = useForm<FormSkillType>({
+    resolver: yupResolver(formSkillSchema),
     defaultValues: {
-      member: initialValues?.member,
-      position: initialValues?.position
+      skill: initialValues?.skill,
+      exp: initialValues?.exp
     }
   });
 
@@ -64,65 +64,63 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
   };
 
   const onSubmit = async () => {
-    const result = await trigger(['member', 'position']);
+    const result = await trigger(['skill', 'exp']);
     if (!result) {
       Object.keys(errors).map((name: any) => {
-        setError(name, { type: 'custom', message: errors[name as keyof FormMemberType]?.message || '' });
+        setError(name, { type: 'custom', message: errors[name as keyof FormSkillType]?.message || '' });
       });
 
       return;
     }
 
-    const member = getValues('member');
-    const position = getValues('position');
+    const skill = getValues('skill');
+    const exp = getValues('exp');
 
     // console.log({ member, position });
-    onFinish({ member: memberValue, position });
+    onFinish({ skill: skillValue, exp });
     handleClose();
     reset();
   };
 
-  console.log(watch());
-
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
-        <Typography id='modal-modal-title' variant='h5' component='h2' sx={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '8px' }}>
-          {initialValues?.name ? 'Update member' : 'Assign Member'}
+        <Typography id='modal-modal-title' variant='h6' component='h2' sx={{ textAlign: 'center', fontWeight: 'bold' }}>
+          {initialValues?.name ? 'Update Skill' : 'Add Skill'}
         </Typography>
         <FormProvider {...methods}>
           <form>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <InputLabel id='project-status-label'>Member</InputLabel>
+                <InputLabel id='project-status-label'>Skill</InputLabel>
                 <Controller
                   control={control}
-                  name='member'
+                  name='skill'
                   render={({ field }) => (
                     <Autocomplete
-                      options={projectMemberOption.map((member: any) => member.value)}
+                      options={projectTechnicalOption.map((tech: any) => tech.value)}
                       renderInput={(params) => {
                         return <TextField {...params} {...field} variant='outlined' size='small' name='member' />;
                       }}
                       {...field}
                       onChange={(e) => {
                         console.log((e.target as any)?.innerText as any);
-                        setMemberValue((e.target as any)?.innerText);
-                        setValue('member', `${(e.target as any)?.innerText as any}`);
+                        setSkillValue((e.target as any)?.innerText);
+                        setValue('skill', `${(e.target as any)?.innerText as any}`);
                         field.onChange(e);
                       }}
                     />
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.member?.message}
+                  {errors.skill?.message}
                 </div>
               </Grid>
               <Grid item xs={6}>
-                <InputLabel id='project-status-label'>Position</InputLabel>
+                <InputLabel id='project-status-label'>Experience (year)</InputLabel>
                 <Controller
                   control={control}
-                  name='position'
+                  name='exp'  
                   render={({ field }) => (
                     <Select
                       size='small'
@@ -132,14 +130,14 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
                       {...field}
                       onChange={field.onChange}
                     >
-                      {projectPositionOption.map((status: any) => (
+                      {expOption.map((status: any) => (
                         <MenuItem value={status.value}>{status?.label}</MenuItem>
                       ))}
                     </Select>
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.position?.message}
+                  {errors.exp?.message}
                 </div>
               </Grid>
 
@@ -161,4 +159,4 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
   );
 }
 
-export default MemberModal;
+export default SkillModal;
