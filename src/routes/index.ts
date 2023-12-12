@@ -1,6 +1,5 @@
 import { lazy } from 'react'
 const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
-const EmployeeSkills = lazy(() => import('../pages/Management/Employees/Skills/EmployeeSkills'))
 const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'))
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'))
@@ -24,11 +23,6 @@ const coreRoutes = [
     path: '/management/employees',
     title: 'Employees Management',
     component: Employees
-  },
-  {
-    path: '/management/employees/:id/skills',
-    title: 'Employee Skills',
-    component: EmployeeSkills
   },
   {
     path: '/management/projects',

@@ -60,22 +60,10 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function createData(member: string, position: string) {
-  return { member, position };
-}
-
-const rows = [
-  createData('Frozen yoghurt', 'Project Owner'),
-  createData('Ice cream sandwich', 'Team lead'),
-  createData('Eclair', 'Front end'),
-  createData('Cupcake', 'Back end'),
-  createData('Gingerbread', 'Tester')
-];
-
 function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const [visibleTechnical, setVisibleTechnical] = useState(false);
   const [visibleMember, setVisibleMember] = useState(false);
-  const [memberList, setMemberList] = useState<any>(rows);
+  const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
   const [technicalList, setTechnicalList] = useState<any>([]);
   const [viewOnlyTech, setViewOnlyTech] = useState(false);
@@ -101,7 +89,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const methods = useForm<FormProjectType>({
     resolver: yupResolver(formProjectSchema),
     defaultValues: {
-      status: 'Pending',
+      status: 'Pending'
     }
   });
 
@@ -112,7 +100,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     control,
     setError,
     trigger,
-    getValues
+    getValues,
+    setValue
   } = methods;
 
   const onSubmit = handleSubmit((data?: any) => {
@@ -150,15 +139,19 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     });
   };
 
-  const handleAddMember = (newMember: any) => {
+  const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
+    setValue('member', newMemberList);
+    await trigger(['member']);
   };
 
-  const handleRemoveMember = (index: number) => {
+  const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
+    setValue('member', newMemberList);
+    await trigger(['member' ]);
   };
 
   const handleOpenEditMember = (member: any) => {
@@ -166,9 +159,11 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setInitMember(member);
   };
 
-  const handleApplyTechnicalList = (newTechList: any) => {
+  const handleApplyTechnicalList = async (newTechList: any) => {
     setTechnicalList(newTechList);
     handleCloseTechnical();
+    setValue('technical', newTechList);
+    await trigger(['technical']);
   };
 
   return (
@@ -193,14 +188,19 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
         >
           <HighlightOffIcon />
         </Button>
-        <Typography id='modal-modal-title' variant='h4' component='h2' sx={{ textAlign: 'center', fontWeight: '700', margin: "1.5rem 0" }}>
+        <Typography
+          id='modal-modal-title'
+          variant='h4'
+          component='h2'
+          sx={{ textAlign: 'center', fontWeight: '700', margin: '1.5rem 0' }}
+        >
           Create New Project
         </Typography>
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={8}>
-                <InputLabel id='project-name'>Name</InputLabel>
+              <Grid item xs={6}>
+                <InputLabel style={{marginBottom: 3}} id='project-name'>Name</InputLabel>
                 <Controller
                   control={control}
                   name='name'
@@ -220,8 +220,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   {errors.name?.message}
                 </div>
               </Grid>
-              <Grid item xs={4}>
-                <InputLabel id='project-status-label'>Status</InputLabel>
+
+              <Grid item xs={6}>
+                <InputLabel style={{marginBottom: 3}} id='project-status-label'>Status</InputLabel>
                 <Controller
                   control={control}
                   name='status'
@@ -245,13 +246,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 </div>
               </Grid>
 
-              <Grid item xs={4}>
-                <InputLabel id='project-status-label'>Start Date</InputLabel>
+              <Grid item xs={3}>
+                <InputLabel style={{marginBottom: 3}} id='project-startdate-label'>Start Date</InputLabel>
 
                 <Controller
                   control={control}
                   name='startDate'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field}/>}
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
@@ -259,13 +260,17 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 </div>
               </Grid>
 
-              <Grid item xs={4}>
-                <InputLabel id='project-status-label'>End Date</InputLabel>
-                <DatePicker format='DD/MM/YYYY' />
+              <Grid item xs={3}>
+                <InputLabel style={{marginBottom: 3}} id='project-enddata-label'>End Date</InputLabel>
+                <Controller
+                  control={control}
+                  name='endDate'
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                />
               </Grid>
 
-              <Grid item xs={4}>
-                <InputLabel id='project-status-label'>Technical</InputLabel>
+              <Grid item xs={6}>
+                <InputLabel style={{marginBottom: 3}} id='project-technical-label'>Technical</InputLabel>
                 <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
                   <div>
                     <IconButton
@@ -291,14 +296,18 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                     ) : null}
                   </div>
                 </Box>
+                <div className={classNameError} style={{ color: 'red' }}>
+                  {errors.technical?.message}
+                </div>
               </Grid>
+
               <Grid item xs={12}>
                 <fieldset>
                   <legend>Members</legend>
                   <Button
                     size='medium'
                     type='button'
-                    style={{ margin: '1rem 0' }}
+                    style={{ margin: '0.5rem 0' }}
                     variant='contained'
                     startIcon={<AddCircleIcon />}
                     onClick={handleOpenMember}
@@ -311,7 +320,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Number</TableCell>
+                            <TableCell>No.</TableCell>
                             <TableCell>Member</TableCell>
                             <TableCell align='center'>Position</TableCell>
                             <TableCell align='center'>Action</TableCell>
@@ -347,20 +356,31 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                       </Table>
                     </TableContainer>
                   ) : null}
+
+                  <div className={classNameError} style={{ color: 'red' }}>
+                    {errors.member?.message}
+                  </div>
                 </fieldset>
               </Grid>
+
               <Grid item xs={12}>
-                <InputLabel id='project-status-label'>Description</InputLabel>
-                <TextareaAutosize
+                <InputLabel style={{marginBottom: 3}} id='project-status-label'>Description</InputLabel>
+                <Controller
+                  control={control}
                   name='description'
-                  placeholder='Description'
-                  minRows={2}
-                  style={{
-                    width: '100%',
-                    border: '1px solid rgb(100, 116, 139)',
-                    borderRadius: '5px',
-                    padding: '8px 14px'
-                  }}
+                  render={({ field }) => (
+                    <TextareaAutosize
+                      {...field}
+                      placeholder='Description something about this project...'
+                      minRows={2}
+                      style={{
+                        width: '100%',
+                        border: '1px solid rgb(100, 116, 139)',
+                        borderRadius: '5px',
+                        padding: '8px 14px'
+                      }}
+                    />
+                  )}
                 />
               </Grid>
             </Grid>
@@ -368,13 +388,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
             <Button
               size='medium'
               type='submit'
-              style={{ margin: '1rem auto', display: 'flex', justifyContent: 'center' }}
+              style={{ margin: '1rem auto', display: 'flex', justifyContent: 'center', marginRight: 0 }}
               variant='contained'
               startIcon={<SaveIcon />}
               color='primary'
               onClick={onSubmit}
             >
-              Save
+              Submit
             </Button>
           </form>
         </FormProvider>
