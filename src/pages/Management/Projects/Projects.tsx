@@ -1,40 +1,44 @@
-
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
+import CreateProjectModal from './Create'
 import axios from 'axios';
-
 interface Project {
   id: number;
   name: string;
   start_date: Date;
-  end_date: Date;   
+  end_date: Date;
   description: string
-  technical: string[]; 
-  
+  technical: string[];
 }
-
 const EmployeesList = () => {
   const [data, setData] = useState<Project[]>([]);
+  const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false)
 
-  // Fetch data from your API when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleCloseModalAddUpdate = () => {
+    setVisibleModalAddUpdate(false)
+  }
+
+  const handleOpenModalAddUpdate = () => {
+    setVisibleModalAddUpdate(true)
+  }
 
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/projects');
     setData(response.data.data);
-    console.log(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  // Columns definition
   const columns = useMemo<MRT_ColumnDef<Project>[]>(
     () => [
       {
@@ -52,13 +56,12 @@ const EmployeesList = () => {
         header: 'Start Date',
         size: 100,
         Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString(),
-
       },  {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
         Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
-      }, 
+      },
       {
       accessorKey: 'technical',
       header: 'Technical',
@@ -69,14 +72,13 @@ const EmployeesList = () => {
             <li key={index}>{tech}</li>
           ))}
         </ul>
-      ), 
-          }  
+      ),
+          }
     ],
-
     [],
   );
+   
 
-  // DELETE action
   const deleteUser = async (id: number) => {
     try {
       await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
@@ -87,7 +89,7 @@ const EmployeesList = () => {
   };
 
   const openDeleteConfirmModal = (row: MRT_Row<Project>) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm('Are you sure you want to delete this project?')) {
       deleteUser(row.original.id);
     }
   };
@@ -98,6 +100,15 @@ const EmployeesList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
+    renderTopToolbarCustomActions: ({  }) => (
+        <Button
+           variant="contained"
+          onClick={handleOpenModalAddUpdate}
+        >
+          Create New Project
+        </Button>
+      ),
+
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title="Edit">
@@ -114,7 +125,12 @@ const EmployeesList = () => {
     ),
   });
 
-  return <MaterialReactTable table={table}  />;
+  return (
+    <>
+      <MaterialReactTable table={table} />
+      {visibleModalAddUpdate && <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />}
+    </>
+  );
 };
 
 export default EmployeesList;
