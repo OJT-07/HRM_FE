@@ -1,7 +1,10 @@
 import { lazy } from 'react'
 const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
-const EmployeeSkills = lazy(() => import('../pages/Management/Employees/Skills/EmployeeSkills'))
 const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
+const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'))
+// const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
+
+
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'))
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'))
 const Profile = lazy(() => import('../pages/Profile'))
@@ -27,15 +30,20 @@ const coreRoutes = [
     component: Employees
   },
   {
-    path: '/management/employees/:id/skills',
-    title: 'Employee Skills',
-    component: EmployeeSkills
-  },
-  {
     path: '/management/projects',
     title: 'Projects Management',
     component: Projects
   },
+  {
+    path: '/management/details/:id',
+    title: 'Projects Management',
+    component: detailsProjects
+  },
+  // {
+  //   path: '/management/employee-details',
+  //   title: 'Employee Management',
+  //   component: detailsEmployee
+  // },
   {
     path: '/ui/alerts',
     title: 'Alerts',

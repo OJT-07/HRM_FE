@@ -4,6 +4,9 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row 
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
+import CreateEmployeeModal from './Create'
+
 import axios from 'axios';
 
 interface Skill {
@@ -21,15 +24,24 @@ interface Person {
 
 const EmployeesList = () => {
   const [data, setData] = useState<Person[]>([]);
+  const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false)
+
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
+  const handleCloseModalAddUpdate = () => {
+    setVisibleModalAddUpdate(false)
+  }
 
+  const handleOpenModalAddUpdate = () => {
+    setVisibleModalAddUpdate(true)
+  }
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
+
     setData(response.data.data);
     console.log(response.data.data);
     } catch (error) {
@@ -99,6 +111,14 @@ const EmployeesList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
+    renderTopToolbarCustomActions: ({ table }) => (
+      <Button
+         variant="contained"
+        onClick={handleOpenModalAddUpdate}
+      >
+        Create New Employee
+      </Button>
+    ),
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title="Edit">
@@ -115,7 +135,13 @@ const EmployeesList = () => {
     ),
   });
 
-  return <MaterialReactTable table={table}  />;
+  return (
+    <>
+      <MaterialReactTable table={table} />
+      {visibleModalAddUpdate && <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />}
+    </>
+  );
+  
 };
 
 export default EmployeesList;
