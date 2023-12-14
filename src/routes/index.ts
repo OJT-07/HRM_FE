@@ -5,12 +5,16 @@ const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'
 // const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
 
 
+
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'))
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'))
 const Profile = lazy(() => import('../pages/Profile'))
 const Settings = lazy(() => import('../pages/Settings'))
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'))
 const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'))
+
+const RenderInformation = lazy(() => import('../pages/Management/Employees/Details'))
+
 
 const coreRoutes = [
 
@@ -34,6 +38,8 @@ const coreRoutes = [
     title: 'Projects Management',
     component: Projects
   },
+
+
   {
     path: '/management/details/:id',
     title: 'Projects Management',
@@ -44,6 +50,7 @@ const coreRoutes = [
   //   title: 'Employee Management',
   //   component: detailsEmployee
   // },
+
   {
     path: '/ui/alerts',
     title: 'Alerts',
@@ -63,6 +70,13 @@ const coreRoutes = [
     path: '/settings',
     title: 'Settings',
     component: Settings
+
+  },
+  {
+    path: '/management/employees/:id/detail',
+    title: 'Employees Management',
+    component: RenderInformation
+
   }
 ]
 
