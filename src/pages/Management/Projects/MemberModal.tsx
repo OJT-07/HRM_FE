@@ -16,6 +16,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
 import { useState } from 'react';
+import ReactSelect from 'react-select';
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -38,13 +39,17 @@ const style = {
   zIndex: 21
 };
 
+const findOption = (list: any, value: any) => {
+  return list.find((item: any) => item?.value === value);
+};
+
 function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
   const [memberValue, setMemberValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormMemberType>({
     resolver: yupResolver(formMemberSchema),
     defaultValues: {
-      member: initialValues?.member,
-      position: initialValues?.position
+      member: findOption(projectMemberOption, initialValues?.member),
+      position: findOption(projectPositionOption, initialValues?.position)
     }
   });
 
@@ -77,7 +82,7 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
     const position = getValues('position');
 
     // console.log({ member, position });
-    onFinish({ member: memberValue, position });
+    onFinish({ member: (member as any)?.value as any, position: (position as any)?.value as any });
     handleClose();
     reset();
   };
@@ -87,7 +92,12 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
-        <Typography id='modal-modal-title' variant='h5' component='h2' sx={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '8px' }}>
+        <Typography
+          id='modal-modal-title'
+          variant='h5'
+          component='h2'
+          sx={{ textAlign: 'center', fontWeight: 'bold', marginBottom: '8px' }}
+        >
           {initialValues?.name ? 'Update member' : 'Assign Member'}
         </Typography>
         <FormProvider {...methods}>
@@ -98,21 +108,7 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
                 <Controller
                   control={control}
                   name='member'
-                  render={({ field }) => (
-                    <Autocomplete
-                      options={projectMemberOption.map((member: any) => member.value)}
-                      renderInput={(params) => {
-                        return <TextField {...params} {...field} variant='outlined' size='small' name='member' />;
-                      }}
-                      {...field}
-                      onChange={(e) => {
-                        console.log((e.target as any)?.innerText as any);
-                        setMemberValue((e.target as any)?.innerText);
-                        setValue('member', `${(e.target as any)?.innerText as any}`);
-                        field.onChange(e);
-                      }}
-                    />
-                  )}
+                  render={({ field }) => <ReactSelect {...field} options={projectMemberOption} />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.member?.message}
@@ -123,20 +119,7 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
                 <Controller
                   control={control}
                   name='position'
-                  render={({ field }) => (
-                    <Select
-                      size='small'
-                      fullWidth
-                      labelId='project-status-label'
-                      id='project-status'
-                      {...field}
-                      onChange={field.onChange}
-                    >
-                      {projectPositionOption.map((status: any) => (
-                        <MenuItem value={status.value}>{status?.label}</MenuItem>
-                      ))}
-                    </Select>
-                  )}
+                  render={({ field }) => <ReactSelect {...field} options={projectPositionOption} />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.position?.message}
