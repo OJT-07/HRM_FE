@@ -7,23 +7,16 @@ interface Skills {
   exp: string;
   name: string;
 }
-
-interface Manager {
-  id: number;
-  name: string;
-}
-
 interface Employee {
   id: number;
   name: string;
   phone: string;
   date_of_birth: Date;
   skills: Skills[];
-  manager: Manager[];
   image: string;
 }
 
-const RenderInformation = () => {
+const EmployeesDetail = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const { id } = useParams();
 
@@ -77,14 +70,8 @@ const RenderInformation = () => {
               </div>
             ))}
           </div>
-          <div>
-            <b> <label className="mb-3 block text-black dark:text-white"> Manager</label> </b>
-            <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
-              {employee.manager.map((mgr: Manager, index: number) => (
-                <div key={index}>{mgr.name}</div>
-              ))}
-            </div>
-          </div>
+         
+         
           <div>
             <b> <label className="mb-3 block text-black dark:text-white"> Image </label> </b>
             <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
@@ -97,4 +84,4 @@ const RenderInformation = () => {
   );
 }
 
-export default RenderInformation;
+export default EmployeesDetail;
