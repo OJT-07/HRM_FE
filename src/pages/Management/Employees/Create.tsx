@@ -123,7 +123,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
   });
 
   const handleClose = (event?: any, reason?: string) => {
-    if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
+    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
     MySwal.fire({
       title: 'Are you sure?',
@@ -170,25 +170,11 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
   return (
     <Modal
       open={visible}
-      onClose={handleClose}
-      disableEscapeKeyDown
+      onClose={onClose}
       disableScrollLock
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
-        <Button
-          style={{
-            position: 'absolute',
-            top: 7,
-            right: 0,
-            margin: 0
-          }}
-          color='error'
-          onClick={handleClose}
-          size='medium'
-        >
-          <HighlightOffIcon />
-        </Button>
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -201,7 +187,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-fullname'>Fullname</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
+                  Fullname <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='fullName'
@@ -223,7 +211,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-address'>Address</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-address'>
+                  Address <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='address'
@@ -245,7 +235,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-contact'>Contact number</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-contact'>
+                  Contact number <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='contactNumber'
@@ -267,7 +259,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-name'>Email</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-name'>
+                  Email <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='email'
@@ -289,7 +283,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='employee-joindate-label'>Join date</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-joindate-label'>
+                  Join date <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
 
                 <Controller
                   control={control}
@@ -303,7 +299,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='employee-dateofbirth-label'>Date of birth</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-dateofbirth-label'>
+                  Date of birth <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
 
                 <Controller
                   control={control}
@@ -317,40 +315,29 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-linemanager-label'>Line Manager</InputLabel>
-                <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                  <div>
-                    <IconButton
-                      sx={{ width: 'fit-content', background: 'none' }}
-                      size='medium'
-                      color='primary'
-                      onClick={() => handleOpenLineManager()}
+                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
+
+                <Controller
+                  control={control}
+                  name='isManager'
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      defaultValue={false}
+                      style={{ display: 'flex', gap: '1rem', flexDirection: 'row' }}
                     >
-                      <AddCircleIcon />
-                    </IconButton>
-                  </div>
-                  <div>
-                    {lineManagerList.length ? (
-                      <AvatarGroup
-                        sx={{ width: '100%' }}
-                        total={lineManagerList.length}
-                        onClick={() => handleOpenLineManager(true)}
-                      >
-                        {lineManagerList.map((tech: any) => (
-                          <Avatar alt={tech.label} src='/static/images/avatar/1.jpg' sizes='small' />
-                        ))}
-                      </AvatarGroup>
-                    ) : null}
-                  </div>
-                  <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.lineManager?.message}
-                  </div>
-                </Box>
+                      <FormControlLabel value={true} control={<Radio />} label='True' />
+                      <FormControlLabel value={false} control={<Radio />} label='False' />
+                    </RadioGroup>
+                  )}
+                />
               </Grid>
 
               <Grid item xs={12}>
                 <fieldset>
-                  <legend>Skill</legend>
+                  <legend>
+                    Skill <span style={{ color: 'red' }}>*</span>
+                  </legend>
                   <Button
                     size='medium'
                     type='button'
@@ -411,22 +398,9 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={12}>
-                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
-
-                <Controller
-                  control={control}
-                  name='isManager'
-                  render={({ field }) => (
-                    <RadioGroup {...field} defaultValue={false} style={{display: "flex", gap: "1rem", flexDirection: "row"}}>
-                      <FormControlLabel value={true} control={<Radio />} label='True' />
-                      <FormControlLabel value={false} control={<Radio />} label='False' />
-                    </RadioGroup>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <InputLabel style={{marginBottom: 3}} id='employee-description-label'>Description</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-description-label'>
+                  Description
+                </InputLabel>
                 <TextareaAutosize
                   name='description'
                   placeholder='Description something about the employee...'
@@ -441,17 +415,30 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
             </Grid>
 
-            <Button
-              size='medium'
-              type='submit'
-              style={{ margin: '1rem auto', display: 'flex', justifyContent: 'center', marginRight: 0 }}
-              variant='contained'
-              startIcon={<SaveIcon />}
-              color='primary'
-              onClick={onSubmit}
-            >
-              Submit
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                type='submit'
+                style={{ marginRight: '1rem' }}
+                variant='contained'
+                color='error'
+                onClick={handleClose}
+                size='medium'
+              >
+                Cancel
+              </Button>
+
+              <Button
+                size='medium'
+                type='submit'
+                style={{ marginRight: 0 }}
+                variant='contained'
+                startIcon={<SaveIcon />}
+                color='primary'
+                onClick={onSubmit}
+              >
+                Submit
+              </Button>
+            </div>
           </form>
         </FormProvider>
         {visibleSkill && (

@@ -28,7 +28,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { useState } from 'react';
 import MemberModal from './MemberModal';
 import SaveIcon from '@mui/icons-material/Save';
-import { projectStatusOption } from '../../../enum';
+import { projectStatusOption, projectTechnicalOption } from '../../../enum';
 import Swal from 'sweetalert2';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import withReactContent from 'sweetalert2-react-content';
@@ -36,6 +36,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import TechnicalModal from './TechnicalModal';
+import ReactSelect from 'react-select';
 
 const MySwal = withReactContent(Swal);
 
@@ -89,7 +90,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const methods = useForm<FormProjectType>({
     resolver: yupResolver(formProjectSchema),
     defaultValues: {
-      status: 'Pending'
+      status: { label: 'Pending', value: 'Pending' }
     }
   });
 
@@ -122,7 +123,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   });
 
   const handleClose = (event?: any, reason?: string) => {
-    if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
+    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
     MySwal.fire({
       title: 'Are you sure?',
@@ -151,10 +152,11 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
     setValue('member', newMemberList);
-    await trigger(['member' ]);
+    await trigger(['member']);
   };
 
   const handleOpenEditMember = (member: any) => {
+    console.log(member);
     handleOpenMember();
     setInitMember(member);
   };
@@ -169,25 +171,11 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   return (
     <Modal
       open={visible}
-      onClose={handleClose}
-      disableEscapeKeyDown
+      onClose={onClose}
       disableScrollLock
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
-        <Button
-          style={{
-            position: 'absolute',
-            top: 7,
-            right: 0,
-            margin: 0
-          }}
-          color='error'
-          onClick={handleClose}
-          size='medium'
-        >
-          <HighlightOffIcon />
-        </Button>
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -200,7 +188,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='project-name'>Name</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='project-name'>
+                  Name <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='name'
@@ -222,23 +212,19 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='project-status-label'>Status</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
+                  Status
+                </InputLabel>
                 <Controller
                   control={control}
                   name='status'
                   render={({ field }) => (
-                    <Select
-                      size='small'
-                      fullWidth
-                      labelId='project-status-label'
+                    <ReactSelect
                       id='project-status'
                       {...field}
-                      disabled={!initialValue?.name}
-                    >
-                      {projectStatusOption.map((status) => (
-                        <MenuItem value={status.value}>{status?.label}</MenuItem>
-                      ))}
-                    </Select>
+                      options={projectStatusOption}
+                      isDisabled={!initialValue?.name}
+                    />
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
@@ -247,7 +233,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='project-startdate-label'>Start Date</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
+                  Start Date <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
 
                 <Controller
                   control={control}
@@ -261,7 +249,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='project-enddata-label'>End Date</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
+                  End Date <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='endDate'
@@ -269,8 +259,10 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 />
               </Grid>
 
-              <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='project-technical-label'>Technical</InputLabel>
+              {/* <Grid item xs={6}>
+                <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
+                  Technical
+                </InputLabel>
                 <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
                   <div>
                     <IconButton
@@ -299,11 +291,27 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.technical?.message}
                 </div>
+              </Grid> */}
+
+              <Grid item xs={6}>
+                <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
+                  Technical <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
+                <Controller
+                  control={control}
+                  name='technical'
+                  render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} isMulti />}
+                />
+                <div className={classNameError} style={{ color: 'red' }}>
+                  {errors.technical?.message}
+                </div>
               </Grid>
 
               <Grid item xs={12}>
                 <fieldset>
-                  <legend>Members</legend>
+                  <legend>
+                    Members <span style={{ color: 'red' }}>*</span>
+                  </legend>
                   <Button
                     size='medium'
                     type='button'
@@ -364,7 +372,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={12}>
-                <InputLabel style={{marginBottom: 3}} id='project-status-label'>Description</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
+                  Description
+                </InputLabel>
                 <Controller
                   control={control}
                   name='description'
@@ -385,17 +395,30 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
             </Grid>
 
-            <Button
-              size='medium'
-              type='submit'
-              style={{ margin: '1rem auto', display: 'flex', justifyContent: 'center', marginRight: 0 }}
-              variant='contained'
-              startIcon={<SaveIcon />}
-              color='primary'
-              onClick={onSubmit}
-            >
-              Submit
-            </Button>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                type='submit'
+                style={{ marginRight: '1rem' }}
+                variant='contained'
+                color='error'
+                onClick={handleClose}
+                size='medium'
+              >
+                Cancel
+              </Button>
+
+              <Button
+                size='medium'
+                type='submit'
+                style={{ marginRight: 0 }}
+                variant='contained'
+                startIcon={<SaveIcon />}
+                color='primary'
+                onClick={onSubmit}
+              >
+                Submit
+              </Button>
+            </div>
           </form>
         </FormProvider>
         {visibleMember && (
