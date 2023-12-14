@@ -1,19 +1,17 @@
-import { lazy } from 'react'
-const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
-const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
-const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'))
+import { lazy } from 'react';
+const Employees = lazy(() => import('../pages/Management/Employees/Employees'));
+const Projects = lazy(() => import('../pages/Management/Projects/Projects'));
+const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'));
 // const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
 
-
-const Alerts = lazy(() => import('../pages/UiElements/Alerts'))
-const Buttons = lazy(() => import('../pages/UiElements/Buttons'))
-const Profile = lazy(() => import('../pages/Profile'))
-const Settings = lazy(() => import('../pages/Settings'))
-const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'))
-const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'))
+const Alerts = lazy(() => import('../pages/UiElements/Alerts'));
+const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
+const Profile = lazy(() => import('../pages/Profile'));
+const Settings = lazy(() => import('../pages/Settings'));
+const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
+const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'));
 
 const coreRoutes = [
-
   {
     path: '/chart-employees',
     title: 'Chart Employees',
@@ -64,7 +62,7 @@ const coreRoutes = [
     title: 'Settings',
     component: Settings
   }
-]
+];
 
-const routes = [...coreRoutes]
-export default routes
+const routes = [...coreRoutes];
+export default routes;
