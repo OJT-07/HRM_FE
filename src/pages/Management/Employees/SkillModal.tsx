@@ -44,7 +44,7 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
   const methods = useForm<FormSkillType>({
     resolver: yupResolver(formSkillSchema),
     defaultValues: {
-      skill: initialValues?.skill,
+      name: initialValues?.skill,
       exp: initialValues?.exp
     }
   });
@@ -65,7 +65,7 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
   };
 
   const onSubmit = async () => {
-    const result = await trigger(['skill', 'exp']);
+    const result = await trigger(['name', 'exp']);
     if (!result) {
       Object.keys(errors).map((name: any) => {
         setError(name, { type: 'custom', message: errors[name as keyof FormSkillType]?.message || '' });
@@ -74,11 +74,11 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
       return;
     }
 
-    const skill = getValues('skill');
+    const skill = getValues('name');
     const exp = getValues('exp');
 
     // console.log({ member, position });
-    onFinish({ skill: (skill as any)?.value as any, exp: (exp as any)?.value as any });
+    onFinish({ name: (skill as any)?.value as any, exp: (exp as any)?.value as any });
     handleClose();
     reset();
   };
@@ -96,11 +96,11 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
                 <InputLabel id='project-status-label'>Skill</InputLabel>
                 <Controller
                   control={control}
-                  name='skill'
+                  name='name'
                   render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.skill?.message}
+                  {errors.name?.message}
                 </div>
               </Grid>
               <Grid item xs={6}>

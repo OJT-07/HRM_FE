@@ -8,7 +8,7 @@ export const formProjectSchema = yup.object({
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
   member: yup.array().required('Please enter member').min(1, 'Please enter member'),
   description: yup.string()
-})
+});
 
 export type FormProjectType = yup.InferType<typeof formProjectSchema>;
 
@@ -22,7 +22,10 @@ export type FormMemberType = yup.InferType<typeof formMemberSchema>;
 export const formEmployeeSchema = yup.object({
   fullName: yup.string().required('Please enter a full name'),
   address: yup.string().required('Please enter address'),
-  contactNumber: yup.string().required('Please enter contact number').matches(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/, "Invalid contact number"),
+  contactNumber: yup
+    .string()
+    .required('Please enter contact number')
+    .matches(/(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/, 'Invalid contact number'),
   email: yup
     .string()
     .required('Please enter email')
@@ -39,7 +42,7 @@ export const formEmployeeSchema = yup.object({
 export type FormEmployeeType = yup.InferType<typeof formEmployeeSchema>;
 
 export const formSkillSchema = yup.object({
-  skill: yup.mixed().required('Please select skill'),
+  name: yup.mixed().required('Please select skill'),
   exp: yup.mixed().required('Please select exp')
 });
 
