@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { lazy } from 'react'
-const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'))
-const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
-const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
-const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'))
-=======
 import { lazy } from 'react';
-const Employees = lazy(() => import('../pages/Management/Employees/Employees'));
-const Projects = lazy(() => import('../pages/Management/Projects/Projects'));
-const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'));
->>>>>>> FP-26EmployeeDetail
+const ExportCV = lazy(() => import('../pages/Projects/ExportCV'));
+const Employees = lazy(() => import('../pages/Employees/EmployeesList/Employees'));
+const Projects = lazy(() => import('../pages/Projects/Projects'));
+const detailsProjects = lazy(() => import('../pages/Projects/Details'));
 // const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'));
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
@@ -17,7 +10,7 @@ const Profile = lazy(() => import('../pages/Profile'));
 const Settings = lazy(() => import('../pages/Settings'));
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
 const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'));
-const RenderInformation = lazy(() => import('../pages/Management/Employees/Details'));
+const RenderInformation = lazy(() => import('../pages/Employees/EmployeesDetail/Details'));
 const coreRoutes = [
   {
     path: '/chart-employees',

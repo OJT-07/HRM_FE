@@ -1,31 +1,31 @@
-import CardFour from '../../components/CardFour.tsx';
-import CardOne from '../../components/CardOne.tsx';
-import CardThree from '../../components/CardThree.tsx';
-import CardTwo from '../../components/CardTwo.tsx';
-import ChartOne from '../../components/ChartOne.tsx';
-import ChartThree from '../../components/ChartThree.tsx';
-import ChartTwo from '../../components/ChartTwo.tsx';
-import ChatCard from '../../components/ChatCard.tsx';
-import MapOne from '../../components/MapOne.tsx';
-import TableOne from '../../components/TableOne.tsx';
+import CardFour from '../../components/molecules/Card/CardFour.tsx';
+import CardOne from '../../components/molecules/Card/CardOne.tsx';
+import CardThree from '../../components/molecules/Card/CardThree.tsx';
+import CardTwo from '../../components/molecules/Card/CardTwo.tsx';
+import ChartOne from '../../components/molecules/Chart/ChartOne.tsx';
+import ChartThree from '../../components/molecules/Chart/ChartThree.tsx';
+import ChartTwo from '../../components/molecules/Chart/ChartTwo.tsx';
+import ChatCard from '../../components/molecules/Chart/ChatCard.tsx';
+import MapOne from '../../components/molecules/Chart/MapOne.tsx';
+import TableOne from '../../components/molecules/Table/TableOne.tsx';
 
 const ChartEmployees = () => {
   return (
     <>
       <h1>Chart Employees</h1>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
+      <div className='grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5'>
         <CardOne />
         <CardTwo />
         <CardThree />
         <CardFour />
       </div>
 
-      <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
+      <div className='mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5'>
         <ChartOne />
         <ChartTwo />
         <ChartThree />
         <MapOne />
-        <div className="col-span-12 xl:col-span-8">
+        <div className='col-span-12 xl:col-span-8'>
           <TableOne />
         </div>
         <ChatCard />
