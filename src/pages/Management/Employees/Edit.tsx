@@ -13,6 +13,7 @@ import {
   Radio,
   RadioGroup,
   Select,
+  Input,
   Table,
   TableBody,
   TableCell,
@@ -28,7 +29,7 @@ import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SaveIcon from '@mui/icons-material/Save';
 import { projectStatusOption } from '../../../enum';
 import Swal from 'sweetalert2';
@@ -40,12 +41,14 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import LineManagerModal from './LineManagerModal';
 import SkillModal from './SkillModal';
 
+
 const MySwal = withReactContent(Swal);
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   initialValue?: any;
+  dataEmployee?: any;
 }
 
 const style = {
@@ -63,13 +66,21 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
+function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Props) {
   const [visibleLineManager, setVisibleLineManager] = useState(false);
   const [visibleSkill, setVisibleSkill] = useState(false);
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
   const [lineManagerList, setLineManagerList] = useState<any>([]);
   const [viewOnlyLineManager, setViewOnlyLineManager] = useState(false);
+  const [employeeData, setEmployeeData] = useState(dataEmployee);
+
+  useEffect(() => {
+    setEmployeeData(dataEmployee);
+    setSkillList(employeeData.skills)
+    console.log("EMPLOYEE DATA ", employeeData);
+  }, [dataEmployee]);
+
 
   const handleOpenSkill = () => {
     setVisibleSkill(true);
@@ -122,6 +133,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
     });
   });
 
+
   const handleClose = (event?: any, reason?: string) => {
     // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
@@ -167,6 +179,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
     await trigger(['lineManager']);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().slice(0, 10);
+    return formattedDate;
+  };
+
+
   return (
     <Modal
       open={visible}
@@ -199,6 +218,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                       size='small'
                       translate='no'
                       id='employee-fullname'
+                      defaultValue={employeeData.name}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -223,6 +243,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                       size='small'
                       translate='no'
                       id='employee-address'
+                      defaultValue={employeeData.address}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -247,6 +268,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                       size='small'
                       translate='no'
                       id='employee-contact'
+                      defaultValue={employeeData.phone}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -271,6 +293,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                       size='small'
                       translate='no'
                       id='employee-name'
+                      defaultValue={employeeData.email}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -283,39 +306,53 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-joindate-label'>
-                  Join date <span style={{ color: 'red' }}>*</span>
+                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
+                  Start Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
                   name='joinDate'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => (
+                    <div>
+                      <div className="relative">
+                        <Input
+                          type="date"
+                          defaultValue={formatDate(employeeData?.join_date)}
+                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          {...field}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
-
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.joinDate?.message}
-                </div>
               </Grid>
 
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-dateofbirth-label'>
+                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
                   Date of birth <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
                   name='dateOfBirth'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => (
+                    <div>
+                      <div className="relative">
+                        <Input
+                          type="date"
+                          defaultValue={formatDate(employeeData?.date_of_birth)}
+                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          {...field}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
-
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.dateOfBirth?.message}
-                </div>
               </Grid>
 
               <Grid item xs={6}>
-                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
+                <InputLabel id='employee-is-manager-label'>Is Manager</InputLabel>
 
                 <Controller
                   control={control}
@@ -323,7 +360,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
-                      defaultValue={false}
+                      defaultValue={employeeData?.isManager || false} // Set the default value based on the received data
                       style={{ display: 'flex', gap: '1rem', flexDirection: 'row' }}
                     >
                       <FormControlLabel value={true} control={<Radio />} label='True' />
@@ -332,6 +369,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   )}
                 />
               </Grid>
+
 
               <Grid item xs={12}>
                 <fieldset>
@@ -367,7 +405,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {skill.skill}
+                                {skill.name}
                               </TableCell>
                               <TableCell align='center'>{skill.exp}</TableCell>
                               <TableCell align='center'>
@@ -404,6 +442,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                 <TextareaAutosize
                   name='description'
                   placeholder='Description something about the employee...'
+                  defaultValue={employeeData.description}
                   minRows={2}
                   style={{
                     width: '100%',
@@ -464,4 +503,4 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
   );
 }
 
-export default CreateEmployeeModal;
+export default EditEmployeeModel;
