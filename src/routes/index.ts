@@ -34,10 +34,11 @@ const coreRoutes = [
   },
 
   {
-    path: '/management/details/:id',
+    path: '/management/projects/details/:id',
     title: 'Projects Management',
     component: detailsProjects
   },
+
   // {
   //   path: '/management/employee-details',
   //   title: 'Employee Management',
