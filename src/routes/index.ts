@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 import { lazy } from 'react'
 const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
 const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
 const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'))
-=======
-import { lazy } from 'react';
-const Employees = lazy(() => import('../pages/Management/Employees/Employees'));
-const Projects = lazy(() => import('../pages/Management/Projects/Projects'));
-const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'));
->>>>>>> FP-26EmployeeDetail
 // const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'));
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
