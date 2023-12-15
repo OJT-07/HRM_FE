@@ -14,7 +14,8 @@ interface Project {
   description: string;
   technical: string[];
 }
-const EmployeesList = () => {
+
+const ProjectList = () => {
   const [data, setData] = useState<Project[]>([]);
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
 
@@ -132,4 +133,4 @@ const EmployeesList = () => {
   );
 };
 
-export default EmployeesList;
+export default ProjectList;
