@@ -1,9 +1,12 @@
-
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
+import CreateEmployeeModal from './Create';
+import EditModal from './Edit'
+
 import axios from 'axios';
 
 interface Skill {
@@ -16,22 +19,53 @@ interface Person {
   phone: string;
   date_of_birth: string;
   skills: Skill[];
-  
 }
 
 const EmployeesList = () => {
   const [data, setData] = useState<Person[]>([]);
+  const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
+  const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
+  const [dataEmployee, setDataEmployee] = useState();
+ 
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch employee data from the server
+        const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
+        setData(response.data.data);
+        console.log("🚀 ~ file: Employees.tsx:37 ~ fetchData ~ response:", response)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
     fetchData();
   }, []);
+
+  const handleCloseModalAddUpdate = () => {
+    setVisibleModalAddUpdate(false);
+  };
+
+  const handleOpenModalAddUpdate = () => {
+    setVisibleModalAddUpdate(true);
+  };
+
+  const handleCloseModalUpdate = () => {
+    setVisibleModalUpdate(false);
+  };
+
+  const handleOpenModalUpdate = (row : any) => {
+    setVisibleModalUpdate(true);
+    setDataEmployee(row.original);
+  };
+
 
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
-    setData(response.data.data);
-    console.log(response.data.data);
+      setData(response.data.data);
+      console.log(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -43,38 +77,40 @@ const EmployeesList = () => {
       {
         accessorKey: 'id',
         header: 'ID',
-        size: 100,
+        size: 100
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100,
+        size: 100
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
-        size: 100,
-      },  {
+        size: 100
+      },
+      {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
-      },  {
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString()
+      },
+      {
         accessorKey: 'skills[name]',
         header: 'Skill',
         size: 100,
         Cell: ({ row }) => (
           <ul>
             {row.original.skills.map((skill: Skill) => (
-              <li key={skill.name}>{skill.name} - {skill.exp} years</li>
-             
-
+              <li key={skill.name}>
+                {skill.name} - {skill.exp} years
+              </li>
             ))}
           </ul>
-        ),
-      },  
+        )
+      }
     ],
-    [],
+    []
   );
 
   // DELETE action
@@ -99,23 +135,41 @@ const EmployeesList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
+    renderTopToolbarCustomActions: ({}) => (
+      <Button variant='contained' onClick={handleOpenModalAddUpdate}>
+        Create New Employee
+      </Button>
+    ),
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
-        <Tooltip title="Edit">
-          <IconButton onClick={() => table.setEditingRow(row)}>
+        <Tooltip title='Edit'>
+          <IconButton onClick={() => handleOpenModalUpdate(row)}>
+            {/* Use an arrow function to wrap the function call */}
             <EditIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Delete">
-          <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
+        <Tooltip title='Delete'>
+          <IconButton color='error' onClick={() => openDeleteConfirmModal(row)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       </Box>
-    ),
+    )
   });
 
-  return <MaterialReactTable table={table}  />;
+  return (
+    <>
+      <MaterialReactTable table={table} />
+      {visibleModalAddUpdate && (
+        <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
+
+      )}
+    
+      {visibleModalUpdate && (
+          <EditModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+        )}
+    </>
+  );
 };
 
 export default EmployeesList;

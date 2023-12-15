@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { expOption, projectTechnicalOption } from '../../../enum';
 import { FormSkillType, formSkillSchema } from '../../../utils/rules';
+import ReactSelect from 'react-select';
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -43,7 +44,7 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
   const methods = useForm<FormSkillType>({
     resolver: yupResolver(formSkillSchema),
     defaultValues: {
-      skill: initialValues?.skill,
+      name: initialValues?.skill,
       exp: initialValues?.exp
     }
   });
@@ -64,7 +65,7 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
   };
 
   const onSubmit = async () => {
-    const result = await trigger(['skill', 'exp']);
+    const result = await trigger(['name', 'exp']);
     if (!result) {
       Object.keys(errors).map((name: any) => {
         setError(name, { type: 'custom', message: errors[name as keyof FormSkillType]?.message || '' });
@@ -73,11 +74,11 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
       return;
     }
 
-    const skill = getValues('skill');
+    const skill = getValues('name');
     const exp = getValues('exp');
 
     // console.log({ member, position });
-    onFinish({ skill: skillValue, exp });
+    onFinish({ name: (skill as any)?.value as any, exp: (exp as any)?.value as any });
     handleClose();
     reset();
   };
@@ -95,46 +96,19 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
                 <InputLabel id='project-status-label'>Skill</InputLabel>
                 <Controller
                   control={control}
-                  name='skill'
-                  render={({ field }) => (
-                    <Autocomplete
-                      options={projectTechnicalOption.map((tech: any) => tech.value)}
-                      renderInput={(params) => {
-                        return <TextField {...params} {...field} variant='outlined' size='small' name='member' />;
-                      }}
-                      {...field}
-                      onChange={(e) => {
-                        console.log((e.target as any)?.innerText as any);
-                        setSkillValue((e.target as any)?.innerText);
-                        setValue('skill', `${(e.target as any)?.innerText as any}`);
-                        field.onChange(e);
-                      }}
-                    />
-                  )}
+                  name='name'
+                  render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.skill?.message}
+                  {errors.name?.message}
                 </div>
               </Grid>
               <Grid item xs={6}>
                 <InputLabel id='project-status-label'>Experience (year)</InputLabel>
                 <Controller
                   control={control}
-                  name='exp'  
-                  render={({ field }) => (
-                    <Select
-                      size='small'
-                      fullWidth
-                      labelId='project-status-label'
-                      id='project-status'
-                      {...field}
-                      onChange={field.onChange}
-                    >
-                      {expOption.map((status: any) => (
-                        <MenuItem value={status.value}>{status?.label}</MenuItem>
-                      ))}
-                    </Select>
-                  )}
+                  name='exp'
+                  render={({ field }) => <ReactSelect {...field} options={expOption} />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.exp?.message}

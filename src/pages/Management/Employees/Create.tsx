@@ -1,18 +1,13 @@
-import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Avatar,
-  AvatarGroup,
   Box,
   Button,
   FormControlLabel,
   Grid,
   InputLabel,
-  MenuItem,
   Modal,
   Paper,
   Radio,
   RadioGroup,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -22,26 +17,24 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { useState } from 'react';
+import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import IconButton from '@mui/material/IconButton';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState } from 'react';
-import SaveIcon from '@mui/icons-material/Save';
-import { projectStatusOption } from '../../../enum';
 import Swal from 'sweetalert2';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import withReactContent from 'sweetalert2-react-content';
+import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { cloneDeep } from 'lodash';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import LineManagerModal from './LineManagerModal';
+import IconButton from '@mui/material/IconButton';
 import SkillModal from './SkillModal';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import withReactContent from 'sweetalert2-react-content';
+import LineManagerModal from './LineManagerModal';
+
 
 const MySwal = withReactContent(Swal);
-
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -63,7 +56,7 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
+function CreateEmployeeModal({ visible, onClose }: Props) {
   const [visibleLineManager, setVisibleLineManager] = useState(false);
   const [visibleSkill, setVisibleSkill] = useState(false);
   const [skillList, setSkillList] = useState<any>([]);
@@ -123,7 +116,7 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
   });
 
   const handleClose = (event?: any, reason?: string) => {
-    if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
+    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
     MySwal.fire({
       title: 'Are you sure?',
@@ -170,25 +163,12 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
   return (
     <Modal
       open={visible}
-      onClose={handleClose}
-      disableEscapeKeyDown
+      onClose={onClose}
       disableScrollLock
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
-        <Button
-          style={{
-            position: 'absolute',
-            top: 7,
-            right: 0,
-            margin: 0
-          }}
-          color='error'
-          onClick={handleClose}
-          size='medium'
-        >
-          <HighlightOffIcon />
-        </Button>
+        {/* Start Header */}
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -197,11 +177,16 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
         >
           Create New Employee
         </Typography>
+        {/* End Header */}
+
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
+              {/* Start Full Name */}
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-fullname'>Fullname</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
+                  Fullname <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='fullName'
@@ -221,9 +206,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.fullName?.message}
                 </div>
               </Grid>
+              {/* End Full Name */}
 
+              {/* Start Address */}
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-address'>Address</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-address'>
+                  Address <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='address'
@@ -243,9 +232,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.address?.message}
                 </div>
               </Grid>
+              {/* End Address */}
 
+              {/* Start Contact number */}
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-contact'>Contact number</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-contact'>
+                  Contact number <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='contactNumber'
@@ -265,9 +258,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.contactNumber?.message}
                 </div>
               </Grid>
+              {/* End Contact number */}
 
+              {/* Start Email */}
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-name'>Email</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-name'>
+                  Email <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
                 <Controller
                   control={control}
                   name='email'
@@ -287,9 +284,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.email?.message}
                 </div>
               </Grid>
+              {/* End Email */}
 
+              {/* Start Join Date */}
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='employee-joindate-label'>Join date</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-joindate-label'>
+                  Join date <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
 
                 <Controller
                   control={control}
@@ -301,9 +302,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.joinDate?.message}
                 </div>
               </Grid>
+              {/* End Join Date */}
 
+              {/* Start Date of birth */}
               <Grid item xs={3}>
-                <InputLabel style={{marginBottom: 3}} id='employee-dateofbirth-label'>Date of birth</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-dateofbirth-label'>
+                  Date of birth <span style={{ color: 'red' }}>*</span>
+                </InputLabel>
 
                 <Controller
                   control={control}
@@ -315,42 +320,35 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   {errors.dateOfBirth?.message}
                 </div>
               </Grid>
+              {/* End Date of birth */}
 
+              {/* Start Is Manager */}
               <Grid item xs={6}>
-                <InputLabel style={{marginBottom: 3}} id='employee-linemanager-label'>Line Manager</InputLabel>
-                <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                  <div>
-                    <IconButton
-                      sx={{ width: 'fit-content', background: 'none' }}
-                      size='medium'
-                      color='primary'
-                      onClick={() => handleOpenLineManager()}
-                    >
-                      <AddCircleIcon />
-                    </IconButton>
-                  </div>
-                  <div>
-                    {lineManagerList.length ? (
-                      <AvatarGroup
-                        sx={{ width: '100%' }}
-                        total={lineManagerList.length}
-                        onClick={() => handleOpenLineManager(true)}
-                      >
-                        {lineManagerList.map((tech: any) => (
-                          <Avatar alt={tech.label} src='/static/images/avatar/1.jpg' sizes='small' />
-                        ))}
-                      </AvatarGroup>
-                    ) : null}
-                  </div>
-                  <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.lineManager?.message}
-                  </div>
-                </Box>
-              </Grid>
+                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
 
+                <Controller
+                  control={control}
+                  name='isManager'
+                  render={({ field }) => (
+                    <RadioGroup
+                      {...field}
+                      defaultValue={false}
+                      style={{ display: 'flex', gap: '1rem', flexDirection: 'row' }}
+                    >
+                      <FormControlLabel value={true} control={<Radio />} label='True' />
+                      <FormControlLabel value={false} control={<Radio />} label='False' />
+                    </RadioGroup>
+                  )}
+                />
+              </Grid>
+              {/* End Is Manager */}
+
+              {/* Start Skill */}
               <Grid item xs={12}>
                 <fieldset>
-                  <legend>Skill</legend>
+                  <legend>
+                    Skill <span style={{ color: 'red' }}>*</span>
+                  </legend>
                   <Button
                     size='medium'
                     type='button'
@@ -409,24 +407,13 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   </div>
                 </fieldset>
               </Grid>
+              {/* End Skill */}
 
+              {/* Start Description */}
               <Grid item xs={12}>
-                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
-
-                <Controller
-                  control={control}
-                  name='isManager'
-                  render={({ field }) => (
-                    <RadioGroup {...field} defaultValue={false} style={{display: "flex", gap: "1rem", flexDirection: "row"}}>
-                      <FormControlLabel value={true} control={<Radio />} label='True' />
-                      <FormControlLabel value={false} control={<Radio />} label='False' />
-                    </RadioGroup>
-                  )}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-                <InputLabel style={{marginBottom: 3}} id='employee-description-label'>Description</InputLabel>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-description-label'>
+                  Description
+                </InputLabel>
                 <TextareaAutosize
                   name='description'
                   placeholder='Description something about the employee...'
@@ -439,21 +426,38 @@ function CreateEmployeeModal({ visible, onClose, initialValue }: Props) {
                   }}
                 />
               </Grid>
+              {/* End Description */}
             </Grid>
 
-            <Button
-              size='medium'
-              type='submit'
-              style={{ margin: '1rem auto', display: 'flex', justifyContent: 'center', marginRight: 0 }}
-              variant='contained'
-              startIcon={<SaveIcon />}
-              color='primary'
-              onClick={onSubmit}
-            >
-              Submit
-            </Button>
+            {/* Start Button */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                type='submit'
+                style={{ marginRight: '1rem' }}
+                variant='contained'
+                color='error'
+                onClick={handleClose}
+                size='medium'
+              >
+                Cancel
+              </Button>
+
+              <Button
+                size='medium'
+                type='submit'
+                style={{ marginRight: 0 }}
+                variant='contained'
+                startIcon={<SaveIcon />}
+                color='primary'
+                onClick={onSubmit}
+              >
+                Submit
+              </Button>
+            </div>
+            {/* End Button */}
           </form>
         </FormProvider>
+
         {visibleSkill && (
           <SkillModal
             visible={visibleSkill}
