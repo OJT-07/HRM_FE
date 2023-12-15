@@ -3,82 +3,88 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row 
 import { Box, IconButton, Tooltip } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DetailsIcon from '@mui/icons-material/Details';
 import Button from '@mui/material/Button';
-import CreateProjectModal from './Create';
+import CreateProjectModal from './Create'
+import UpdateProjectModal from './Update'
 import axios from 'axios';
+import TabKey from './Details';
 interface Project {
   id: number;
   name: string;
   start_date: Date;
   end_date: Date;
-  description: string;
+  description: string
   technical: string[];
 }
 const EmployeesList = () => {
   const [data, setData] = useState<Project[]>([]);
-  const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
+  const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false)
+  const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false)
+  const [item, setItem] = useState<object>({})
 
+  // Fetch data from your API when the component mounts
   useEffect(() => {
     fetchData();
   }, []);
-
   const handleCloseModalAddUpdate = () => {
-    setVisibleModalAddUpdate(false);
-  };
-
+    setVisibleModalAddUpdate(false)
+  }
   const handleOpenModalAddUpdate = () => {
-    setVisibleModalAddUpdate(true);
-  };
-
+    setVisibleModalAddUpdate(true)
+  }
+  const handleCloseModalUpdate = () => {
+    setVisibleModalUpdate(false)
+  }
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/projects');
-      setData(response.data.data);
+    setData(response.data.data);
+    console.log(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
-
+  // Columns definition
   const columns = useMemo<MRT_ColumnDef<Project>[]>(
     () => [
       {
         accessorKey: 'id',
         header: 'ID',
-        size: 100
+        size: 100,
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100
+        size: 100,
       },
       {
         accessorKey: 'start_date',
         header: 'Start Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString()
-      },
-      {
+        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString(),
+      },  {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
       },
       {
-        accessorKey: 'technical',
-        header: 'Technical',
-        size: 200,
-        Cell: ({ row }) => (
-          <ul>
-            {row.original.technical.map((tech: string, index: number) => (
-              <li key={index}>{tech}</li>
-            ))}
-          </ul>
-        )
-      }
+      accessorKey: 'technical',
+      header: 'Technical',
+      size: 200,
+      Cell: ({ row }) => (
+        <ul>
+          {row.original.technical.map((tech: string, index: number) => (
+            <li key={index}>{tech}</li>
+          ))}
+        </ul>
+      ),
+          }
     ],
-    []
+    [],
   );
-
+  // DELETE action
   const deleteUser = async (id: number) => {
     try {
       await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
@@ -87,49 +93,61 @@ const EmployeesList = () => {
       console.error('Error deleting user:', error);
     }
   };
-
+  const updatedModalOpen = (row: MRT_Row<Project>) => {
+    setVisibleModalUpdate(true)
+    setItem(row.original)
+  }
   const openDeleteConfirmModal = (row: MRT_Row<Project>) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
       deleteUser(row.original.id);
     }
   };
-
   const table = useMaterialReactTable({
     columns,
     data,
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => (
-      <Button variant='contained' onClick={handleOpenModalAddUpdate}>
-        Create New Project
-      </Button>
-    ),
-
-    renderRowActions: ({ row, table }) => (
+    renderTopToolbarCustomActions: ({  }) => (
+        <Button
+           variant="contained"
+          onClick={handleOpenModalAddUpdate}
+        >
+          Create New Project
+        </Button>
+      ),
+    renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
-        <Tooltip title='Edit'>
-          <IconButton onClick={() => table.setEditingRow(row)}>
+        <Tooltip title="Edit">
+          <IconButton onClick={()=> updatedModalOpen(row)}>
             <EditIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title='Delete'>
-          <IconButton color='error' onClick={() => openDeleteConfirmModal(row)}>
+        <Tooltip title="Delete">
+          <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip title="Detail">
+          <IconButton onClick={()=> TabKey()}>
+            <DetailsIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
-    )
+    ),
   });
-
   return (
     <>
       <MaterialReactTable table={table} />
-      {visibleModalAddUpdate && (
-        <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
-      )}
+      {visibleModalAddUpdate && <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />}
+      {visibleModalUpdate && <UpdateProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={item}/>}
+
     </>
   );
 };
-
 export default EmployeesList;
+
+
+
+
+

@@ -1,62 +1,54 @@
 export const projectStatusOption = [
   {
-    label: 'Pending',
-    value: 'Pending'
+    label: 'pending',
+    value: 'pending'
   },
   {
-    label: 'Done',
-    value: 'Done'
+    label: 'done',
+    value: 'done'
   },
   {
-    label: 'Close',
-    value: 'Close'
+    label: 'active',
+    value: 'active'
   },
-  {
-    label: 'Cancel',
-    value: 'Cancel'
-  },
-  {
-    label: 'Start',
-    value: 'Start'
-  }
 ];
 
 export const projectTechnicalOption = [
   {
-    label: 'ReactJS',
-    value: 'ReactJs'
+    label: 'REACTJS',
+    value: 'REACTJS'
   },
   {
-    label: 'React Native',
-    value: 'React Native'
+    label: 'REACT NATIVE',
+    value: 'REACT NATIVE'
   },
   {
-    label: 'Python',
-    value: 'Python'
+    label: 'PYTHON',
+    value: 'PYTHON'
   },
   {
-    label: '.Net',
-    value: '.Net'
+    label: '.NET',
+    value: '.NET'
   },
   {
-    label: 'Jave',
-    value: 'Jave'
+    label: 'JAVA',
+    value: 'JAVA'
   },
   {
     label: 'PHP',
     value: 'PHP'
   },
   {
-    label: 'Vue',
-    value: 'Vue'
+    label: 'VUE',
+    value: 'VUE'
   },
   {
-    label: 'NextJS',
-    value: 'NextJS'
+    label: 'NEXTJS',
+    value: 'NEXTJS'
   },
   {
-    label: 'Angular',
-    value: 'Angular'
+    label: 'ANGULAR',
+    value: 'ANGULAR'
   }
 ];
 
