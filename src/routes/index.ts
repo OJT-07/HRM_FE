@@ -1,4 +1,5 @@
 import { lazy } from 'react'
+const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'))
 const Employees = lazy(() => import('../pages/Management/Employees/Employees'))
 const Projects = lazy(() => import('../pages/Management/Projects/Projects'))
 const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'))
@@ -44,6 +45,12 @@ const coreRoutes = [
     path: '/management/details/:id',
     title: 'Projects Management',
     component: detailsProjects
+  },
+
+  {
+    path: '/management/exportCV',
+    title: 'Export CV',
+    component: ExportCV
   },
   // {
   //   path: '/management/employee-details',
