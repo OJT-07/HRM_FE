@@ -6,6 +6,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import CreateProjectModal from './Create';
 import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
+import { projectApi } from '../../../apis/project.api';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import toast from 'react-hot-toast';
+import { showToast } from '../../../components/ToastCustom';
+
+const MySwal = withReactContent(Swal);
 interface Project {
   id: number;
   name: string;
@@ -20,7 +28,7 @@ const EmployeesList = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [visibleModalAddUpdate]);
 
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
@@ -79,19 +87,36 @@ const EmployeesList = () => {
     []
   );
 
-  const deleteUser = async (id: number) => {
-    try {
-      await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
-      fetchData(); // Fetch updated data after deletion
-    } catch (error) {
-      console.error('Error deleting user:', error);
+  const deleteProjectMutation = useMutation({
+    mutationFn: (id: any) => {
+      return projectApi.delete(id);
     }
-  };
+  });
 
-  const openDeleteConfirmModal = (row: MRT_Row<Project>) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      deleteUser(row.original.id);
-    }
+  const onDelete = (row: MRT_Row<Project>) => {
+    MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteProjectMutation.mutate(row.original.id, {
+          onSuccess: (res) => {
+            // showToast('Delete project successfully', 'success');
+            toast['success']('Delete project successfully');
+            fetchData();
+          },
+          onError: (err: any) => {
+            console.log(err);
+            toast.error(err?.response?.data?.message || 'Delete project failed');
+          }
+        });
+      }
+    });
   };
 
   const table = useMaterialReactTable({
@@ -114,7 +139,7 @@ const EmployeesList = () => {
           </IconButton>
         </Tooltip>
         <Tooltip title='Delete'>
-          <IconButton color='error' onClick={() => openDeleteConfirmModal(row)}>
+          <IconButton color='error' onClick={() => onDelete(row)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>

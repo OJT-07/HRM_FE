@@ -5,9 +5,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import CreateEmployeeModal from './Create';
-
 import axios from 'axios';
-
+import { employeeApi } from 'apis/employee.api';
+import toast from 'react-hot-toast';
+import { showToast } from '../../../components/ToastCustom';
+import { useMutation } from '@tanstack/react-query';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 interface Skill {
   exp: string;
   name: string;
@@ -20,6 +24,8 @@ interface Person {
   skills: Skill[];
 }
 
+const MySwal = withReactContent(Swal);
+
 const EmployeesList = () => {
   const [data, setData] = useState<Person[]>([]);
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
@@ -27,7 +33,7 @@ const EmployeesList = () => {
   // Fetch data from your API when the component mounts
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [visibleModalAddUpdate]);
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
   };
@@ -87,20 +93,36 @@ const EmployeesList = () => {
     []
   );
 
-  // DELETE action
-  const deleteUser = async (id: number) => {
-    try {
-      await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
-      fetchData(); // Fetch updated data after deletion
-    } catch (error) {
-      console.error('Error deleting user:', error);
+  const deleteEmployeeMutation = useMutation({
+    mutationFn: (id: any) => {
+      return employeeApi.delete(id);
     }
-  };
+  });
 
-  const openDeleteConfirmModal = (row: MRT_Row<Person>) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUser(row.original.id);
-    }
+  const onDelete = (row: MRT_Row<Person>) => {
+    MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteEmployeeMutation.mutate(row.original.id, {
+          onSuccess: (res) => {
+            showToast('Delete Employee successfully', 'success');
+            // toast.success(res.data.message || 'Delete Employee successfully');
+            fetchData();
+          },
+          onError: (err: any) => {
+            console.log(err);
+            toast.error(err?.response?.data?.message || 'Delete Employee failed');
+          }
+        });
+      }
+    });
   };
 
   const table = useMaterialReactTable({
@@ -111,7 +133,7 @@ const EmployeesList = () => {
     positionActionsColumn: 'last',
     renderTopToolbarCustomActions: ({}) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
-        Create New Project
+        Create New Employee
       </Button>
     ),
     renderRowActions: ({ row, table }) => (
@@ -122,7 +144,7 @@ const EmployeesList = () => {
           </IconButton>
         </Tooltip>
         <Tooltip title='Delete'>
-          <IconButton color='error' onClick={() => openDeleteConfirmModal(row)}>
+          <IconButton color='error' onClick={() => onDelete(row)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
