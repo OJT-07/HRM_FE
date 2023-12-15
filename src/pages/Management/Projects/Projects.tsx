@@ -8,9 +8,7 @@ import Button from '@mui/material/Button';
 import CreateProjectModal from './Create'
 import UpdateProjectModal from './Update'
 import axios from 'axios';
-<<<<<<< HEAD
 import TabKey from './Details';
-=======
 import { useMutation } from '@tanstack/react-query';
 import { projectApi } from '../../../apis/project.api';
 import Swal from 'sweetalert2';
@@ -19,7 +17,6 @@ import toast from 'react-hot-toast';
 import { showToast } from '../../../components/ToastCustom';
 
 const MySwal = withReactContent(Swal);
->>>>>>> b65828b70eb5e5af67fa926c4e76b6ad7b28f0a6
 interface Project {
   id: number;
   name: string;
@@ -38,12 +35,8 @@ const ProjectList = () => {
   // Fetch data from your API when the component mounts
   useEffect(() => {
     fetchData();
-<<<<<<< HEAD
-  }, []);
-=======
   }, [visibleModalAddUpdate]);
 
->>>>>>> b65828b70eb5e5af67fa926c4e76b6ad7b28f0a6
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false)
   }
@@ -154,13 +147,8 @@ const ProjectList = () => {
             <EditIcon />
           </IconButton>
         </Tooltip>
-<<<<<<< HEAD
-        <Tooltip title="Delete">
-          <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-=======
         <Tooltip title='Delete'>
           <IconButton color='error' onClick={() => onDelete(row)}>
->>>>>>> b65828b70eb5e5af67fa926c4e76b6ad7b28f0a6
             <DeleteIcon />
           </IconButton>
         </Tooltip>
@@ -181,14 +169,5 @@ const ProjectList = () => {
     </>
   );
 };
-<<<<<<< HEAD
-export default EmployeesList;
-
-
-
-
-
-=======
 
 export default ProjectList;
->>>>>>> b65828b70eb5e5af67fa926c4e76b6ad7b28f0a6
