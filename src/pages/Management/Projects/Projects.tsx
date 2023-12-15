@@ -16,7 +16,7 @@ interface Project {
   
 }
 
-const EmployeesList = () => {
+const ProjectList = () => {
   const [data, setData] = useState<Project[]>([]);
 
   // Fetch data from your API when the component mounts
@@ -117,4 +117,4 @@ const EmployeesList = () => {
   return <MaterialReactTable table={table}  />;
 };
 
-export default EmployeesList;
+export default ProjectList;
