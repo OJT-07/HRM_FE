@@ -10,7 +10,6 @@ const Settings = lazy(() => import('../pages/Settings'));
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
 const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'));
 const RenderInformation = lazy(() => import('../pages/Management/Employees/Details'));
-
 const coreRoutes = [
   {
     path: '/chart-employees',

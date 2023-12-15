@@ -52,6 +52,7 @@ const EmployeesDetail = () => {
             <b> <label className="mb-3 block text-black dark:text-white"> Image </label> </b>
             <div className="border border-gray-300 rounded px-10 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
               {employee.image}
+              <img src={employee.image} alt="Employee Image" style={{ maxWidth: '100%', maxHeight: '200px' }} />
             </div>
           </div>
           {/* First Row */}

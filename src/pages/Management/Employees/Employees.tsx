@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import CreateEmployeeModal from './Create';
+import EditModal from './Edit'
 
 import axios from 'axios';
 
@@ -23,11 +24,25 @@ interface Person {
 const EmployeesList = () => {
   const [data, setData] = useState<Person[]>([]);
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
+  const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
+  const [dataEmployee, setDataEmployee] = useState();
+ 
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch employee data from the server
+        const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
+        setData(response.data.data);
+        console.log("🚀 ~ file: Employees.tsx:37 ~ fetchData ~ response:", response)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
     fetchData();
   }, []);
+
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
   };
@@ -35,6 +50,17 @@ const EmployeesList = () => {
   const handleOpenModalAddUpdate = () => {
     setVisibleModalAddUpdate(true);
   };
+
+  const handleCloseModalUpdate = () => {
+    setVisibleModalUpdate(false);
+  };
+
+  const handleOpenModalUpdate = (row : any) => {
+    setVisibleModalUpdate(true);
+    setDataEmployee(row.original);
+  };
+
+
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
@@ -111,13 +137,14 @@ const EmployeesList = () => {
     positionActionsColumn: 'last',
     renderTopToolbarCustomActions: ({}) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
-        Create New Project
+        Create New Employee
       </Button>
     ),
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
-          <IconButton onClick={() => table.setEditingRow(row)}>
+          <IconButton onClick={() => handleOpenModalUpdate(row)}>
+            {/* Use an arrow function to wrap the function call */}
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -135,7 +162,12 @@ const EmployeesList = () => {
       <MaterialReactTable table={table} />
       {visibleModalAddUpdate && (
         <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
+
       )}
+    
+      {visibleModalUpdate && (
+          <EditModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+        )}
     </>
   );
 };
