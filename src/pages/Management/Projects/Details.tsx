@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable,useMaterialReactTable,type MRT_ColumnDef, MRT_Row} from 'material-react-table';
+import ProjectTimeline from './Timelines/Timeline'
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import {
@@ -15,6 +16,7 @@ import {
 const TAB_KEYS = {
     INFORMATION: "INFORMATION",
     MEMBERS: "MEMBERS",
+    TIMELINE: "TIMELINE",
 };
 
 const dataTabs = [
@@ -26,6 +28,10 @@ const dataTabs = [
         label: "Members",
         value: TAB_KEYS.MEMBERS,
     },
+    {
+      label: "Timeline",
+      value: TAB_KEYS.TIMELINE,
+  },
 ];
 interface Member {
   id: number;
@@ -33,8 +39,58 @@ interface Member {
   end_date: Date;
   name: string;
 }
+const Timeline = () =>{
+  const [project, setProject] = useState<Project[]>([]);
+    const { id } = useParams();
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
+                setProject(response.data.data);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        fetchData();
+    }, []);
+    const formatDate = (dateString: string) => {
+        const formattedDate = new Date(dateString).toLocaleDateString('en-US');
+        return formattedDate;
+    };
+    
+   
+    return(
+      <div className="gap-5 flex justify-between flex-col">
+      
+  
+    <div>
+        <b> <label className="mb-3 block text-black dark:text-white"> Project Name</label> </b>
+        <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
+            {project?.name}
+        </div>
+    </div>
+    <div className="grid grid-cols-2 gap-5">
+      <div>
+       <b> <label className="mb-3 block text-black dark:text-white">Start Date</label> </b>
+        <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+          {formatDate(project?.start_date)}
+        </div>
+      </div>
+      <div>
+      <b> <label className="mb-3 block text-black dark:text-white"> End Date</label> </b>
+        <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+          {formatDate(project?.end_date)}
+        </div>
+      </div>
+    </div>
+</div>
+    )
+  }
+
 const EmployeesList = () => {
   const [data, setData] = useState<Member[]>([]);
+  
   const { id } = useParams();
   useEffect(() => {
     fetchData();
@@ -45,6 +101,10 @@ const EmployeesList = () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
       setData(response.data.data.employeesInProject);
+<<<<<<< HEAD
+=======
+      console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
+>>>>>>> b65828b70eb5e5af67fa926c4e76b6ad7b28f0a6
      
       // const formattedData = response.data.data.map((member: Member) => ({
       //   ...member,
@@ -207,6 +267,10 @@ const TabKey = () => {
                             </TabPanel>
                             <TabPanel value={TAB_KEYS.MEMBERS}>
                                 {EmployeesList()}
+                            </TabPanel>
+                            <TabPanel value={TAB_KEYS.TIMELINE}>
+                                {Timeline()}
+                                <ProjectTimeline/>
                             </TabPanel>
                         </TabsBody>
                     </Tabs>

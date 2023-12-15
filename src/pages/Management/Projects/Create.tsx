@@ -1,15 +1,10 @@
-import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Avatar,
-  AvatarGroup,
   Box,
   Button,
   Grid,
   InputLabel,
-  MenuItem,
   Modal,
   Paper,
-  Select,
   Table,
   TableBody,
   TableCell,
@@ -19,27 +14,28 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { useState } from 'react';
+import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormProjectType, formProjectSchema } from '../../../utils/rules';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import IconButton from '@mui/material/IconButton';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useState } from 'react';
-import MemberModal from './MemberModal';
-import SaveIcon from '@mui/icons-material/Save';
 import { projectStatusOption, projectTechnicalOption } from '../../../enum';
 import Swal from 'sweetalert2';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import withReactContent from 'sweetalert2-react-content';
+import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { cloneDeep } from 'lodash';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import TechnicalModal from './TechnicalModal';
+import IconButton from '@mui/material/IconButton';
 import ReactSelect from 'react-select';
+import MemberModal from './MemberModal';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import withReactContent from 'sweetalert2-react-content';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { employeeApi } from '../../../apis/employee.api';
+import { projectApi } from '../../../apis/project.api';
+import toast, { Toaster } from 'react-hot-toast';
 
 const MySwal = withReactContent(Swal);
-
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -62,12 +58,28 @@ const style = {
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
 function CreateProjectModal({ visible, onClose, initialValue }: Props) {
-  const [visibleTechnical, setVisibleTechnical] = useState(false);
   const [visibleMember, setVisibleMember] = useState(false);
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
-  const [technicalList, setTechnicalList] = useState<any>([]);
-  const [viewOnlyTech, setViewOnlyTech] = useState(false);
+
+  const { data: dataEmployee } = useQuery({
+    queryKey: ['employee'],
+    queryFn: () => employeeApi.getAll({})
+  });
+
+  const listEmployee =
+    dataEmployee?.data?.data.map((emp: any) => ({
+      ...emp,
+      label: emp?.name,
+      value: emp?.id
+    })) || [];
+
+  // Hook của react-query dùng để gọi api những method post, put, delete
+  const createProjectMutation = useMutation({
+    mutationFn: (body: any) => {
+      return projectApi.add(body);
+    }
+  });
 
   const handleOpenMember = () => {
     setVisibleMember(true);
@@ -78,35 +90,22 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setInitMember({});
   };
 
-  const handleOpenTechnical = (view?: boolean) => {
-    setVisibleTechnical(true);
-    setViewOnlyTech(Boolean(view));
-  };
-
-  const handleCloseTechnical = () => {
-    setVisibleTechnical(false);
-  };
-
   const methods = useForm<FormProjectType>({
     resolver: yupResolver(formProjectSchema),
     defaultValues: {
-      status: { label: 'Pending', value: 'Pending' }
+      status: { label: 'Pending', value: 'pending' }
     }
   });
 
   const {
     formState: { errors },
-    register,
     handleSubmit,
     control,
-    setError,
     trigger,
-    getValues,
     setValue
   } = methods;
 
   const onSubmit = handleSubmit((data?: any) => {
-    console.log(data);
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -117,7 +116,30 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        onClose();
+        console.log(data);
+        const submitData = {
+          ...data,
+          start_date: data?.start_date?.toISOString(),
+          end_date: data?.end_date?.toISOString() || null,
+          technical: data.technical.map((tech: any) => tech.value),
+          members: memberList.map((member: any) => ({
+            employeeId: member.member.id,
+            position: member.position
+          })),
+          status: data.status.value
+        };
+
+        createProjectMutation.mutate(submitData, {
+          onSuccess: (res) => {
+            const data = res.data;
+            toast.success(data.message || 'Create project successfully');
+            onClose();
+          },
+          onError: (err: any) => {
+            console.log(err);
+            toast.error(err?.response?.data?.message || 'Create project failed');
+          }
+        });
       }
     });
   });
@@ -144,28 +166,21 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
-    setValue('member', newMemberList);
-    await trigger(['member']);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
   };
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
-    setValue('member', newMemberList);
-    await trigger(['member']);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
   };
 
   const handleOpenEditMember = (member: any) => {
     console.log(member);
     handleOpenMember();
     setInitMember(member);
-  };
-
-  const handleApplyTechnicalList = async (newTechList: any) => {
-    setTechnicalList(newTechList);
-    handleCloseTechnical();
-    setValue('technical', newTechList);
-    await trigger(['technical']);
   };
 
   return (
@@ -176,6 +191,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
+        {/* Start Header */}
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -184,9 +200,12 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
         >
           Create New Project
         </Typography>
+        {/* End Header */}
+
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
+              {/* Start Name */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-name'>
                   Name <span style={{ color: 'red' }}>*</span>
@@ -210,7 +229,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   {errors.name?.message}
                 </div>
               </Grid>
+              {/* End Name */}
 
+              {/* Start Status */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                   Status
@@ -231,7 +252,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   {errors.status?.message}
                 </div>
               </Grid>
+              {/* End Status */}
 
+              {/* Start Start Date */}
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
                   Start Date <span style={{ color: 'red' }}>*</span>
@@ -239,60 +262,30 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
 
                 <Controller
                   control={control}
-                  name='startDate'
+                  name='start_date'
                   render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.startDate?.message}
+                  {errors.start_date?.message}
                 </div>
               </Grid>
+              {/* End Start Date */}
 
+              {/* Start End Date */}
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
                   End Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='endDate'
+                  name='end_date'
                   render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
                 />
               </Grid>
+              {/* End End Date */}
 
-              {/* <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
-                  Technical
-                </InputLabel>
-                <Box sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column', alignItems: 'center' }}>
-                  <div>
-                    <IconButton
-                      sx={{ width: 'fit-content', background: 'none' }}
-                      size='medium'
-                      color='primary'
-                      onClick={() => handleOpenTechnical()}
-                    >
-                      <AddCircleIcon />
-                    </IconButton>
-                  </div>
-                  <div>
-                    {technicalList.length ? (
-                      <AvatarGroup
-                        sx={{ width: '100%' }}
-                        total={technicalList.length}
-                        onClick={() => handleOpenTechnical(true)}
-                      >
-                        {technicalList.map((tech: any) => (
-                          <Avatar alt={tech.label} src='/static/images/avatar/1.jpg' sizes='small' />
-                        ))}
-                      </AvatarGroup>
-                    ) : null}
-                  </div>
-                </Box>
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.technical?.message}
-                </div>
-              </Grid> */}
-
+              {/* Start Technical */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
                   Technical <span style={{ color: 'red' }}>*</span>
@@ -306,7 +299,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   {errors.technical?.message}
                 </div>
               </Grid>
+              {/* End Technical */}
 
+              {/* Start Assign Member */}
               <Grid item xs={12}>
                 <fieldset>
                   <legend>
@@ -341,7 +336,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {member.member}
+                                {member.member.name}
                               </TableCell>
                               <TableCell align='center'>{member.position}</TableCell>
                               <TableCell align='center'>
@@ -366,11 +361,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   ) : null}
 
                   <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.member?.message}
+                    {errors.employeesInProject?.message}
                   </div>
                 </fieldset>
               </Grid>
+              {/* End Assign Member */}
 
+              {/* Start Description */}
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                   Description
@@ -393,11 +390,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   )}
                 />
               </Grid>
+              {/* End Description */}
             </Grid>
 
+            {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='submit'
+                type='button'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -419,24 +418,17 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 Submit
               </Button>
             </div>
+            {/* End Button */}
           </form>
         </FormProvider>
+
         {visibleMember && (
           <MemberModal
             visible={visibleMember}
             onClose={handleCloseMember}
-            onFinish={handleAddMember}
+            onAdd={handleAddMember}
             initialValues={initMember}
-          />
-        )}
-
-        {visibleTechnical && (
-          <TechnicalModal
-            visible={visibleTechnical}
-            onClose={handleCloseTechnical}
-            onFinish={handleApplyTechnicalList}
-            defaultTechnicalList={technicalList}
-            viewOnly={viewOnlyTech}
+            listEmployee={listEmployee}
           />
         )}
       </Box>
