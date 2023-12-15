@@ -23,8 +23,9 @@ const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onFinish: (newMember: any) => void;
+  onAdd: (newMember: any) => void;
   initialValues?: any;
+  onUpdate: (newSkill: any, index: number) => void;
 }
 
 const style = {
@@ -39,13 +40,17 @@ const style = {
   zIndex: 21
 };
 
-function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
+const findOption = (list: any, value: any) => {
+  return list.find((item: any) => item?.value === value);
+};
+
+function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate }: Props) {
   const [skillValue, setSkillValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormSkillType>({
     resolver: yupResolver(formSkillSchema),
     defaultValues: {
-      name: initialValues?.skill,
-      exp: initialValues?.exp
+      name: findOption(projectTechnicalOption, initialValues?.name),
+      exp: findOption(expOption, initialValues?.exp)
     }
   });
 
@@ -74,11 +79,16 @@ function SkillModal({ visible, onClose, initialValues, onFinish }: Props) {
       return;
     }
 
-    const skill = getValues('name');
+    const name = getValues('name');
     const exp = getValues('exp');
 
     // console.log({ member, position });
-    onFinish({ name: (skill as any)?.value as any, exp: (exp as any)?.value as any });
+    const submitData = { name: (name as any)?.value as any, exp: (exp as any)?.value as any };
+    if (initialValues?.name) {
+      onUpdate(submitData, initialValues?.indexSkill as number);
+    } else {
+      onAdd(submitData);
+    }
     handleClose();
     reset();
   };
