@@ -200,7 +200,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
           component='h2'
           sx={{ textAlign: 'center', fontWeight: '700', margin: '1.5rem 0' }}
         >
-          Create New Employee
+          Employee
         </Typography>
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
