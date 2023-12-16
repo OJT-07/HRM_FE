@@ -33,7 +33,8 @@ import withReactContent from 'sweetalert2-react-content';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { employeeApi } from '../../../apis/employee.api';
 import { projectApi } from '../../../apis/project.api';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+import moment from 'moment';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -263,7 +264,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 <Controller
                   control={control}
                   name='start_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disablePast={true} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
@@ -275,7 +276,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               {/* Start End Date */}
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
-                  End Date <span style={{ color: 'red' }}>*</span>
+                  End Date
                 </InputLabel>
                 <Controller
                   control={control}
@@ -429,6 +430,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
             onAdd={handleAddMember}
             initialValues={initMember}
             listEmployee={listEmployee}
+            selectedMemberList={memberList}
           />
         )}
       </Box>

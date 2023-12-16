@@ -1,10 +1,11 @@
 /*===== GOOGLE FONTS =====*/
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
 
 /*===== VARIABLES CSS =====*/
+
 :root {
   --header-height: 3rem;
-
   /*========== Colors ==========*/
   --title-color: #434c5e;
   --text-color: #4c566a;
@@ -12,31 +13,28 @@
   --container-color: #ffffff;
   --container-color-alt: #f7f9fb;
   --body-color: #f2f4f8;
-
   /*========== Font and typography ==========*/
-  --body-font: "Poppins", sans-serif;
+  --body-font: 'Poppins', sans-serif;
   --h1-font-size: 1.5rem;
   --h2-font-size: 1.25rem;
   --h3-font-size: 1rem;
   --normal-font-size: 0.938rem;
   --small-font-size: 0.875rem;
   --smaller-font-size: 0.813rem;
-
   /*========== Font weight ==========*/
   --font-medium: 500;
   --font-semi-bold: 600;
-
   /*========== Margenes ==========*/
   --mb-1: 0.5rem;
   --mb-2: 1rem;
   --mb-3: 1.5rem;
-
   /*========== z index ==========*/
   --z-tooltip: 10;
   --z-fixed: 100;
 }
 
 /*========== BASE ==========*/
+
 *,
 ::before,
 ::after {
@@ -86,6 +84,7 @@ img {
 }
 
 /*========== Variables Dark theme ==========*/
+
 body.dark-theme {
   --title-color: #eceff4;
   --text-color: #b5c4db;
@@ -95,6 +94,7 @@ body.dark-theme {
 }
 
 /*========== Options button ==========*/
+
 .change-theme {
   position: absolute;
   right: 0;
@@ -123,6 +123,7 @@ body.dark-theme {
 }
 
 /*========== CSS CLASS ==========*/
+
 .section {
   padding: 1.5rem 0;
 }
@@ -386,6 +387,7 @@ body.dark-theme {
 }
 
 /*========== React-Particles-JS ==========*/
+
 #tsparticles {
   position: fixed;
   left: 0px;
@@ -413,44 +415,36 @@ body.dark-theme {
 
 @media screen and (min-width: 968px) {
   body {
-    margin: 3rem 0;
+    margin: 0;
   }
-
   .bd-container {
     margin-left: auto;
     margin-right: auto;
   }
-
   .l-header,
   .scrolltop {
     display: none;
   }
-
   .resume {
     display: grid;
     grid-template-columns: 0.5fr 1fr;
     background-color: var(--container-color);
     box-shadow: 0 0 8px rgba(13, 12, 12, 0.15);
   }
-
   .resume__left {
     background-color: var(--container-color-alt);
   }
-
   .resume__left,
   .resume__right {
     padding: 0 1.5rem;
   }
-
   .enable-snow {
     display: inline-block;
   }
-
   .section-title,
   .profile__description {
     text-align: initial;
   }
-
   .home__container {
     gap: 1.5rem;
   }

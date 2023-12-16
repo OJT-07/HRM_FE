@@ -1,22 +1,18 @@
+import { employeeApi } from '../../../apis/employee.api';
+import { useMutation } from '@tanstack/react-query';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import { Box, IconButton, Tooltip } from '@mui/material';
+import Swal from 'sweetalert2';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
-import CreateEmployeeModal from './Create';
-<<<<<<< HEAD
-import EditModal from './Edit'
-
-=======
->>>>>>> handle_create_emp
-import axios from 'axios';
-import { employeeApi } from 'apis/employee.api';
-import toast from 'react-hot-toast';
-import { showToast } from '../../../components/ToastCustom';
-import { useMutation } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import EditEmployeeModel from './Edit';
+import CreateEmployeeModal from './Create';
+
 interface Skill {
   exp: string;
   name: string;
@@ -36,27 +32,20 @@ const EmployeesList = () => {
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
   const [dataEmployee, setDataEmployee] = useState();
- 
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch employee data from the server
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
         setData(response.data.data);
-        console.log("🚀 ~ file: Employees.tsx:37 ~ fetchData ~ response:", response)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-<<<<<<< HEAD
-  }, []);
-
-=======
   }, [visibleModalAddUpdate]);
->>>>>>> handle_create_emp
+
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
   };
@@ -69,17 +58,15 @@ const EmployeesList = () => {
     setVisibleModalUpdate(false);
   };
 
-  const handleOpenModalUpdate = (row : any) => {
+  const handleOpenModalUpdate = (row: any) => {
     setVisibleModalUpdate(true);
     setDataEmployee(row.original);
   };
-
 
   const fetchData = async () => {
     try {
       const response = await axios.get('https://hrm-server-api.onrender.com/api/employees');
       setData(response.data.data);
-      console.log(response.data.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -146,12 +133,10 @@ const EmployeesList = () => {
       if (result.isConfirmed) {
         deleteEmployeeMutation.mutate(row.original.id, {
           onSuccess: (res) => {
-            showToast('Delete Employee successfully', 'success');
-            // toast.success(res.data.message || 'Delete Employee successfully');
+            toast.success(res.data.message || 'Delete Employee successfully');
             fetchData();
           },
           onError: (err: any) => {
-            console.log(err);
             toast.error(err?.response?.data?.message || 'Delete Employee failed');
           }
         });
@@ -170,7 +155,7 @@ const EmployeesList = () => {
         Create New Employee
       </Button>
     ),
-    renderRowActions: ({ row, table }) => (
+    renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
           <IconButton onClick={() => handleOpenModalUpdate(row)}>
@@ -192,12 +177,11 @@ const EmployeesList = () => {
       <MaterialReactTable table={table} />
       {visibleModalAddUpdate && (
         <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
-
       )}
-    
+
       {visibleModalUpdate && (
-          <EditModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
-        )}
+        <EditEmployeeModel visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+      )}
     </>
   );
 };
