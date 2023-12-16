@@ -38,7 +38,7 @@ import withReactContent from 'sweetalert2-react-content';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import LineManagerModal from './LineManagerModal';
+// import LineManagerModal from './LineManagerModal';
 import SkillModal from './SkillModal';
 
 

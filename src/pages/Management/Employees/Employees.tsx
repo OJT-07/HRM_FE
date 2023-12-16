@@ -5,13 +5,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import CreateEmployeeModal from './Create';
-<<<<<<< HEAD
 import EditModal from './Edit'
-
-=======
->>>>>>> handle_create_emp
 import axios from 'axios';
-import { employeeApi } from 'apis/employee.api';
+import { employeeApi } from '../../../apis/employee.api';
 import toast from 'react-hot-toast';
 import { showToast } from '../../../components/ToastCustom';
 import { useMutation } from '@tanstack/react-query';
@@ -51,12 +47,8 @@ const EmployeesList = () => {
       }
     };
     fetchData();
-<<<<<<< HEAD
   }, []);
 
-=======
-  }, [visibleModalAddUpdate]);
->>>>>>> handle_create_emp
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
   };
