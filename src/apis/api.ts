@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://some-domain.com/api/';
+const BASE_URL = 'https://hrm-server-api.onrender.com/api/';
 
 const api = axios.create({
   baseURL: BASE_URL,
-  timeout: 1000,
-  headers: { 'Content-Type': 'application/json' },
+  timeout: 10000,
+  headers: { 'Content-Type': 'application/json' }
 });
 
 api.interceptors.request.use(
@@ -16,7 +16,7 @@ api.interceptors.request.use(
   function (error) {
     // Do something with request error
     return Promise.reject(error);
-  },
+  }
 );
 
 // Add a response interceptor
@@ -30,7 +30,7 @@ api.interceptors.response.use(
     // Any status codes that falls outside the range of 2xx cause this function to trigger
     // Do something with response error
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

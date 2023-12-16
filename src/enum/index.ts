@@ -1,34 +1,34 @@
 export const projectStatusOption = [
   {
     label: 'Active',
-    value: 'Active'
+    value: 'active'
   },
   {
     label: 'Pending',
-    value: 'Pending'
+    value: 'pending'
   },
   {
     label: 'Done',
-    value: 'Done'
+    value: 'done'
   }
 ];
 
 export const projectTechnicalOption = [
   {
-    label: 'ReactJS',
-    value: 'ReactJs'
+    label: 'REACTJS',
+    value: 'REACTJS'
   },
   {
-    label: 'React Native',
-    value: 'React Native'
+    label: 'REACT NATIVE',
+    value: 'REACT NATIVE'
   },
   {
-    label: 'Python',
-    value: 'Python'
+    label: 'PYTHON',
+    value: 'PYTHON'
   },
   {
-    label: '.Net',
-    value: '.Net'
+    label: '.NET',
+    value: '.NET'
   },
   {
     label: 'Java',
@@ -39,16 +39,16 @@ export const projectTechnicalOption = [
     value: 'PHP'
   },
   {
-    label: 'Vue',
-    value: 'Vue'
+    label: 'VUE',
+    value: 'VUE'
   },
   {
     label: 'NestJS',
     value: 'NestJS'
   },
   {
-    label: 'Angular',
-    value: 'Angular'
+    label: 'ANGULAR',
+    value: 'ANGULAR'
   }
 ];
 

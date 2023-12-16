@@ -21,14 +21,10 @@ function App() {
     <Loader />
   ) : (
     <>
-      <Toaster
-        position="top-right"
-        reverseOrder={false}
-        containerClassName="overflow-auto"
-      />
+      <Toaster position='top-center' reverseOrder={false} containerClassName='overflow-auto' />
       <Routes>
-        <Route path="/auth/signin" element={<SignIn />} />
-        <Route path="/auth/signup" element={<SignUp />} />
+        <Route path='/auth/signin' element={<SignIn />} />
+        <Route path='/auth/signup' element={<SignUp />} />
         <Route element={<DefaultLayout />}>
           <Route index element={<ECommerce />} />
           {routes.map((routes, index) => {

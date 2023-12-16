@@ -30,9 +30,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import SkillModal from './SkillModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import withReactContent from 'sweetalert2-react-content';
-import LineManagerModal from './LineManagerModal';
-
+import { useMutation } from '@tanstack/react-query';
+import { employeeApi } from '../../../apis/employee.api';
+import toast from 'react-hot-toast';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -57,12 +59,16 @@ const style = {
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
 function CreateEmployeeModal({ visible, onClose }: Props) {
-  const [visibleLineManager, setVisibleLineManager] = useState(false);
   const [visibleSkill, setVisibleSkill] = useState(false);
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
-  const [lineManagerList, setLineManagerList] = useState<any>([]);
-  const [viewOnlyLineManager, setViewOnlyLineManager] = useState(false);
+
+  // Hook của react-query dùng để gọi api những method post, put, delete
+  const createEmpMutation = useMutation({
+    mutationFn: (body: any) => {
+      return employeeApi.add(body);
+    }
+  });
 
   const handleOpenSkill = () => {
     setVisibleSkill(true);
@@ -73,33 +79,24 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
     setInitSkill({});
   };
 
-  const handleOpenLineManager = (view?: boolean) => {
-    setVisibleLineManager(true);
-    setViewOnlyLineManager(Boolean(view));
-  };
-
-  const handleCloseLineManager = () => {
-    setVisibleLineManager(false);
-  };
-
+  // useForm là hook của react-hook-form
+  // userForm sẽ tạo ra 1 đối tượng có nhiều methods dùng để controll form value
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
-    defaultValues: {}
+    defaultValues: {
+      isManager: false
+    }
   });
 
   const {
     formState: { errors },
-    register,
     handleSubmit,
     control,
-    setError,
     trigger,
-    getValues,
     setValue
   } = methods;
 
   const onSubmit = handleSubmit((data?: any) => {
-    console.log(data);
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -110,7 +107,22 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        onClose();
+        const submitData = {
+          ...data,
+          join_date: data.join_date.toISOString(),
+          date_of_birth: data.date_of_birth.toISOString()
+        };
+        createEmpMutation.mutate(submitData, {
+          onSuccess: (res) => {
+            const data = res.data;
+            toast.success(data.message || 'Create employee successfully');
+            onClose();
+          },
+          onError: (err: any) => {
+            console.log(err);
+            toast.error(err?.response?.data?.message || 'Create employee failed');
+          }
+        });
       }
     });
   });
@@ -137,27 +149,27 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
     const newSkillList = cloneDeep(skillList);
     newSkillList.push(newSkill);
     setSkillList(newSkillList);
-    setValue('skill', newSkillList);
-    await trigger(['skill']);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
+  };
+
+  const handleEditSkill = async (newSkill: any, index: number) => {
+    const newSkillList = cloneDeep(skillList).toSpliced(index, 1, newSkill);
+    setSkillList(newSkillList);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
   };
 
   const handleRemoveSkill = async (index: number) => {
     const newSkillList = cloneDeep(skillList).toSpliced(index, 1);
     setSkillList(newSkillList);
-    setValue('skill', newSkillList);
-    await trigger(['skill']);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
   };
 
-  const handleOpenEditSkill = (skill: any) => {
+  const handleOpenEditSkill = (skill: any, index: number) => {
     handleOpenSkill();
-    setInitSkill(skill);
-  };
-
-  const handleApplyLineManagerList = async (newLineManagerList: any) => {
-    setLineManagerList(newLineManagerList);
-    handleCloseLineManager();
-    setValue('lineManager', newLineManagerList);
-    await trigger(['lineManager']);
+    setInitSkill({ ...skill, indexSkill: index });
   };
 
   return (
@@ -184,18 +196,18 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
             <Grid container spacing={2}>
               {/* Start Full Name */}
               <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-name'>
                   Fullname <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='fullName'
+                  name='name'
                   render={({ field }) => (
                     <TextField
                       placeholder='Enter full name'
                       size='small'
                       translate='no'
-                      id='employee-fullname'
+                      id='employee-name'
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -203,7 +215,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.fullName?.message}
+                  {errors.name?.message}
                 </div>
               </Grid>
               {/* End Full Name */}
@@ -241,7 +253,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='contactNumber'
+                  name='phone'
                   render={({ field }) => (
                     <TextField
                       placeholder='Enter contact number'
@@ -255,7 +267,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.contactNumber?.message}
+                  {errors.phone?.message}
                 </div>
               </Grid>
               {/* End Contact number */}
@@ -288,36 +300,36 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
 
               {/* Start Join Date */}
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-joindate-label'>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-join_date-label'>
                   Join date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
-                  name='joinDate'
+                  name='join_date'
                   render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.joinDate?.message}
+                  {errors.join_date?.message}
                 </div>
               </Grid>
               {/* End Join Date */}
 
               {/* Start Date of birth */}
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-dateofbirth-label'>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-date_of_birth-label'>
                   Date of birth <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
-                  name='dateOfBirth'
+                  name='date_of_birth'
                   render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.dateOfBirth?.message}
+                  {errors.date_of_birth?.message}
                 </div>
               </Grid>
               {/* End Date of birth */}
@@ -378,7 +390,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {skill.skill}
+                                {skill.name}
                               </TableCell>
                               <TableCell align='center'>{skill.exp}</TableCell>
                               <TableCell align='center'>
@@ -386,13 +398,13 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveSkill(index)}>
                                     <DeleteIcon />
                                   </IconButton>
-                                  {/* <IconButton
+                                  <IconButton
                                     color='primary'
                                     size='medium'
-                                    onClick={() => handleOpenEditSkill(skill)}
+                                    onClick={() => handleOpenEditSkill(skill, index)}
                                   >
                                     <ModeEditIcon />
-                                  </IconButton> */}
+                                  </IconButton>
                                 </Box>
                               </TableCell>
                             </TableRow>
@@ -403,7 +415,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                   ) : null}
 
                   <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.skill?.message}
+                    {errors.skills?.message}
                   </div>
                 </fieldset>
               </Grid>
@@ -432,7 +444,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
             {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='submit'
+                type='button'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -462,18 +474,10 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
           <SkillModal
             visible={visibleSkill}
             onClose={handleCloseSkill}
-            onFinish={handleAddSkill}
+            onAdd={handleAddSkill}
+            onUpdate={handleEditSkill}
             initialValues={initSkill}
-          />
-        )}
-
-        {visibleLineManager && (
-          <LineManagerModal
-            visible={visibleLineManager}
-            onClose={handleCloseLineManager}
-            onFinish={handleApplyLineManagerList}
-            defaultLineManagerList={lineManagerList}
-            viewOnly={viewOnlyLineManager}
+            selectedSkillList={skillList}
           />
         )}
       </Box>

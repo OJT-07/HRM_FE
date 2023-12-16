@@ -1,3 +1,4 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
   Button,
@@ -12,31 +13,26 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography
+  Typography,
+  Input
 } from '@mui/material';
-import { useState } from 'react';
-import { cloneDeep } from 'lodash';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormProjectType, formProjectSchema } from '../../../utils/rules';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import IconButton from '@mui/material/IconButton';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useEffect, useState } from 'react';
+import MemberModal from './MemberModal';
+import SaveIcon from '@mui/icons-material/Save';
 import { projectStatusOption, projectTechnicalOption } from '../../../enum';
 import Swal from 'sweetalert2';
-import SaveIcon from '@mui/icons-material/Save';
-import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
-import ReactSelect from 'react-select';
-import MemberModal from './MemberModal';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import withReactContent from 'sweetalert2-react-content';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { employeeApi } from '../../../apis/employee.api';
-import { projectApi } from '../../../apis/project.api';
-import toast from 'react-hot-toast';
-import moment from 'moment';
-
+import DeleteIcon from '@mui/icons-material/Delete';
+import { cloneDeep } from 'lodash';
+import ReactSelect from 'react-select';
+import axios from 'axios';
 const MySwal = withReactContent(Swal);
+
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -58,29 +54,28 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function CreateProjectModal({ visible, onClose, initialValue }: Props) {
+function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
+  const [visibleTechnical, setVisibleTechnical] = useState(false);
   const [visibleMember, setVisibleMember] = useState(false);
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
+  const [technicalList, setTechnicalList] = useState<any>([]);
+  const [viewOnlyTech, setViewOnlyTech] = useState(false);
+  const [status, setStatus] = useState<{ label: string; value: string } | null>(null);
+  const [technical, setTechnical] = useState<{ label: string; value: string }[] | null>(null);
+  // const [editMemberList, setEditMemberList] = useState([]);
+  const [editProject, setEditProject] = useState(initialValue);
 
-  const { data: dataEmployee } = useQuery({
-    queryKey: ['employee'],
-    queryFn: () => employeeApi.getAll({})
-  });
+  // useEffect(() => {
+  //   setEditMemberList(initialValue);
+  // }, [])
+  // console.log(editMemberList);
 
-  const listEmployee =
-    dataEmployee?.data?.data.map((emp: any) => ({
-      ...emp,
-      label: emp?.name,
-      value: emp?.id
-    })) || [];
-
-  // Hook của react-query dùng để gọi api những method post, put, delete
-  const createProjectMutation = useMutation({
-    mutationFn: (body: any) => {
-      return projectApi.add(body);
-    }
-  });
+  // const handleEditProject = (e) => {
+  //     setEdiProject({
+  //       ...editProject,
+  //     })
+  // }
 
   const handleOpenMember = () => {
     setVisibleMember(true);
@@ -91,22 +86,35 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setInitMember({});
   };
 
+  const handleOpenTechnical = (view?: boolean) => {
+    setVisibleTechnical(true);
+    setViewOnlyTech(Boolean(view));
+  };
+
+  const handleCloseTechnical = () => {
+    setVisibleTechnical(false);
+  };
+
   const methods = useForm<FormProjectType>({
     resolver: yupResolver(formProjectSchema),
     defaultValues: {
-      status: { label: 'Pending', value: 'pending' }
+      status: { label: 'Pending', value: 'Pending' }
     }
   });
 
   const {
     formState: { errors },
+    register,
     handleSubmit,
     control,
+    setError,
     trigger,
+    getValues,
     setValue
   } = methods;
 
   const onSubmit = handleSubmit((data?: any) => {
+    console.log(data);
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -117,30 +125,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(data);
-        const submitData = {
-          ...data,
-          start_date: data?.start_date?.toISOString(),
-          end_date: data?.end_date?.toISOString() || null,
-          technical: data.technical.map((tech: any) => tech.value),
-          members: memberList.map((member: any) => ({
-            employeeId: member.member.id,
-            position: member.position
-          })),
-          status: data.status.value
-        };
-
-        createProjectMutation.mutate(submitData, {
-          onSuccess: (res) => {
-            const data = res.data;
-            toast.success(data.message || 'Create project successfully');
-            onClose();
-          },
-          onError: (err: any) => {
-            console.log(err);
-            toast.error(err?.response?.data?.message || 'Create project failed');
-          }
-        });
+        onClose();
       }
     });
   });
@@ -167,15 +152,15 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
+    setValue('member', newMemberList);
+    await trigger(['member']);
   };
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
+    setValue('member', newMemberList);
+    await trigger(['member']);
   };
 
   const handleOpenEditMember = (member: any) => {
@@ -183,6 +168,49 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     handleOpenMember();
     setInitMember(member);
   };
+
+  const handleApplyTechnicalList = async (newTechList: any) => {
+    setTechnicalList(newTechList);
+    handleCloseTechnical();
+    setValue('technical', newTechList);
+    await trigger(['technical']);
+  };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().slice(0, 10);
+    return formattedDate;
+  };
+  interface Member {
+    id: number;
+    position: string;
+    name: string;
+  }
+  interface UpdateSubmit {
+    id: number;
+    name: string;
+    status: string;
+    start_date: Date;
+    end_date: Date;
+  }
+
+  const [data, setData] = useState<Member[]>([]);
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${initialValue.id}`);
+      setData(response.data.data.employeesInProject);
+      console.log(' Quang cute ', response.data.data);
+      // const formattedData = response.data.data.map((member: Member) => ({
+      //   ...member,
+
+      // }));
+      // setData(formattedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Modal
@@ -192,24 +220,20 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
-        {/* Start Header */}
         <Typography
           id='modal-modal-title'
           variant='h4'
           component='h2'
           sx={{ textAlign: 'center', fontWeight: '700', margin: '1.5rem 0' }}
         >
-          Create New Project
+          Update Project
         </Typography>
-        {/* End Header */}
-
         <FormProvider {...methods}>
           <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
-              {/* Start Name */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-name'>
-                  Name <span style={{ color: 'red' }}>*</span>
+                  Name <span style={{ color: 'red' }}></span>
                 </InputLabel>
                 <Controller
                   control={control}
@@ -217,22 +241,22 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   render={({ field }) => (
                     <TextField
                       placeholder='Enter project name'
-                      size='small'
                       translate='no'
-                      id='project-name'
+                      size='small'
                       variant='outlined'
                       fullWidth
+                      defaultValue={editProject?.name}
                       {...field}
+                      onChange={(e) => {
+                        setEditProject({ ...editProject, name: e.target.value });
+                        console.log(e.target.value);
+                        // You can also add your custom logic here
+                      }}
                     />
                   )}
                 />
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.name?.message}
-                </div>
               </Grid>
-              {/* End Name */}
 
-              {/* Start Status */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                   Status
@@ -245,7 +269,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                       id='project-status'
                       {...field}
                       options={projectStatusOption}
-                      isDisabled={!initialValue?.name}
+                      value={status ?? projectStatusOption?.filter((option) => option.label === initialValue.status)}
+                      // onChange={(val: any) => setStatus(val)}
+                      onChange={(val: any) => {
+                        field.onChange(val);
+                        setStatus(val);
+                        console.log(val);
+                      }}
                     />
                   )}
                 />
@@ -253,60 +283,89 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   {errors.status?.message}
                 </div>
               </Grid>
-              {/* End Status */}
 
-              {/* Start Start Date */}
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
-                  Start Date <span style={{ color: 'red' }}>*</span>
+                  Start Date <span style={{ color: 'red' }}></span>
                 </InputLabel>
 
                 <Controller
                   control={control}
-                  name='start_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disablePast={true} />}
+                  name='startDate'
+                  render={({ field }) => (
+                    <div>
+                      <div className='relative'>
+                        <Input
+                          type='date'
+                          defaultValue={formatDate(initialValue.start_date)}
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
+                          {...field}
+                          onChange={(e) => {
+                            setEditProject({ ...editProject, start_date: e.target.value });
+                            console.log(editProject);
+                            // You can also add your custom logic here
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
-
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.start_date?.message}
-                </div>
               </Grid>
-              {/* End Start Date */}
-
-              {/* Start End Date */}
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
-                  End Date
+                  End Date <span style={{ color: 'red' }}></span>
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='end_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  name='endDate'
+                  render={({ field }) => (
+                    <div>
+                      <div className='relative'>
+                        <Input
+                          type='date'
+                          defaultValue={formatDate(initialValue.end_date)}
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
+                          {...field}
+                          onChange={(e) => {
+                            setEditProject({ ...editProject, end_date: e.target.value });
+                            console.log(editProject);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
               </Grid>
-              {/* End End Date */}
-
-              {/* Start Technical */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
-                  Technical <span style={{ color: 'red' }}>*</span>
+                  Technical <span style={{ color: 'red' }}></span>
                 </InputLabel>
                 <Controller
                   control={control}
                   name='technical'
-                  render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} isMulti />}
+                  render={({ field }) => (
+                    <ReactSelect
+                      options={projectTechnicalOption}
+                      defaultValue={initialValue.technical.map((tech: any) => ({ value: tech, label: tech }))}
+                      isMulti
+                      {...field}
+                      // onChange={(e) => {
+                      //   setEditProject({ ...editProject, technical: e.target.value })
+                      //   console.log(editProject.technical);
+                      // }}
+                      onChange={(val: any) => {
+                        field.onChange(val);
+                        setTechnical(val);
+                        console.log(val);
+                      }}
+                    />
+                  )}
                 />
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.technical?.message}
-                </div>
               </Grid>
-              {/* End Technical */}
-
-              {/* Start Assign Member */}
               <Grid item xs={12}>
                 <fieldset>
                   <legend>
-                    Members <span style={{ color: 'red' }}>*</span>
+                    Members <span style={{ color: 'red' }}></span>
                   </legend>
                   <Button
                     size='medium'
@@ -319,7 +378,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                     Assign member
                   </Button>
 
-                  {memberList.length ? (
+                  {data.length ? (
                     <TableContainer component={Paper}>
                       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                         <TableHead>
@@ -331,27 +390,20 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {memberList.map((member: any, index: number) => (
-                            <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                          {data.map((employee: any, index: number) => (
+                            <TableRow key={employee.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                               <TableCell component='th' scope='row'>
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {member.member.name}
+                                {employee?.employee.name}
                               </TableCell>
-                              <TableCell align='center'>{member.position}</TableCell>
+                              <TableCell align='center'> {employee.position} </TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
                                     <DeleteIcon />
                                   </IconButton>
-                                  {/* <IconButton
-                                    color='primary'
-                                    size='medium'
-                                    onClick={() => handleOpenEditMember(member)}
-                                  >
-                                    <ModeEditIcon />
-                                  </IconButton> */}
                                 </Box>
                               </TableCell>
                             </TableRow>
@@ -360,15 +412,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                       </Table>
                     </TableContainer>
                   ) : null}
-
-                  <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.employeesInProject?.message}
-                  </div>
                 </fieldset>
               </Grid>
-              {/* End Assign Member */}
 
-              {/* Start Description */}
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                   Description
@@ -378,8 +424,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   name='description'
                   render={({ field }) => (
                     <TextareaAutosize
-                      {...field}
+                      defaultValue={editProject?.description}
                       placeholder='Description something about this project...'
+                      {...field}
+                      onChange={(e) => {
+                        setEditProject({ ...editProject, description: e.target.value });
+                        console.log(e.target.value);
+                      }}
                       minRows={2}
                       style={{
                         width: '100%',
@@ -391,13 +442,11 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   )}
                 />
               </Grid>
-              {/* End Description */}
             </Grid>
 
-            {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='button'
+                type='submit'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -419,18 +468,24 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 Submit
               </Button>
             </div>
-            {/* End Button */}
           </form>
         </FormProvider>
-
         {visibleMember && (
           <MemberModal
             visible={visibleMember}
             onClose={handleCloseMember}
-            onAdd={handleAddMember}
+            onFinish={handleAddMember}
             initialValues={initMember}
-            listEmployee={listEmployee}
-            selectedMemberList={memberList}
+          />
+        )}
+
+        {visibleTechnical && (
+          <TechnicalModal
+            visible={visibleTechnical}
+            onClose={handleCloseTechnical}
+            onFinish={handleApplyTechnicalList}
+            defaultTechnicalList={technicalList}
+            viewOnly={viewOnlyTech}
           />
         )}
       </Box>
@@ -438,4 +493,4 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   );
 }
 
-export default CreateProjectModal;
+export default UpdateProjectModal;

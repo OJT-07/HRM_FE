@@ -10,6 +10,7 @@ const Settings = lazy(() => import('../pages/Settings'));
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
 const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'));
 const RenderInformation = lazy(() => import('../pages/Management/Employees/Details'));
+const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'));
 const coreRoutes = [
   {
     path: '/chart-employees',
@@ -33,10 +34,11 @@ const coreRoutes = [
   },
 
   {
-    path: '/management/details/:id',
+    path: '/management/projects/details/:id',
     title: 'Projects Management',
     component: detailsProjects
   },
+
   // {
   //   path: '/management/employee-details',
   //   title: 'Employee Management',
@@ -67,6 +69,11 @@ const coreRoutes = [
     path: '/management/employees/:id/detail',
     title: 'Employees Management',
     component: RenderInformation
+  },
+  {
+    path: '/managemet/exportCV',
+    title: 'Export CV',
+    component: ExportCV
   }
 ];
 

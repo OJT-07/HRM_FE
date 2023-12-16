@@ -40,62 +40,15 @@ import { cloneDeep } from 'lodash';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 // import LineManagerModal from './LineManagerModal';
 import SkillModal from './SkillModal';
+import { employeeApi } from '../../../apis/employee.api';
+// import {
+//   userApi
+// } from '../../../apis/user.api'
 
 
 const MySwal = withReactContent(Swal);
 
-// const MyForm = () => {
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     phone: '',
-//     date_of_birth: '',
-//     skills: [
-//       {
-//         exp: '',
-//         name: ''
-//       }
-//     ],
-//     isManager: '',
-//     image: '',
-//     join_date: '',
-//     address: '',
-//     email: '',
-//     description: ''
-//   });
 
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({
-//       ...formData,
-//       [name]: value
-//     });
-//   };
-
-//   const handleSkillsChange = (e, index) => {
-//     const { name, value } = e.target;
-//     const newSkills = [...formData.skills];
-//     newSkills[index] = {
-//       ...newSkills[index],
-//       [name]: value
-//     };
-//     setFormData({
-//       ...formData,
-//       skills: newSkills
-//     });
-//   };
-
-//   const handleAddSkill = () => {
-//     setFormData({
-//       ...formData,
-//       skills: [...formData.skills, { exp: '', name: '' }]
-//     });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     console.log('Form Data:', formData);
-//     // Add your logic for submitting the data
-//   };
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -154,7 +107,9 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
 
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
-    defaultValues: {}
+    defaultValues: {
+      name: employeeData.name, address: employeeData.address, phone: dataEmployee.phone, email: dataEmployee.email, skills: employeeData.skills
+    },
   });
 
   const {
@@ -165,25 +120,44 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
     setError,
     trigger,
     getValues,
-    setValue
+    setValue,
   } = methods;
 
-  const onSubmit = handleSubmit((data?: any) => {
-    console.log(data);
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  });
+  const onSubmit = async (data: any) => {
+    const body = {
+      ...employeeData,
+      name: data.fullName,
+      address: data.address,
+      contactNumber: data.contactNumber,
+      email: data.email,
+      join_date: data.joinDate,
+      date_of_birth: data.dateOfBirth,
+      isManager: data.isManager,
+      skills: skillList,
+      description: data.description,
+
+    }
+    try {
+      await employeeApi.update(employeeData.id, body);
+
+      MySwal.fire({
+        title: 'User Updated!',
+        text: 'User data has been updated successfully.',
+        icon: 'success',
+      });
+
+      onClose();
+    } catch (error) {
+      console.error('Error updating user:', error);
+
+
+      MySwal.fire({
+        title: 'Error!',
+        text: 'Failed to update user data. Please try again later.',
+        icon: 'error',
+      });
+    }
+  }
 
 
   const handleClose = (event?: any, reason?: string) => {
@@ -197,7 +171,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
+    }).then((result: { isConfirmed: any; }) => {
       if (result.isConfirmed) {
         onClose();
       }
@@ -208,15 +182,15 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
     const newSkillList = cloneDeep(skillList);
     newSkillList.push(newSkill);
     setSkillList(newSkillList);
-    setValue('skill', newSkillList);
-    await trigger(['skill']);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
   };
 
   const handleRemoveSkill = async (index: number) => {
     const newSkillList = cloneDeep(skillList).toSpliced(index, 1);
     setSkillList(newSkillList);
-    setValue('skill', newSkillList);
-    await trigger(['skill']);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
   };
 
   const handleOpenEditSkill = (skill: any) => {
@@ -227,8 +201,8 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
   const handleApplyLineManagerList = async (newLineManagerList: any) => {
     setLineManagerList(newLineManagerList);
     handleCloseLineManager();
-    setValue('lineManager', newLineManagerList);
-    await trigger(['lineManager']);
+    setValue('isManager', newLineManagerList);
+    await trigger(['isManager']);
   };
 
   const formatDate = (dateString: string) => {
@@ -236,6 +210,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
     const formattedDate = date.toISOString().slice(0, 10);
     return formattedDate;
   };
+
 
 
   return (
@@ -255,7 +230,10 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
           Edit Employee
         </Typography>
         <FormProvider {...methods}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={() => {
+            // const value = getValues()
+            // onSubmit(value)
+          }}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
@@ -263,7 +241,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='fullName'
+                  name='name'
                   render={({ field }) => (
                     <TextField
                       placeholder='Enter full name'
@@ -278,7 +256,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.fullName?.message}
+                  {errors.name?.message}
                 </div>
               </Grid>
 
@@ -313,7 +291,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='contactNumber'
+                  name='phone'
                   render={({ field }) => (
                     <TextField
                       placeholder='Enter contact number'
@@ -328,7 +306,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                   )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.contactNumber?.message}
+                  {errors.phone?.message}
                 </div>
               </Grid>
 
@@ -364,7 +342,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
 
                 <Controller
                   control={control}
-                  name='joinDate'
+                  name='join_date'
                   render={({ field }) => (
                     <div>
                       <div className="relative">
@@ -387,7 +365,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
 
                 <Controller
                   control={control}
-                  name='dateOfBirth'
+                  name='date_of_birth'
                   render={({ field }) => (
                     <div>
                       <div className="relative">
@@ -482,7 +460,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                   ) : null}
 
                   <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.skill?.message}
+                    {errors.skills?.message}
                   </div>
                 </fieldset>
               </Grid>
@@ -520,26 +498,29 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
 
               <Button
                 size='medium'
-                type='submit'
+                // type='submit'
                 style={{ marginRight: 0 }}
                 variant='contained'
                 startIcon={<SaveIcon />}
                 color='primary'
-                onClick={onSubmit}
+                onClick={() => {
+                  const value = getValues()
+                  onSubmit({ ...employeeData, ...value })
+                }}
               >
                 Submit
               </Button>
             </div>
           </form>
         </FormProvider>
-        {visibleSkill && (
-          <SkillModal
+        {/* {visibleSkill && (
+          // <SkillModal
             visible={visibleSkill}
             onClose={handleCloseSkill}
             onFinish={handleAddSkill}
             initialValues={initSkill}
           />
-        )}
+        )} */}
 
         {/* {visibleLineManager && (
             <LineManagerModal

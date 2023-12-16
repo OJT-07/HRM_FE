@@ -23,8 +23,10 @@ const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 interface Props {
   visible: boolean;
   onClose: () => void;
-  onFinish: (newMember: any) => void;
+  onAdd: (newMember: any) => void;
   initialValues?: any;
+  listEmployee: any;
+  selectedMemberList: any;
 }
 
 const style = {
@@ -43,7 +45,7 @@ const findOption = (list: any, value: any) => {
   return list.find((item: any) => item?.value === value);
 };
 
-function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
+function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, selectedMemberList }: Props) {
   const [memberValue, setMemberValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormMemberType>({
     resolver: yupResolver(formMemberSchema),
@@ -82,12 +84,11 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
     const position = getValues('position');
 
     // console.log({ member, position });
-    onFinish({ member: (member as any)?.value as any, position: (position as any)?.value as any });
+    const submitData = { member: member as any, position: (position as any)?.value as any };
+    onAdd(submitData);
     handleClose();
     reset();
   };
-
-  console.log(watch());
 
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
@@ -108,7 +109,15 @@ function MemberModal({ visible, onClose, initialValues, onFinish }: Props) {
                 <Controller
                   control={control}
                   name='member'
-                  render={({ field }) => <ReactSelect {...field} options={projectMemberOption} />}
+                  render={({ field }) => (
+                    <ReactSelect
+                      {...field}
+                      options={listEmployee.filter((member: any) => {
+                        const arrExistId = selectedMemberList.map((mem: any) => mem?.member?.id);
+                        return !arrExistId.includes(member.id);
+                      })}
+                    />
+                  )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.member?.message}
