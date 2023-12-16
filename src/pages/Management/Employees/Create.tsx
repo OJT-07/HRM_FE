@@ -36,7 +36,6 @@ import { useMutation } from '@tanstack/react-query';
 import { employeeApi } from '../../../apis/employee.api';
 import toast from 'react-hot-toast';
 
-
 const MySwal = withReactContent(Swal);
 interface Props {
   visible: boolean;
@@ -478,6 +477,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
             onAdd={handleAddSkill}
             onUpdate={handleEditSkill}
             initialValues={initSkill}
+            selectedSkillList={skillList}
           />
         )}
       </Box>

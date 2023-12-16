@@ -26,6 +26,7 @@ interface Props {
   onAdd: (newMember: any) => void;
   initialValues?: any;
   listEmployee: any;
+  selectedMemberList: any;
 }
 
 const style = {
@@ -44,7 +45,7 @@ const findOption = (list: any, value: any) => {
   return list.find((item: any) => item?.value === value);
 };
 
-function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee }: Props) {
+function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, selectedMemberList }: Props) {
   const [memberValue, setMemberValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormMemberType>({
     resolver: yupResolver(formMemberSchema),
@@ -89,8 +90,6 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee }: P
     reset();
   };
 
-  console.log(watch());
-
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
@@ -110,7 +109,15 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee }: P
                 <Controller
                   control={control}
                   name='member'
-                  render={({ field }) => <ReactSelect {...field} options={listEmployee} />}
+                  render={({ field }) => (
+                    <ReactSelect
+                      {...field}
+                      options={listEmployee.filter((member: any) => {
+                        const arrExistId = selectedMemberList.map((mem: any) => mem?.member?.id);
+                        return !arrExistId.includes(member.id);
+                      })}
+                    />
+                  )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.member?.message}
