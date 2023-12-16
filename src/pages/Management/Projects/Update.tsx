@@ -29,7 +29,6 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
-import TechnicalModal from './TechnicalModal';
 import ReactSelect from 'react-select';
 import axios from 'axios';
 const MySwal = withReactContent(Swal);
@@ -62,19 +61,15 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const [initMember, setInitMember] = useState<any>({});
   const [technicalList, setTechnicalList] = useState<any>([]);
   const [viewOnlyTech, setViewOnlyTech] = useState(false);
-  const [status, setStatus] = useState<{ label: string, value: string } | null>(null);
+  const [status, setStatus] = useState<{ label: string; value: string } | null>(null);
   const [technical, setTechnical] = useState<{ label: string; value: string }[] | null>(null);
   // const [editMemberList, setEditMemberList] = useState([]);
-  const [editProject, setEditProject] = useState(initialValue)
-
+  const [editProject, setEditProject] = useState(initialValue);
 
   // useEffect(() => {
   //   setEditMemberList(initialValue);
   // }, [])
-  // console.log(editMemberList);  
-
-  
-
+  // console.log(editMemberList);
 
   // const handleEditProject = (e) => {
   //     setEdiProject({
@@ -196,16 +191,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     status: string;
     start_date: Date;
     end_date: Date;
-
   }
 
   const [data, setData] = useState<Member[]>([]);
   const fetchData = async () => {
-
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${initialValue.id}`);
       setData(response.data.data.employeesInProject);
-      console.log(" Quang cute ", response.data.data);
+      console.log(' Quang cute ', response.data.data);
       // const formattedData = response.data.data.map((member: Member) => ({
       //   ...member,
 
@@ -245,25 +238,23 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 <Controller
                   control={control}
                   name='name'
-
                   render={({ field }) => (
                     <TextField
-                      placeholder="Enter project name"
-                      translate="no"
-                      size="small"
-                      variant="outlined"
+                      placeholder='Enter project name'
+                      translate='no'
+                      size='small'
+                      variant='outlined'
                       fullWidth
                       defaultValue={editProject?.name}
                       {...field}
                       onChange={(e) => {
-                        setEditProject({ ...editProject, name: e.target.value })
+                        setEditProject({ ...editProject, name: e.target.value });
                         console.log(e.target.value);
                         // You can also add your custom logic here
                       }}
                     />
                   )}
                 />
-
               </Grid>
 
               <Grid item xs={6}>
@@ -278,8 +269,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       id='project-status'
                       {...field}
                       options={projectStatusOption}
-                      value={status ?? projectStatusOption?.filter(option =>
-                        option.label === initialValue.status)}
+                      value={status ?? projectStatusOption?.filter((option) => option.label === initialValue.status)}
                       // onChange={(val: any) => setStatus(val)}
                       onChange={(val: any) => {
                         field.onChange(val);
@@ -288,7 +278,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       }}
                     />
                   )}
-
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.status?.message}
@@ -305,14 +294,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   name='startDate'
                   render={({ field }) => (
                     <div>
-                      <div className="relative">
+                      <div className='relative'>
                         <Input
-                          type="date"
+                          type='date'
                           defaultValue={formatDate(initialValue.start_date)}
-                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                           onChange={(e) => {
-                            setEditProject({ ...editProject, start_date: e.target.value })
+                            setEditProject({ ...editProject, start_date: e.target.value });
                             console.log(editProject);
                             // You can also add your custom logic here
                           }}
@@ -321,8 +310,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                     </div>
                   )}
                 />
-
-
               </Grid>
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
@@ -333,14 +320,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   name='endDate'
                   render={({ field }) => (
                     <div>
-                      <div className="relative">
+                      <div className='relative'>
                         <Input
-                          type="date"
+                          type='date'
                           defaultValue={formatDate(initialValue.end_date)}
-                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                           onChange={(e) => {
-                            setEditProject({ ...editProject, end_date: e.target.value })
+                            setEditProject({ ...editProject, end_date: e.target.value });
                             console.log(editProject);
                           }}
                         />
@@ -358,11 +345,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   name='technical'
                   render={({ field }) => (
                     <ReactSelect
-                      
                       options={projectTechnicalOption}
-
-                      defaultValue={initialValue.technical.map((tech: any) =>
-                         ({ value: tech, label: tech }))}
+                      defaultValue={initialValue.technical.map((tech: any) => ({ value: tech, label: tech }))}
                       isMulti
                       {...field}
                       // onChange={(e) => {
@@ -374,11 +358,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                         setTechnical(val);
                         console.log(val);
                       }}
-                     
                     />
                   )}
                 />
-
               </Grid>
               <Grid item xs={12}>
                 <fieldset>
@@ -415,7 +397,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                               </TableCell>
                               <TableCell component='th' scope='row'>
                                 {employee?.employee.name}
-
                               </TableCell>
                               <TableCell align='center'> {employee.position} </TableCell>
                               <TableCell align='center'>
@@ -440,15 +421,15 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 </InputLabel>
                 <Controller
                   control={control}
-                  name='description'                 
+                  name='description'
                   render={({ field }) => (
                     <TextareaAutosize
-                  defaultValue={editProject?.description}
-                  placeholder='Description something about this project...'
+                      defaultValue={editProject?.description}
+                      placeholder='Description something about this project...'
                       {...field}
                       onChange={(e) => {
-                        setEditProject({ ...editProject, description: e.target.value })
-                        console.log(e.target.value);                       
+                        setEditProject({ ...editProject, description: e.target.value });
+                        console.log(e.target.value);
                       }}
                       minRows={2}
                       style={{

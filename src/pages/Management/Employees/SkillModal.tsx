@@ -26,6 +26,7 @@ interface Props {
   onAdd: (newMember: any) => void;
   initialValues?: any;
   onUpdate: (newSkill: any, index: number) => void;
+  selectedSkillList: any;
 }
 
 const style = {
@@ -44,7 +45,7 @@ const findOption = (list: any, value: any) => {
   return list.find((item: any) => item?.value === value);
 };
 
-function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate }: Props) {
+function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate, selectedSkillList }: Props) {
   const [skillValue, setSkillValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormSkillType>({
     resolver: yupResolver(formSkillSchema),
@@ -107,7 +108,15 @@ function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate }: Props)
                 <Controller
                   control={control}
                   name='name'
-                  render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} />}
+                  render={({ field }) => (
+                    <ReactSelect
+                      {...field}
+                      options={projectTechnicalOption.filter((skill: any) => {
+                        const techArr = selectedSkillList.map((tech: any) => tech.name);
+                        return !techArr.includes(skill.value);
+                      })}
+                    />
+                  )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.name?.message}

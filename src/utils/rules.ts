@@ -1,10 +1,27 @@
 import * as yup from 'yup';
 
+const currentDate = new Date();
+
 export const formProjectSchema = yup.object({
-  name: yup.string().required('Please enter a project name'),
+  name: yup.string().required('Please enter a project name').trim(''),
   status: yup.mixed().required('Please select status'),
-  start_date: yup.date().required('Please enter a start date'),
-  end_date: yup.date(),
+  // start_date: yup
+  //   .date()
+  //   .required('Please enter a start date')
+  //   .min(currentDate.setDate(currentDate.getDate() - 1), 'Start date is not in the past'),
+  // end_date: yup.date().test({
+  //   name: 'endDate is invalid',
+  //   message: 'End date is larger than the start date',
+  //   test: function (value: any) {
+  //     const { start_date } = this.parent as any;
+
+  //     if (start_date != null && value != null) {
+  //       return start_date < value;
+  //     }
+
+  //     return start_date != null || value != null;
+  //   }
+  // }),
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
   employeesInProject: yup.array().required('Please enter member').min(1, 'Please enter member'),
   description: yup.string()
@@ -20,8 +37,8 @@ export const formMemberSchema = yup.object({
 export type FormMemberType = yup.InferType<typeof formMemberSchema>;
 
 export const formEmployeeSchema = yup.object({
-  name: yup.string().required('Please enter a full name'),
-  address: yup.string().required('Please enter address'),
+  name: yup.string().required('Please enter a full name').trim(''),
+  address: yup.string().required('Please enter address').trim(''),
   phone: yup
     .string()
     .required('Please enter contact number')
