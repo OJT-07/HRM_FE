@@ -2,97 +2,67 @@ import {
   Document,
   Paragraph,
   Packer,
-  AlignmentType,
   TextRun,
-  HeadingLevel,
   Table, TableCell, TableRow, WidthType
 } from 'docx';
 import { saveAs } from "file-saver";
+import { useEffect, useState } from 'react';
 //import { render } from "react-dom";
 
-const createTable = () => {
-  const data = [
-    { SKILL: 'PHP', EXPERIENCE: '1' },
-    { SKILL: 'Laravel', EXPERIENCE: '1' },
-    { SKILL: 'HTML, CSS', EXPERIENCE: '3' },
-    { SKILL: 'Javascript', EXPERIENCE: '3' },
-    { SKILL: 'VueJS', EXPERIENCE: '1' },
-    { SKILL: 'ReactJS', EXPERIENCE: '3.5' },
-    { SKILL: 'NodeJS', EXPERIENCE: '3.5' },
-    { SKILL: 'TypeScript', EXPERIENCE: '3' },
-    { SKILL: 'MySQL', EXPERIENCE: '3' },
-    { SKILL: 'MongoDB', EXPERIENCE: '2' },
-    { SKILL: 'PostgreSQL', EXPERIENCE: '3' },
-    { SKILL: 'Git', EXPERIENCE: '3' },
-    { SKILL: 'Docker', EXPERIENCE: '3' },
-    { SKILL: 'AWS', EXPERIENCE: '2' },
-    { SKILL: 'Kubernetes', EXPERIENCE: '1' },
-  ];
+interface Skill {
+  exp: string;
+  name: string;
+}
 
-  const rows = data.map(({ SKILL, EXPERIENCE }) => (
-    new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph({
-            children: [
-              new TextRun({
-                text: SKILL,
-                size: 22,
-                font: 'Century Gothic',
-                  color: '#4B3A2E',
-              })
-            ]
-          })],
-        }),
-        new TableCell({
-          children: [new Paragraph({
-            children: [
-              new TextRun({
-                text: EXPERIENCE,
-                size: 22,
-                font: 'Century Gothic',
-                  color: '#4B3A2E',
-              })
-            ]
-          })],
-        }),
-      ],
-    })
-  ));
-  rows.push(
-    new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph({
-            children: [
-              new TextRun({
-                text:
-                  'Legends – Experience is a number of years that the candidate has significant experience within that respective skill. Level is: 1. Basic Capabilities, 2. Advanced Capabilities, 3. Demonstrated Expertise or 4. Teaching/Lead Capabilities.',
-                size: 22,
-                font: 'Century Gothic',
-                  color: '#4B3A2E',
-                
-              }),
-            ],
-          })],
-          
-        }),
-      ],
-    })
-  );
+interface EmployeeData {
+  name: string;
+  address: string;
+  email: string;
+  description: string;
+  skills: Skill[];
+}
 
-  const table = new Table({
-    width: { size: 80, type: WidthType.PERCENTAGE }, // Tăng kích thước chiều ngang lên 100%
-    rows: [
+
+export default function ExportCV() {
+  const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://hrm-server-api.onrender.com/api/employees/5');
+        const data = await response.json();
+        setEmployeeData(data.data);
+        console.log(data.data)
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+  /**######################################## */
+  const skills = (employeeData?.skills ?? []).map(({ exp, name }) => ({
+    SKILL: name,
+    EXPERIENCE: exp.toString(),
+  }));
+  const skillText = skills?.map(({ SKILL }) => SKILL).join(', ');
+
+  const createTable = () => {
+    if (!employeeData) return null;
+    
+
+    const rows = skills.map(({ SKILL, EXPERIENCE }) => (
       new TableRow({
+        cantSplit: true,
         children: [
           new TableCell({
             children: [new Paragraph({
               children: [
                 new TextRun({
-                  text: 'SKILL',
+                  text: SKILL,
                   size: 22,
-                  bold: true,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
                 })
@@ -103,27 +73,158 @@ const createTable = () => {
             children: [new Paragraph({
               children: [
                 new TextRun({
-                  text: 'EXPERIENCE (in year)',
+                  text: EXPERIENCE,
                   size: 22,
-                  bold: true,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
-                }),
-
+                })
               ]
             })],
           }),
         ],
-      }),
-      ...rows,
-    ],
-  });
+      })
+    ));
+    rows.push(
+      new TableRow({
+        children: [
+          new TableCell({
+            children: [
+              new Paragraph({
+                children: [
+                  new TextRun({
+                    text:
+                      'Legends – ',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                  new TextRun({
+                    text:
+                      'Experience',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                    bold:true
+                  }),
+                  new TextRun({
+                    text:
+                      ' is a number of years that the candidate has significant experience within that respective skill. ',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                  new TextRun({
+                    text:
+                      'Level is: 1',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                    bold:true
+                  }),
+                  new TextRun({
+                    text:
+                      '. Basic Capabilities, ',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                  new TextRun({
+                    text:
+                      '2',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                    bold:true
+                  }),
+                  new TextRun({
+                    text:
+                      '. Advanced Capabilities, ',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                  new TextRun({
+                    text:
+                      '3',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                    bold:true
+                  }),
+                  new TextRun({
+                    text:
+                      '. Demonstrated Expertise or ',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                  new TextRun({
+                    text:
+                      '4',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                    bold:true
+                  }),
+                  new TextRun({
+                    text:
+                      '. Teaching/Lead Capabilities.',
+                    size: 22,
+                    font: 'Century Gothic',
+                    color: '#9D9D9D',
+                  }),
+                ],
+                spacing: {
+                  after: 400,
+                  before: 400,
+                },
+              }),
+            ],
+            columnSpan: 2, // Sử dụng columnSpan để làm cho ô chiếm hết 2 cột
+          }),
+        ],
+      })
+    );
 
-  return table;
-};
+    return new Table({
+      width: { size: 80, type: WidthType.PERCENTAGE },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'SKILL',
+                    size: 22,
+                    bold: true,
+                    font: 'Century Gothic',
+                    color: '#4B3A2E',
+                  })
+                ]
+              })],
+            }),
+            new TableCell({
+              children: [new Paragraph({
+                children: [
+                  new TextRun({
+                    text: 'EXPERIENCE (in year)',
+                    size: 22,
+                    bold: true,
+                    font: 'Century Gothic',
+                    color: '#4B3A2E',
+                  }),
+                ]
+              })],
+            }),
+          ],
+        }),
+        ...rows,
+      ],
+    });
+  };
 
-export default function ExportCV() {
-  /**######################################## */
+  // generate
   const generate = () => {
     const doc = new Document({
       sections: [
@@ -133,7 +234,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'DANG THU NGOC',
+                  text: `${employeeData?.name}`,
                   size: 32.5,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -144,7 +245,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'Address:89 Le Van Hien, Ngu Hanh Son, Da Nang',
+                  text: `Address: ${employeeData?.address}`,
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -158,7 +259,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'Email: ngoc.dang@devplus.edu.vn',
+                  text: `Email: ${employeeData?.email}`,
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -186,7 +287,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: '05/2022 - now',
+                  text: '11/2021 - 02/2023',
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -200,7 +301,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'Engineer at DevPlus – Da Nang',
+                  text: `${employeeData?.description}`,
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -233,7 +334,7 @@ export default function ExportCV() {
                   bold: true,
                 }),
                 new TextRun({
-                  text: ' NodeJS, TypeScipt, Javascript, HTML, CSS, ReactJS, VueJS, PHP.',
+                  text: skillText,
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -536,7 +637,7 @@ export default function ExportCV() {
                   font: 'Century Gothic',
                   color: '#4B3A2E',
                 }),
-                createTable(),
+                (createTable() ?? new Paragraph('No data available')),
               ],
               spacing: {
                 after: 400,
@@ -549,6 +650,12 @@ export default function ExportCV() {
                   font: 'Century Gothic',
                   color: '#4B3A2E',
                   text: 'IMPORTANT CONFIDENTIALITY NOTICE: This document contains confidential and or legally privileged information. ST United reserves all rights hereunder. When distributed or transmitted, it is intended solely for the authorized use of the addressee or intended recipient. Access to this information by anyone else is unauthorized. Disclosure, copying, distribution or any action or omission taken in reliance on it is prohibited and may be unlawful. Please, report any exceptions hereto immediately to '
+                }),
+                new TextRun({
+                  size: 22,
+                  font: 'Century Gothic',
+                  text: 'hello@stunited.vn',
+                  color: "#6AA8BF"
                 }),
               ],
               spacing: {
