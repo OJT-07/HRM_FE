@@ -1,7 +1,6 @@
 import {
   MAX_ELEMENT_GAP,
   MAX_MONTH_SPAN,
-  MAX_NUM_OF_SUBTRACKS,
   MAX_TRACK_START_GAP,
   MIN_MONTH_SPAN,
   MONTHS_PER_QUARTER,
@@ -13,7 +12,7 @@ import {
   START_YEAR
 } from './constants';
 
-import { addMonthsToYear, addMonthsToYearAsDate, colourIsLight, fill, hexToRgb, nextColor, randomTitle } from './ultis';
+import { addMonthsToYear, addMonthsToYearAsDate, colourIsLight, hexToRgb, nextColor, randomTitle } from './utils';
 
 export const buildQuarterCells = () => {
   const v = [];
@@ -68,7 +67,7 @@ export const buildElement = ({ trackId, start, end, i }) => {
   const bgColor = nextColor();
   const color = colourIsLight(...hexToRgb(bgColor)) ? '#000000' : '#ffffff';
   return {
-    id: `t-${trackId}-el-${i}`,
+    id: `Element ${i}`,
     title: randomTitle(),
     start,
     end,
@@ -85,51 +84,68 @@ export const buildElement = ({ trackId, start, end, i }) => {
 export const buildTrackStartGap = () => Math.floor(Math.random() * MAX_TRACK_START_GAP);
 export const buildElementGap = () => Math.floor(Math.random() * MAX_ELEMENT_GAP);
 
-export const buildElements = (trackId) => {
+// export const buildElements = (trackId) => {
+//   const v = [];
+//   let i = 1;
+//   let month = buildTrackStartGap();
+
+//   while (month < NUM_OF_MONTHS) {
+//     let monthSpan = Math.floor(Math.random() * (MAX_MONTH_SPAN - (MIN_MONTH_SPAN - 1))) + MIN_MONTH_SPAN;
+
+//     if (month + monthSpan > NUM_OF_MONTHS) {
+//       monthSpan = NUM_OF_MONTHS - month;
+//     }
+
+//     const start = addMonthsToYearAsDate(START_YEAR, month);
+//     const end = addMonthsToYearAsDate(START_YEAR, month + monthSpan);
+//     v.push(
+//       buildElement({
+//         trackId,
+//         start,
+//         end,
+//         i
+//       })
+//     );
+//     const gap = buildElementGap();
+//     month += monthSpan + gap;
+//     i += 1;
+//   }
+
+//   return v;
+// };
+
+export const buildTrack = (trackId) => {
   const v = [];
   let i = 1;
   let month = buildTrackStartGap();
 
-  while (month < NUM_OF_MONTHS) {
-    let monthSpan = Math.floor(Math.random() * (MAX_MONTH_SPAN - (MIN_MONTH_SPAN - 1))) + MIN_MONTH_SPAN;
+  // while (month < NUM_OF_MONTHS) {
+  let monthSpan = Math.floor(Math.random() * (MAX_MONTH_SPAN - (MIN_MONTH_SPAN - 1))) + MIN_MONTH_SPAN;
 
-    if (month + monthSpan > NUM_OF_MONTHS) {
-      monthSpan = NUM_OF_MONTHS - month;
-    }
-
-    const start = addMonthsToYearAsDate(START_YEAR, month);
-    const end = addMonthsToYearAsDate(START_YEAR, month + monthSpan);
-    v.push(
-      buildElement({
-        trackId,
-        start,
-        end,
-        i
-      })
-    );
-    const gap = buildElementGap();
-    month += monthSpan + gap;
-    i += 1;
+  if (month + monthSpan > NUM_OF_MONTHS) {
+    monthSpan = NUM_OF_MONTHS - month;
   }
 
-  return v;
-};
+  const start = addMonthsToYearAsDate(START_YEAR, month);
+  const end = addMonthsToYearAsDate(START_YEAR, month + monthSpan);
 
-export const buildSubtrack = (trackId, subtrackId) => ({
-  id: `track-${trackId}-${subtrackId}`,
-  title: `Subtrack ${subtrackId}`,
-  elements: buildElements(subtrackId)
-});
+  v.push(
+    buildElement({
+      trackId,
+      start,
+      end,
+      i
+    })
+  );
+  const gap = buildElementGap();
+  month += monthSpan + gap;
+  i += 1;
+  // }
 
-export const buildTrack = (trackId) => {
-  const tracks = fill(Math.floor(Math.random() * MAX_NUM_OF_SUBTRACKS) + 1).map((i) => buildSubtrack(trackId, i + 1));
   return {
-    id: `track-${trackId}`,
+    id: `Track ${trackId}`,
     title: `Employee ${trackId}`,
-    elements: buildElements(trackId),
-    tracks
-    // hasButton: true,
-    // link: 'www.google.com',
-    // isOpen: false
+    // elements: buildElements(trackId)
+    elements: v
   };
 };

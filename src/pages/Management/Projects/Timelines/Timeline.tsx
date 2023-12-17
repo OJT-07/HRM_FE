@@ -1,25 +1,23 @@
+/* eslint-disable import/no-unresolved */
+import { Component } from 'react';
 import Timeline from 'react-timelines';
 
 import 'react-timelines/lib/css/style.css';
 
-import { NUM_OF_TRACKS } from './constants.js';
+import { NUM_OF_TRACKS, NUM_OF_YEARS, START_YEAR } from './constants';
 
-import { buildTimebar, buildTrack } from './builders.js';
+import { buildTimebar, buildTrack } from './builders';
 
-import { Component } from 'react';
-import { fill } from './ultis.js';
+import { fill } from './utils';
 
-const now = new Date(2020, 8, 1, 3, 19);
+const now = new Date('2024-01-01');
 
 const timebar = buildTimebar();
-
-// eslint-disable-next-line no-alert
-const clickElement = (element) => alert(`Clicked element\n${JSON.stringify(element, null, 2)}`);
 
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 20;
 
-class ProjectTimeline extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
 
@@ -28,6 +26,7 @@ class ProjectTimeline extends Component {
       acc[track.id] = track;
       return acc;
     }, {});
+    console.log('🚀 ~ file: Timeline.tsx:29 ~ App ~ tracksById ~ tracksById:', tracksById);
 
     this.state = {
       open: false,
@@ -68,9 +67,9 @@ class ProjectTimeline extends Component {
   };
 
   render() {
-    const { open, zoom, tracks } = this.state;
-    const start = new Date(2020, 3, 19, 8, 30);
-    const end = new Date(2020, 9, 19, 8, 30);
+    const { zoom, tracks } = this.state;
+    const start = new Date(`${START_YEAR}`);
+    const end = new Date(`${START_YEAR + NUM_OF_YEARS}`);
     return (
       <div className='app'>
         <h1 className='title'>React Timelines</h1>
@@ -82,15 +81,9 @@ class ProjectTimeline extends Component {
             zoomMin: MIN_ZOOM,
             zoomMax: MAX_ZOOM
           }}
-          isOpen={open}
           toggleOpen={this.handleToggleOpen}
           zoomIn={this.handleZoomIn}
           zoomOut={this.handleZoomOut}
-          clickElement={clickElement}
-          clickTrackButton={(track) => {
-            // eslint-disable-next-line no-alert
-            alert(JSON.stringify(track));
-          }}
           timebar={timebar}
           tracks={tracks}
           now={now}
@@ -103,4 +96,4 @@ class ProjectTimeline extends Component {
   }
 }
 
-export default ProjectTimeline;
+export default App;
