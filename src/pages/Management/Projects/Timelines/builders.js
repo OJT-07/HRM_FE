@@ -67,7 +67,7 @@ export const buildElement = ({ trackId, start, end, i }) => {
   const bgColor = nextColor();
   const color = colourIsLight(...hexToRgb(bgColor)) ? '#000000' : '#ffffff';
   return {
-    id: `Element ${i}`,
+    id: `Element ${trackId}`,
     title: randomTitle(),
     start,
     end,
@@ -83,36 +83,6 @@ export const buildElement = ({ trackId, start, end, i }) => {
 
 export const buildTrackStartGap = () => Math.floor(Math.random() * MAX_TRACK_START_GAP);
 export const buildElementGap = () => Math.floor(Math.random() * MAX_ELEMENT_GAP);
-
-// export const buildElements = (trackId) => {
-//   const v = [];
-//   let i = 1;
-//   let month = buildTrackStartGap();
-
-//   while (month < NUM_OF_MONTHS) {
-//     let monthSpan = Math.floor(Math.random() * (MAX_MONTH_SPAN - (MIN_MONTH_SPAN - 1))) + MIN_MONTH_SPAN;
-
-//     if (month + monthSpan > NUM_OF_MONTHS) {
-//       monthSpan = NUM_OF_MONTHS - month;
-//     }
-
-//     const start = addMonthsToYearAsDate(START_YEAR, month);
-//     const end = addMonthsToYearAsDate(START_YEAR, month + monthSpan);
-//     v.push(
-//       buildElement({
-//         trackId,
-//         start,
-//         end,
-//         i
-//       })
-//     );
-//     const gap = buildElementGap();
-//     month += monthSpan + gap;
-//     i += 1;
-//   }
-
-//   return v;
-// };
 
 export const buildTrack = (trackId) => {
   const v = [];

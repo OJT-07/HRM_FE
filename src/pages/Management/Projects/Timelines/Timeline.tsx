@@ -1,58 +1,73 @@
-/* eslint-disable import/no-unresolved */
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import Timeline from 'react-timelines';
-
 import 'react-timelines/lib/css/style.css';
-
-import { NUM_OF_TRACKS, NUM_OF_YEARS, START_YEAR } from './constants';
-
 import { buildTimebar, buildTrack } from './builders';
-
+import { NUM_OF_TRACKS } from './constants';
 import { fill } from './utils';
 
-const now = new Date('2024-01-01');
+const now = new Date();
 
 const timebar = buildTimebar();
 
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 20;
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+const ProjectTimeline = ({ data }: any) => {
+  const [state, setState] = useState({
+    open: false,
+    zoom: 2,
+    tracksById: {},
+    tracks: []
+  });
 
+  const [project, setProject] = useState<any>(null);
+  const [start, setStart] = useState<Date | null>(null);
+  const [end, setEnd] = useState<Date | null>(null);
+
+  useEffect(() => {
     const tracksById = fill(NUM_OF_TRACKS).reduce((acc, i) => {
       const track = buildTrack(i + 1);
       acc[track.id] = track;
       return acc;
     }, {});
-    console.log('🚀 ~ file: Timeline.tsx:29 ~ App ~ tracksById ~ tracksById:', tracksById);
 
-    this.state = {
-      open: false,
-      zoom: 2,
-      // eslint-disable-next-line react/no-unused-state
+    setState((prevState) => ({
+      ...prevState,
       tracksById,
       tracks: Object.values(tracksById)
-    };
-  }
+    }));
+  }, []);
 
-  handleToggleOpen = () => {
-    this.setState(({ open }) => ({ open: !open }));
+  useEffect(() => {
+    if (data && data.start_date && data.end_date) {
+      setProject(data);
+      setStart(new Date(data.start_date));
+      setEnd(new Date(data.end_date));
+    }
+  }, [data]);
+
+  const handleToggleOpen = () => {
+    setState((prevState) => ({ ...prevState, open: !prevState.open }));
   };
 
-  handleZoomIn = () => {
-    this.setState(({ zoom }) => ({ zoom: Math.min(zoom + 1, MAX_ZOOM) }));
+  const handleZoomIn = () => {
+    setState((prevState) => ({
+      ...prevState,
+      zoom: Math.min(prevState.zoom + 1, MAX_ZOOM)
+    }));
   };
 
-  handleZoomOut = () => {
-    this.setState(({ zoom }) => ({ zoom: Math.max(zoom - 1, MIN_ZOOM) }));
+  const handleZoomOut = () => {
+    setState((prevState) => ({
+      ...prevState,
+      zoom: Math.max(prevState.zoom - 1, MIN_ZOOM)
+    }));
   };
 
-  handleToggleTrackOpen = (track) => {
-    this.setState((state) => {
+  const handleToggleTrackOpen = (track: any) => {
+    setState((prevState) => {
       const tracksById = {
-        ...state.tracksById,
+        ...prevState.tracksById,
         [track.id]: {
           ...track,
           isOpen: !track.isOpen
@@ -60,40 +75,41 @@ class App extends Component {
       };
 
       return {
+        ...prevState,
         tracksById,
         tracks: Object.values(tracksById)
       };
     });
   };
 
-  render() {
-    const { zoom, tracks } = this.state;
-    const start = new Date(`${START_YEAR}`);
-    const end = new Date(`${START_YEAR + NUM_OF_YEARS}`);
-    return (
-      <div className='app'>
-        <h1 className='title'>React Timelines</h1>
-        <Timeline
-          scale={{
-            start,
-            end,
-            zoom,
-            zoomMin: MIN_ZOOM,
-            zoomMax: MAX_ZOOM
-          }}
-          toggleOpen={this.handleToggleOpen}
-          zoomIn={this.handleZoomIn}
-          zoomOut={this.handleZoomOut}
-          timebar={timebar}
-          tracks={tracks}
-          now={now}
-          toggleTrackOpen={this.handleToggleTrackOpen}
-          enableSticky
-          scrollToNow
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div className='app'>
+      {project && start && end ? (
+        <>
+          <Timeline
+            scale={{
+              start: new Date("2022"),
+              end: end as Date,
+              zoom: state.zoom,
+              zoomMin: MIN_ZOOM,
+              zoomMax: MAX_ZOOM
+            }}
+            toggleOpen={handleToggleOpen}
+            zoomIn={handleZoomIn}
+            zoomOut={handleZoomOut}
+            timebar={timebar}
+            tracks={state.tracks}
+            now={now}
+            toggleTrackOpen={handleToggleTrackOpen}
+            enableSticky
+            scrollToNow
+          />
+        </>
+      ) : (
+        <h1>Loading...</h1>
+      )}
+    </div>
+  );
+};
 
-export default App;
+export default ProjectTimeline;
