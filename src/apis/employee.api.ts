@@ -18,7 +18,7 @@ export const employeeApi = {
   },
 
   update: (id: string | number, body: any) => {
-    return api.put(`${EMPLOYEES}/${id}`, body);
+    return api.patch(`${EMPLOYEES}/${id}`, body);
   },
 
   delete: (idUser: any) => {

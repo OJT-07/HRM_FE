@@ -3,10 +3,11 @@ import {
   Paragraph,
   Packer,
   TextRun,
-  Table, TableCell, TableRow, WidthType
+  Table, TableCell, TableRow, WidthType, ColumnBreak, Column
 } from 'docx';
 import { saveAs } from "file-saver";
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 //import { render } from "react-dom";
 
 interface Skill {
@@ -14,24 +15,42 @@ interface Skill {
   name: string;
 }
 
+interface Employee {
+  project: {
+    name: string;
+    description: string;
+    technical: string;
+  };
+  position: string;
+}
+
 interface EmployeeData {
   name: string;
   address: string;
   email: string;
   description: string;
+  phone: string;
+  image: string;
+  date_of_birth: Date;
+  join_date: Date;
   skills: Skill[];
+  projectsEmployeeJoined: Employee[];
 }
+
 
 
 export default function ExportCV() {
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
-
+  const [employee, setEmployee] = useState<Employee[] | null>(null);
+  const { id } = useParams();
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('https://hrm-server-api.onrender.com/api/employees/5');
+        const response = await fetch(`https://hrm-server-api.onrender.com/api/employees/${id}`);
         const data = await response.json();
         setEmployeeData(data.data);
+        setEmployee(data.data.projectsEmployeeJoined);
         console.log(data.data)
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -40,6 +59,12 @@ export default function ExportCV() {
 
     fetchData();
   }, []);
+
+  const formatDate = (date: Date) => {
+    // Format date to a user-friendly string
+    const formattedDate = new Date(date).toLocaleDateString('en-US');
+    return formattedDate;
+  };
 
 
   /**######################################## */
@@ -51,7 +76,7 @@ export default function ExportCV() {
 
   const createTable = () => {
     if (!employeeData) return null;
-    
+
 
     const rows = skills.map(({ SKILL, EXPERIENCE }) => (
       new TableRow({
@@ -104,7 +129,7 @@ export default function ExportCV() {
                     size: 22,
                     font: 'Century Gothic',
                     color: '#9D9D9D',
-                    bold:true
+                    bold: true
                   }),
                   new TextRun({
                     text:
@@ -119,7 +144,7 @@ export default function ExportCV() {
                     size: 22,
                     font: 'Century Gothic',
                     color: '#9D9D9D',
-                    bold:true
+                    bold: true
                   }),
                   new TextRun({
                     text:
@@ -134,7 +159,7 @@ export default function ExportCV() {
                     size: 22,
                     font: 'Century Gothic',
                     color: '#9D9D9D',
-                    bold:true
+                    bold: true
                   }),
                   new TextRun({
                     text:
@@ -149,7 +174,7 @@ export default function ExportCV() {
                     size: 22,
                     font: 'Century Gothic',
                     color: '#9D9D9D',
-                    bold:true
+                    bold: true
                   }),
                   new TextRun({
                     text:
@@ -164,7 +189,7 @@ export default function ExportCV() {
                     size: 22,
                     font: 'Century Gothic',
                     color: '#9D9D9D',
-                    bold:true
+                    bold: true
                   }),
                   new TextRun({
                     text:
@@ -187,7 +212,7 @@ export default function ExportCV() {
     );
 
     return new Table({
-      width: { size: 80, type: WidthType.PERCENTAGE },
+      width: { size: 235, type: WidthType.PERCENTAGE },
       rows: [
         new TableRow({
           children: [
@@ -224,12 +249,144 @@ export default function ExportCV() {
     });
   };
 
+  const typical = () => {
+    if (employee) {
+      const projectParagraphs = employee.map((project) => [
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Project Name:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ` ${project?.project?.name}`,
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Role:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ` ${project?.position}`,
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+          spacing: {
+            after: 50,
+            before: 50,
+          },
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Description:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ` ${project?.project?.description}`,
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Specification:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ' Full-stack features development and maintenance',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+          spacing: {
+            after: 50,
+            before: 50,
+          },
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Languages and Framework:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ` ${project?.project?.technical}`,
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+          spacing: {
+            after: 50,
+          },
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: 'Technologies:',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+              bold: true,
+            }),
+            new TextRun({
+              text: ' Git/Github, Docker, PostgreSQL, AWS',
+              size: 22,
+              font: 'Century Gothic',
+              color: '#4B3A2E',
+            }),
+          ],
+          spacing: {
+            after: 400,
+          },
+        }),
+      ]);
+
+      return projectParagraphs.flat();
+    };
+  };
+  
   // generate
   const generate = () => {
     const doc = new Document({
       sections: [
         {
-          properties: {},
+          properties: {
+            column: {
+              space: 708,
+              count: 2,
+              equalWidth: false,
+              children: [new Column({ width: 2360, space: 720 }), new Column({ width: 6920 })],
+          },
+          },
           children: [
             new Paragraph({
               children: [
@@ -241,6 +398,9 @@ export default function ExportCV() {
                   bold: true,
                 }),
               ],
+              spacing: {
+                after: 200,
+              },
             }),
             new Paragraph({
               children: [
@@ -263,7 +423,32 @@ export default function ExportCV() {
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
-  
+                }),
+              ],
+              spacing: {
+                after: 50,
+                before: 50,
+              },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Phone: ${employeeData?.phone}`,
+                  size: 22,
+                  font: 'Century Gothic',
+                  color: '#4B3A2E',
+                }),
+              ], spacing: {
+                after: 50,
+              },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `Birthday: ${formatDate(employeeData?.date_of_birth ?? new Date())}`,
+                  size: 22,
+                  font: 'Century Gothic',
+                  color: '#4B3A2E',
                 }),
               ],
               spacing: {
@@ -287,7 +472,7 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: '11/2021 - 02/2023',
+                  text: `Start Date: ${formatDate(employeeData?.join_date ?? new Date())}`,
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
@@ -344,6 +529,7 @@ export default function ExportCV() {
                 after: 50,
               },
             }),
+            
             new Paragraph({
               children: [
                 new TextRun({
@@ -359,10 +545,8 @@ export default function ExportCV() {
                   font: 'Century Gothic',
                   color: '#4B3A2E',
                 }),
+                new ColumnBreak(),
               ],
-              spacing: {
-                after: 800,
-              },
             }),
             new Paragraph({
               children: [
@@ -381,241 +565,13 @@ export default function ExportCV() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: 'Project Name:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' CV Management',
                   size: 22,
                   font: 'Century Gothic',
                   color: '#4B3A2E',
                 }),
+                ...(typical() ?? []),
               ],
-
             }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Role:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Full Stack Developer and DevOps',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-                before: 50
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Description:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' The project involves the development of an HR Management System tailored for a specific company. The system aims to streamline and automate various human resource processes, enhancing efficiency and accuracy in managing employee information, payroll, attendance, leave, and other HR-related tasks',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Specification:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Full-stack features development and maintenance',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-                before: 50
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Languages and Framework:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Nodejs, NestJs, Typescript, ReactJS',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Technologies:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Git/Github, Docker, PostgreSQL, AWS',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 400,
-              },
-            }),
-
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Project Name:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' High Out Office',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Role:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' BE',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-                before: 50
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Description:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Web-based application supporting Excel-like functionalities for input/output data, insight reports, data visualization in charts, report export…',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Specification:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' BE features development and maintenance',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-                before: 50
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Languages and Framework:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Nodejs, NestJs, Typescript, ReactJS',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 50,
-              },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  text: 'Technologies:',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  bold: true,
-                }),
-                new TextRun({
-                  text: ' Git/Github, Docker, SQL Server, Serverless, AWS S3, AWS CloudWatch',
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                }),
-              ],
-              spacing: {
-                after: 600,
-              },
-            }),
-
             new Paragraph({
               children: [
                 new TextRun({
@@ -643,25 +599,25 @@ export default function ExportCV() {
                 after: 400,
               },
             }),
-            new Paragraph({
-              children: [
-                new TextRun({
-                  size: 22,
-                  font: 'Century Gothic',
-                  color: '#4B3A2E',
-                  text: 'IMPORTANT CONFIDENTIALITY NOTICE: This document contains confidential and or legally privileged information. ST United reserves all rights hereunder. When distributed or transmitted, it is intended solely for the authorized use of the addressee or intended recipient. Access to this information by anyone else is unauthorized. Disclosure, copying, distribution or any action or omission taken in reliance on it is prohibited and may be unlawful. Please, report any exceptions hereto immediately to '
-                }),
-                new TextRun({
-                  size: 22,
-                  font: 'Century Gothic',
-                  text: 'hello@stunited.vn',
-                  color: "#6AA8BF"
-                }),
-              ],
-              spacing: {
-                after: 400,
-              },
-            }),
+            // new Paragraph({
+            //   children: [
+            //     new TextRun({
+            //       size: 22,
+            //       font: 'Century Gothic',
+            //       color: '#4B3A2E',
+            //       text: 'IMPORTANT CONFIDENTIALITY NOTICE: This document contains confidential and or legally privileged information. ST United reserves all rights hereunder. When distributed or transmitted, it is intended solely for the authorized use of the addressee or intended recipient. Access to this information by anyone else is unauthorized. Disclosure, copying, distribution or any action or omission taken in reliance on it is prohibited and may be unlawful. Please, report any exceptions hereto immediately to '
+            //     }),
+            //     new TextRun({
+            //       size: 22,
+            //       font: 'Century Gothic',
+            //       text: 'hello@stunited.vn',
+            //       color: "#6AA8BF"
+            //     }),
+            //   ],
+            //   spacing: {
+            //     after: 400,
+            //   },
+            // }),
           ],
         },
       ],
@@ -673,9 +629,138 @@ export default function ExportCV() {
       console.log("Document created successfully");
     });
   };
+
+  const rows = skills.map(({ SKILL, EXPERIENCE }) => (
+    <tr key={SKILL} className="text-center">
+      <td className="py-2 border">
+        <p className="text-brown text-lg">{SKILL}</p>
+      </td>
+      <td className="py-2 border">
+        <p className="text-brown text-lg">{EXPERIENCE}</p>
+      </td>
+    </tr>
+  ));
+
   return (
     <div className="App">
-      <button onClick={generate}>Generate doc</button>
+      <div className="max-w-screen-lg mx-auto relative">
+        <button
+          onClick={generate}
+          className="absolute top-0 right-0 mt-4 mr-4 transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center justify-center rounded-md bg-black py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 dark:bg-boxdark"
+        >
+          Export CV
+        </button>
+      </div>
+      
+      <div className="max-w-screen-lg mx-auto flex flex-col lg:flex-row border border-gray-300 rounded p-4">
+      {employeeData && employee ? (
+          <>
+        <div className="lg:w-1/4 mb-8 lg:mb-12">
+
+          <img src={`https://hrm-server-api.onrender.com/${employeeData?.image}`} alt={employeeData?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
+          <div className="text-3xl font-bold mb-2">
+            {employeeData?.name}
+          </div>
+          <div className="text-base mb-2">
+            Address: {employeeData?.address}
+          </div>
+          <div className="text-base mb-2">
+            Email: {employeeData?.email}
+          </div>
+          <div className="text-base mb-2">
+            Phone: {employeeData?.phone}
+          </div>
+          <div className="text-base mb-2">
+            Birthday: {formatDate(employeeData?.date_of_birth ?? new Date())}
+          </div>
+          <div className="mb-8">
+          <div className="text-2xl font-bold mb-4">
+            WORKING EXPERIENCE
+          </div>
+          <div className="text-base mb-4">
+            Start Date: {formatDate(employeeData?.join_date ?? new Date())}
+          </div>
+          <div className="text-base mb-4 italic">
+            {employeeData?.description}
+          </div>
+          <div className="text-base mb-4">
+            Develop applications and execute software development.
+          </div>
+          <div className="text-base mb-4">
+            <span className="font-bold">Languages and Framework:</span> {skillText}
+          </div>
+          <div className="text-base mb-8">
+            <span className="font-bold">Technologies:</span> Git/GitHub, Docker, AWS, MySQL, MongoDB, SQL Server, PostgreSQL, Redis.
+          </div>
+        </div>
+        </div>
+
+        <div className="lg:w-3/4 lg:mx-10 m-5">
+
+        <div className="mb-8">
+          <div className="text-2xl font-bold mb-4">
+            TYPICAL PROJECTS
+          </div>
+          {employee && employee.map((project) => (
+            <div key={project?.project?.name} className="mb-8">
+              <div className="text-base font-bold mb-2">
+                Project Name: {project?.project?.name}
+              </div>
+              <div className="text-base mb-2">
+                Role: {project?.position}
+              </div>
+              <div className="text-base mb-2">
+                Description: {project?.project?.description}
+              </div>
+              <div className="text-base mb-2">
+                Specification: Full-stack features development and maintenance
+              </div>
+              <div className="text-base mb-2">
+                <span className="font-bold">Languages and Framework:</span> {project?.project?.technical}
+              </div>
+              <div className="text-base mb-8">
+                <span className="font-bold">Technologies:</span> Git/GitHub, Docker, PostgreSQL, AWS
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mb-8">
+          <div className="text-2xl font-bold mb-4">
+            TECHNICAL SKILLS/QUALIFICATION
+          </div>
+          <table className="w-full table-auto border-collapse border mb-8">
+            <thead>
+              <tr>
+                <th className="p-2">
+                  <p className="text-brown text-lg font-bold">SKILL</p>
+                </th>
+                <th className="p-2">
+                  <p className="text-brown text-lg font-bold">EXPERIENCE (in year)</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows}
+              <tr>
+                <td className="p-2">
+                  <p className="text-brown text-lg font-bold mt-4">
+                    Legends – <span className="font-normal">Experience is a number of years that the candidate has significant experience within that respective skill. Level is: 1. Basic Capabilities, 2. Advanced Capabilities, 3. Demonstrated Expertise, or 4. Teaching/Lead Capabilities.</span>
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* <div className="text-brown text-lg mb-8">
+          IMPORTANT CONFIDENTIALITY NOTICE: This document contains confidential and/or legally privileged information. ST United reserves all rights hereunder. When distributed or transmitted, it is intended solely for the authorized use of the addressee or intended recipient. Access to this information by anyone else is unauthorized. Disclosure, copying, distribution, or any action or omission taken in reliance on it is prohibited and may be unlawful. Please, report any exceptions hereto immediately to{' '}
+          <span className="text-blue-500">hello@stunited.vn</span>
+        </div> */}
+        </div>
+        </>
+  ) : null}
+      </div>
     </div>
   );
 }
