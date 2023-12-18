@@ -4,7 +4,6 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'm
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectTimeline from './Timelines/Timeline';
-
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
   MEMBERS: 'MEMBERS',
@@ -16,6 +15,7 @@ const dataTabs = [
     label: 'Information',
     value: TAB_KEYS.INFORMATION
   },
+
   {
     label: 'Members',
     value: TAB_KEYS.MEMBERS
@@ -37,6 +37,7 @@ const Timeline = () => {
   const [project, setProject] = useState<Project | null>(null);
 
   const { id } = useParams();
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -57,6 +58,7 @@ const Timeline = () => {
 
   return (
     <div className='gap-5 flex justify-between flex-col'>
+      <div></div>
       <div>
         <b>
           {' '}
@@ -103,12 +105,12 @@ const EmployeesList = () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
       setData(response.data.data.employeesInProject);
+      // console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
 
-      // const formattedData = response.data.data.map((member: Member) => ({
-      //   ...member,
-
-      // }));
-      // setData(formattedData);
+      const formattedData = response.data.data.map((member: Member) => ({
+        ...member
+      }));
+      setData(formattedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
