@@ -1,13 +1,19 @@
+import { yupResolver } from '@hookform/resolvers/yup';
 import {
+  Avatar,
+  AvatarGroup,
   Box,
   Button,
   FormControlLabel,
   Grid,
   InputLabel,
+  MenuItem,
   Modal,
   Paper,
   Radio,
   RadioGroup,
+  Select,
+  Input,
   Table,
   TableBody,
   TableCell,
@@ -17,11 +23,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { useState } from 'react';
-import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
 import Swal from 'sweetalert2';
@@ -30,22 +32,33 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 // import LineManagerModal from './LineManagerModal';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import IconButton from '@mui/material/IconButton';
-import SkillModal from './SkillModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { useEffect, useState } from 'react';
+import SaveIcon from '@mui/icons-material/Save';
+import { projectStatusOption } from '../../../enum';
+import Swal from 'sweetalert2';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import withReactContent from 'sweetalert2-react-content';
-import { useMutation } from '@tanstack/react-query';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { cloneDeep } from 'lodash';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import SkillModal from './SkillModal';
 import { employeeApi } from '../../../apis/employee.api';
-import toast from 'react-hot-toast';
+
 
 const MySwal = withReactContent(Swal);
+
+
 interface Props {
   visible: boolean;
-  onClose: () => void;
   initialValue?: any;
   dataEmployee?: any;
+  onEditSuccess: () => void;
+  onClose: () => void;
 }
+
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
@@ -61,18 +74,21 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
+function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEditSuccess }: Props) {
+  const [visibleLineManager, setVisibleLineManager] = useState(false);
   const [visibleSkill, setVisibleSkill] = useState(false);
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
+  const [lineManagerList, setLineManagerList] = useState<any>([]);
+  const [viewOnlyLineManager, setViewOnlyLineManager] = useState(false);
   const [employeeData, setEmployeeData] = useState(dataEmployee);
 
-  const editEmpMutation = useMutation({
-    mutationFn: async (id: string | number, body: any) => {
-      const response = await employeeApi.put(id, body);
-      return response.data;
-    }
-  });
+  useEffect(() => {
+    setEmployeeData(dataEmployee);
+    setSkillList(employeeData.skills)
+    console.log("EMPLOYEE DATA ", employeeData);
+  }, [dataEmployee]);
+
 
   const handleOpenSkill = () => {
     setVisibleSkill(true);
@@ -83,49 +99,58 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
     setInitSkill({});
   };
 
+  const handleOpenLineManager = (view?: boolean) => {
+    setVisibleLineManager(true);
+    setViewOnlyLineManager(Boolean(view));
+  };
+
+  const handleCloseLineManager = () => {
+    setVisibleLineManager(false);
+  };
+
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
-    defaultValues: {}
+    defaultValues: {
+      name: employeeData.name, address: employeeData.address, phone: dataEmployee.phone, email: dataEmployee.email, skills: employeeData.skills
+    },
   });
 
   const {
     formState: { errors },
+    register,
     handleSubmit,
     control,
+    setError,
     trigger,
-    setValue
+    getValues,
+    setValue,
   } = methods;
 
-  const onSubmit = handleSubmit((data?: any) => {
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const submitData = {
-          ...data,
-          join_date: data.join_date.toISOString(),
-          date_of_birth: data.date_of_birth.toISOString()
-        };
-        editEmpMutation.mutate(submitData, {
-          onSuccess: (res) => {
-            const data = res.data;
-            toast.success(data.message || 'Edit employee successfully');
-            onClose();
-          },
-          onError: (err: any) => {
-            console.log(err);
-            toast.error(err?.response?.data?.message || 'Edit employee failed');
-          }
-        });
-      }
-    });
-  });
+  const onSubmit = async (data: any) => {
+    try {
+      await employeeApi.update(employeeData.id, data);
+      await employeeApi.getAll({});
+
+      MySwal.fire({
+        title: 'User Updated!',
+        text: 'User data has been updated successfully.',
+        icon: 'success',
+      });
+      onEditSuccess();
+      onClose();
+
+    } catch (error) {
+      console.error('Error updating user:', error);
+
+
+      MySwal.fire({
+        title: 'Error!',
+        text: 'Failed to update user data. Please try again later.',
+        icon: 'error',
+      });
+    }
+  }
+
 
   const handleClose = (event?: any, reason?: string) => {
     // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
@@ -138,7 +163,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
+    }).then((result: { isConfirmed: any; }) => {
       if (result.isConfirmed) {
         onClose();
       }
@@ -153,13 +178,6 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
     await trigger(['skills']);
   };
 
-  const handleEditSkill = async (newSkill: any, index: number) => {
-    const newSkillList = cloneDeep(skillList).toSpliced(index, 1, newSkill);
-    setSkillList(newSkillList);
-    setValue('skills', newSkillList);
-    await trigger(['skills']);
-  };
-
   const handleRemoveSkill = async (index: number) => {
     const newSkillList = cloneDeep(skillList).toSpliced(index, 1);
     setSkillList(newSkillList);
@@ -167,10 +185,32 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
     await trigger(['skills']);
   };
 
-  const handleOpenEditSkill = (skill: any, index: number) => {
+  const handleOpenEditSkill = (skill: any) => {
     handleOpenSkill();
-    setInitSkill({ ...skill, indexSkill: index });
+    setInitSkill(skill);
   };
+
+  const handleApplyLineManagerList = async (newLineManagerList: any) => {
+    setLineManagerList(newLineManagerList);
+    handleCloseLineManager();
+    setValue('isManager', newLineManagerList);
+    await trigger(['isManager']);
+  };
+
+  const handleEditSkill = async (newSkill: any, index: number) => {
+    const newSkillList = cloneDeep(skillList).toSpliced(index, 1, newSkill);
+    setSkillList(newSkillList);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const formattedDate = date.toISOString().slice(0, 10);
+    return formattedDate;
+  };
+
+
 
   return (
     <Modal
@@ -180,7 +220,6 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
-        {/* Start Header */}
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -189,14 +228,13 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
         >
           Edit Employee
         </Typography>
-        {/* End Header */}
-
         <FormProvider {...methods}>
-          <form onSubmit={onSubmit}>
+          <form onSubmit={() => {
+
+          }}>
             <Grid container spacing={2}>
-              {/* Start Full Name */}
               <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-name'>
+                <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
                   Fullname <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
@@ -204,11 +242,11 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   name='name'
                   render={({ field }) => (
                     <TextField
-                      defaultValue={employeeData.name}
                       placeholder='Enter full name'
                       size='small'
                       translate='no'
-                      id='employee-name'
+                      id='employee-fullname'
+                      defaultValue={employeeData.name}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -219,9 +257,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   {errors.name?.message}
                 </div>
               </Grid>
-              {/* End Full Name */}
 
-              {/* Start Address */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-address'>
                   Address <span style={{ color: 'red' }}>*</span>
@@ -231,11 +267,11 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   name='address'
                   render={({ field }) => (
                     <TextField
-                      defaultValue={employeeData.address}
                       placeholder='Enter address'
                       size='small'
                       translate='no'
                       id='employee-address'
+                      defaultValue={employeeData.address}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -246,9 +282,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   {errors.address?.message}
                 </div>
               </Grid>
-              {/* End Address */}
 
-              {/* Start Contact number */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-contact'>
                   Contact number <span style={{ color: 'red' }}>*</span>
@@ -258,11 +292,11 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   name='phone'
                   render={({ field }) => (
                     <TextField
-                      defaultValue={employeeData.phone}
                       placeholder='Enter contact number'
                       size='small'
                       translate='no'
                       id='employee-contact'
+                      defaultValue={employeeData.phone}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -273,9 +307,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   {errors.phone?.message}
                 </div>
               </Grid>
-              {/* End Contact number */}
 
-              {/* Start Email */}
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-name'>
                   Email <span style={{ color: 'red' }}>*</span>
@@ -285,11 +317,11 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   name='email'
                   render={({ field }) => (
                     <TextField
-                      defaultValue={employeeData.email}
                       placeholder='Enter email'
                       size='small'
                       translate='no'
                       id='employee-name'
+                      defaultValue={employeeData.email}
                       variant='outlined'
                       fullWidth
                       {...field}
@@ -300,47 +332,55 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   {errors.email?.message}
                 </div>
               </Grid>
-              {/* End Email */}
 
-              {/* Start Join Date */}
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-join_date-label'>
-                  Join date <span style={{ color: 'red' }}>*</span>
+                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
+                  Start Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
                   name='join_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => (
+                    <div>
+                      <div className="relative">
+                        <Input
+                          type="date"
+                          defaultValue={formatDate(employeeData?.join_date)}
+                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          {...field}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
-
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.join_date?.message}
-                </div>
               </Grid>
-              {/* End Join Date */}
 
-              {/* Start Date of birth */}
               <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='employee-date_of_birth-label'>
+                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
                   Date of birth <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
                   control={control}
                   name='date_of_birth'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => (
+                    <div>
+                      <div className="relative">
+                        <Input
+                          type="date"
+                          defaultValue={formatDate(employeeData?.date_of_birth)}
+                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          {...field}
+                        />
+                      </div>
+                    </div>
+                  )}
                 />
-
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.date_of_birth?.message}
-                </div>
               </Grid>
-              {/* End Date of birth */}
 
-              {/* Start Is Manager */}
               <Grid item xs={6}>
-                <InputLabel id='emplyee-is-manager-label'>Is Manager</InputLabel>
+                <InputLabel id='employee-is-manager-label'>Is Manager</InputLabel>
 
                 <Controller
                   control={control}
@@ -348,7 +388,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   render={({ field }) => (
                     <RadioGroup
                       {...field}
-                      defaultValue={false}
+                      defaultValue={employeeData?.isManager || false} // Set the default value based on the received data
                       style={{ display: 'flex', gap: '1rem', flexDirection: 'row' }}
                     >
                       <FormControlLabel value={true} control={<Radio />} label='True' />
@@ -357,9 +397,8 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   )}
                 />
               </Grid>
-              {/* End Is Manager */}
 
-              {/* Start Skill */}
+
               <Grid item xs={12}>
                 <fieldset>
                   <legend>
@@ -402,13 +441,13 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveSkill(index)}>
                                     <DeleteIcon />
                                   </IconButton>
-                                  <IconButton
+                                  {/* <IconButton
                                     color='primary'
                                     size='medium'
-                                    onClick={() => handleOpenEditSkill(skill, index)}
+                                    onClick={() => handleOpenEditSkill(skill)}
                                   >
                                     <ModeEditIcon />
-                                  </IconButton>
+                                  </IconButton> */}
                                 </Box>
                               </TableCell>
                             </TableRow>
@@ -423,9 +462,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   </div>
                 </fieldset>
               </Grid>
-              {/* End Skill */}
 
-              {/* Start Description */}
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-description-label'>
                   Description
@@ -433,6 +470,7 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                 <TextareaAutosize
                   name='description'
                   placeholder='Description something about the employee...'
+                  defaultValue={employeeData.description}
                   minRows={2}
                   style={{
                     width: '100%',
@@ -442,13 +480,10 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
                   }}
                 />
               </Grid>
-              {/* End Description */}
             </Grid>
 
-            {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='button'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -460,20 +495,21 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
 
               <Button
                 size='medium'
-                type='submit'
+                // type='submit'
                 style={{ marginRight: 0 }}
                 variant='contained'
                 startIcon={<SaveIcon />}
                 color='primary'
-                onClick={onSubmit}
+                onClick={() => {
+                  const value = getValues();
+                  onSubmit({ ...employeeData, ...value })
+                }}
               >
                 Submit
               </Button>
             </div>
-            {/* End Button */}
           </form>
         </FormProvider>
-
         {visibleSkill && (
           <SkillModal
             visible={visibleSkill}
@@ -481,11 +517,16 @@ function EditEmployeeModal({ visible, onClose, dataEmployee }: Props) {
             onAdd={handleAddSkill}
             onUpdate={handleEditSkill}
             initialValues={initSkill}
+            selectedSkillList={skillList}
           />
         )}
+
       </Box>
     </Modal>
   );
 }
 
-export default EditEmployeeModal;
+export default EditEmployeeModel;
+
+
+

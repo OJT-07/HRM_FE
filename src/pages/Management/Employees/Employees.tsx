@@ -181,6 +181,15 @@ const EmployeesList = () => {
     )
   });
 
+  const onEditSuccess = async () => {
+    try {
+      const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
+      setData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  }
+
   return (
     <>
       <MaterialReactTable table={table} />
@@ -189,7 +198,7 @@ const EmployeesList = () => {
       )}
 
       {visibleModalUpdate && (
-        <EditEmployeeModel visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+        <EditEmployeeModel visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} onEditSuccess={onEditSuccess} />
       )}
     </>
   );
