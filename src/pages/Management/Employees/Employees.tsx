@@ -11,12 +11,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateEmployeeModal from './Create';
 import EditModal from './Edit'
-
-
-
 import { showToast } from '../../../components/ToastCustom';
-
-
 import withReactContent from 'sweetalert2-react-content';
 import EditEmployeeModel from './Edit';
 
