@@ -18,7 +18,6 @@ import {
   Typography
 } from '@mui/material';
 import { useState } from 'react';
-import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
@@ -28,7 +27,6 @@ import Swal from 'sweetalert2';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
 // import LineManagerModal from './LineManagerModal';
 import IconButton from '@mui/material/IconButton';
 import SkillModal from './SkillModal';

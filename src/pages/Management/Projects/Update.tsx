@@ -233,7 +233,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-name'>
-                  Name <span style={{ color: 'red' }}></span>
+                  Name <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
                   control={control}
@@ -255,6 +255,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                     />
                   )}
                 />
+                <div className={classNameError} style={{ color: 'red' }}>
+                  {errors.status?.message}
+                </div>
               </Grid>
 
               <Grid item xs={6}>
@@ -269,7 +272,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       id='project-status'
                       {...field}
                       options={projectStatusOption}
-                      value={status ?? projectStatusOption?.filter((option) => option.label === initialValue.status)}
+                      value={status ?? projectStatusOption?.filter((option) => option.label === initialValue?.status)}
                       // onChange={(val: any) => setStatus(val)}
                       onChange={(val: any) => {
                         field.onChange(val);
@@ -286,7 +289,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
-                  Start Date <span style={{ color: 'red' }}></span>
+                  Start Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
@@ -297,7 +300,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       <div className='relative'>
                         <Input
                           type='date'
-                          defaultValue={formatDate(initialValue.start_date)}
+                          defaultValue={formatDate(initialValue?.start_date)}
                           className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                           onChange={(e) => {
@@ -313,7 +316,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
-                  End Date <span style={{ color: 'red' }}></span>
+                  End Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
                   control={control}
@@ -323,7 +326,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       <div className='relative'>
                         <Input
                           type='date'
-                          defaultValue={formatDate(initialValue.end_date)}
+                          defaultValue={formatDate(initialValue?.end_date)}
                           className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                           onChange={(e) => {
@@ -338,7 +341,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
               </Grid>
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
-                  Technical <span style={{ color: 'red' }}></span>
+                  Technical <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
                 <Controller
                   control={control}
@@ -346,7 +349,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   render={({ field }) => (
                     <ReactSelect
                       options={projectTechnicalOption}
-                      defaultValue={initialValue.technical.map((tech: any) => ({ value: tech, label: tech }))}
+                      defaultValue={initialValue?.technical?.map((tech: any) => ({ value: tech, label: tech }))}
                       isMulti
                       {...field}
                       // onChange={(e) => {
@@ -365,7 +368,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
               <Grid item xs={12}>
                 <fieldset>
                   <legend>
-                    Members <span style={{ color: 'red' }}></span>
+                    Members <span style={{ color: 'red' }}>*</span>
                   </legend>
                   <Button
                     size='medium'
@@ -474,12 +477,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
           <MemberModal
             visible={visibleMember}
             onClose={handleCloseMember}
-            onFinish={handleAddMember}
+            onAdd={handleAddMember}
             initialValues={initMember}
+            listEmployee={null}
+            selectedMemberList= {null}
           />
         )}
 
-        {visibleTechnical && (
+        {/* {visibleTechnical && (
           <TechnicalModal
             visible={visibleTechnical}
             onClose={handleCloseTechnical}
@@ -487,7 +492,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
             defaultTechnicalList={technicalList}
             viewOnly={viewOnlyTech}
           />
-        )}
+        )} */}
       </Box>
     </Modal>
   );
