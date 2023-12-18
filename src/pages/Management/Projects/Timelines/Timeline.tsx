@@ -62,13 +62,14 @@ const ProjectTimeline = ({ data }: any) => {
     const trimmedSearchTerm = searchTerm.trim();
 
     const searchTermsArray = trimmedSearchTerm.split(/\s+/);
+    console.log('🚀 ~ file: Timeline.tsx:65 ~ handleSearch ~ searchTermsArray:', searchTermsArray);
 
     if (searchTermsArray[0].length > 0) {
       const dataToSearch = trimmedSearchTerm ? project.employeesInProject : filteredProject;
 
       const filteredData = dataToSearch.filter((employee: any) => {
-        const isMatch = searchTermsArray.every((term) =>
-          employee.employee.name.toLowerCase().includes(term.toLowerCase())
+        const isMatch = searchTermsArray.every(
+          (term) => employee?.employee?.name.toLowerCase().includes(term.toLowerCase())
         );
 
         return isMatch;
