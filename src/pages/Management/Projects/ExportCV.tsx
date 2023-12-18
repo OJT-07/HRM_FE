@@ -43,7 +43,7 @@ export default function ExportCV() {
   const [employeeData, setEmployeeData] = useState<EmployeeData | null>(null);
   const [employee, setEmployee] = useState<Employee[] | null>(null);
   const { id } = useParams();
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -373,7 +373,7 @@ export default function ExportCV() {
       return projectParagraphs.flat();
     };
   };
-  
+
   // generate
   const generate = () => {
     const doc = new Document({
@@ -385,7 +385,7 @@ export default function ExportCV() {
               count: 2,
               equalWidth: false,
               children: [new Column({ width: 2360, space: 720 }), new Column({ width: 6920 })],
-          },
+            },
           },
           children: [
             new Paragraph({
@@ -529,7 +529,7 @@ export default function ExportCV() {
                 after: 50,
               },
             }),
-            
+
             new Paragraph({
               children: [
                 new TextRun({
@@ -651,115 +651,115 @@ export default function ExportCV() {
           Export CV
         </button>
       </div>
-      
+
       <div className="max-w-screen-lg mx-auto flex flex-col lg:flex-row border border-gray-300 rounded p-4">
-      {employeeData && employee ? (
+        {employeeData && employee ? (
           <>
-        <div className="lg:w-1/4 mb-8 lg:mb-12">
+            <div className="lg:w-1/4 mb-8 lg:mb-12">
 
-          <img src={`https://hrm-server-api.onrender.com/${employeeData?.image}`} alt={employeeData?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
-          <div className="text-3xl font-bold mb-2">
-            {employeeData?.name}
-          </div>
-          <div className="text-base mb-2">
-            Address: {employeeData?.address}
-          </div>
-          <div className="text-base mb-2">
-            Email: {employeeData?.email}
-          </div>
-          <div className="text-base mb-2">
-            Phone: {employeeData?.phone}
-          </div>
-          <div className="text-base mb-2">
-            Birthday: {formatDate(employeeData?.date_of_birth ?? new Date())}
-          </div>
-          <div className="mb-8">
-          <div className="text-2xl font-bold mb-4">
-            WORKING EXPERIENCE
-          </div>
-          <div className="text-base mb-4">
-            Start Date: {formatDate(employeeData?.join_date ?? new Date())}
-          </div>
-          <div className="text-base mb-4 italic">
-            {employeeData?.description}
-          </div>
-          <div className="text-base mb-4">
-            Develop applications and execute software development.
-          </div>
-          <div className="text-base mb-4">
-            <span className="font-bold">Languages and Framework:</span> {skillText}
-          </div>
-          <div className="text-base mb-8">
-            <span className="font-bold">Technologies:</span> Git/GitHub, Docker, AWS, MySQL, MongoDB, SQL Server, PostgreSQL, Redis.
-          </div>
-        </div>
-        </div>
-
-        <div className="lg:w-3/4 lg:mx-10 m-5">
-
-        <div className="mb-8">
-          <div className="text-2xl font-bold mb-4">
-            TYPICAL PROJECTS
-          </div>
-          {employee && employee.map((project) => (
-            <div key={project?.project?.name} className="mb-8">
-              <div className="text-base font-bold mb-2">
-                Project Name: {project?.project?.name}
+              <img src={`https://hrm-server-api.onrender.com/${employeeData?.image}`} alt={employeeData?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
+              <div className="text-3xl font-bold mb-2">
+                {employeeData?.name}
               </div>
               <div className="text-base mb-2">
-                Role: {project?.position}
+                Address: {employeeData?.address}
               </div>
               <div className="text-base mb-2">
-                Description: {project?.project?.description}
+                Email: {employeeData?.email}
               </div>
               <div className="text-base mb-2">
-                Specification: Full-stack features development and maintenance
+                Phone: {employeeData?.phone}
               </div>
               <div className="text-base mb-2">
-                <span className="font-bold">Languages and Framework:</span> {project?.project?.technical}
+                Birthday: {formatDate(employeeData?.date_of_birth ?? new Date())}
               </div>
-              <div className="text-base mb-8">
-                <span className="font-bold">Technologies:</span> Git/GitHub, Docker, PostgreSQL, AWS
+              <div className="mb-8">
+                <div className="text-2xl font-bold mb-4">
+                  WORKING EXPERIENCE
+                </div>
+                <div className="text-base mb-4">
+                  Start Date: {formatDate(employeeData?.join_date ?? new Date())}
+                </div>
+                <div className="text-base mb-4 italic">
+                  {employeeData?.description}
+                </div>
+                <div className="text-base mb-4">
+                  Develop applications and execute software development.
+                </div>
+                <div className="text-base mb-4">
+                  <span className="font-bold">Languages and Framework:</span> {skillText}
+                </div>
+                <div className="text-base mb-8">
+                  <span className="font-bold">Technologies:</span> Git/GitHub, Docker, AWS, MySQL, MongoDB, SQL Server, PostgreSQL, Redis.
+                </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        <div className="mb-8">
-          <div className="text-2xl font-bold mb-4">
-            TECHNICAL SKILLS/QUALIFICATION
-          </div>
-          <table className="w-full table-auto border-collapse border mb-8">
-            <thead>
-              <tr>
-                <th className="p-2">
-                  <p className="text-brown text-lg font-bold">SKILL</p>
-                </th>
-                <th className="p-2">
-                  <p className="text-brown text-lg font-bold">EXPERIENCE (in year)</p>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows}
-              <tr>
-                <td className="p-2">
-                  <p className="text-brown text-lg font-bold mt-4">
-                    Legends – <span className="font-normal">Experience is a number of years that the candidate has significant experience within that respective skill. Level is: 1. Basic Capabilities, 2. Advanced Capabilities, 3. Demonstrated Expertise, or 4. Teaching/Lead Capabilities.</span>
-                  </p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+            <div className="lg:w-3/4 lg:mx-10 m-5">
 
-        {/* <div className="text-brown text-lg mb-8">
+              <div className="mb-8">
+                <div className="text-2xl font-bold mb-4">
+                  TYPICAL PROJECTS
+                </div>
+                {employee && employee.map((project) => (
+                  <div key={project?.project?.name} className="mb-8">
+                    <div className="text-base font-bold mb-2">
+                      Project Name: {project?.project?.name}
+                    </div>
+                    <div className="text-base mb-2">
+                      Role: {project?.position}
+                    </div>
+                    <div className="text-base mb-2">
+                      Description: {project?.project?.description}
+                    </div>
+                    <div className="text-base mb-2">
+                      Specification: Full-stack features development and maintenance
+                    </div>
+                    <div className="text-base mb-2">
+                      <span className="font-bold">Languages and Framework:</span> {project?.project?.technical}
+                    </div>
+                    <div className="text-base mb-8">
+                      <span className="font-bold">Technologies:</span> Git/GitHub, Docker, PostgreSQL, AWS
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mb-8">
+                <div className="text-2xl font-bold mb-4">
+                  TECHNICAL SKILLS/QUALIFICATION
+                </div>
+                <table className="w-full table-auto border-collapse border mb-8">
+                  <thead>
+                    <tr>
+                      <th className="p-2">
+                        <p className="text-brown text-lg font-bold">SKILL</p>
+                      </th>
+                      <th className="p-2">
+                        <p className="text-brown text-lg font-bold">EXPERIENCE (in year)</p>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows}
+                    <tr>
+                      <td className="p-2">
+                        <p className="text-brown text-lg font-bold mt-4">
+                          Legends – <span className="font-normal">Experience is a number of years that the candidate has significant experience within that respective skill. Level is: 1. Basic Capabilities, 2. Advanced Capabilities, 3. Demonstrated Expertise, or 4. Teaching/Lead Capabilities.</span>
+                        </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* <div className="text-brown text-lg mb-8">
           IMPORTANT CONFIDENTIALITY NOTICE: This document contains confidential and/or legally privileged information. ST United reserves all rights hereunder. When distributed or transmitted, it is intended solely for the authorized use of the addressee or intended recipient. Access to this information by anyone else is unauthorized. Disclosure, copying, distribution, or any action or omission taken in reliance on it is prohibited and may be unlawful. Please, report any exceptions hereto immediately to{' '}
           <span className="text-blue-500">hello@stunited.vn</span>
         </div> */}
-        </div>
-        </>
-  ) : null}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
