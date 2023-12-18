@@ -14,11 +14,15 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { projectApi } from '../../../apis/project.api';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { employeeApi } from '../../../apis/employee.api';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormProjectType, formProjectSchema } from '../../../utils/rules';
 import { projectStatusOption, projectTechnicalOption } from '../../../enum';
@@ -30,11 +34,6 @@ import ReactSelect from 'react-select';
 import MemberModal from './MemberModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import withReactContent from 'sweetalert2-react-content';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { employeeApi } from '../../../apis/employee.api';
-import { projectApi } from '../../../apis/project.api';
-import toast from 'react-hot-toast';
-import moment from 'moment';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -63,6 +62,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
 
+  //Hook cura react-query dufng cho method get
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
     queryFn: () => employeeApi.getAll({})
@@ -278,11 +278,16 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                 <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
                   End Date
                 </InputLabel>
+
                 <Controller
                   control={control}
                   name='end_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disablePast={true} />}
                 />
+
+                <div className={classNameError} style={{ color: 'red' }}>
+                  {errors.end_date?.message}
+                </div>
               </Grid>
               {/* End End Date */}
 

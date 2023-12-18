@@ -1,5 +1,5 @@
 import { projectApi } from '../../../apis/project.api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
@@ -8,7 +8,12 @@ import toast from 'react-hot-toast';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import withReactContent from 'sweetalert2-react-content';
+<<<<<<< HEAD
+import EditProjectModal from './Update';
+import CreateProjectModal from './Create';
+=======
 import UpdateProjectModal from './Update';;
+>>>>>>> 5a89ae4929d95aa4006c652ffcd40d6d16f451f7
 
 import Button from '@mui/material/Button';
 import CreateProjectModal from './Create';
@@ -28,7 +33,8 @@ const ProjectsList = () => {
   const [data, setData] = useState<Project[]>([]);
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
-  const [item, setItem] = useState<object>({});
+  const [dataProject, setdataProject] = useState<object>({});
+  const [idProject, setIdProject] = useState<string | number>('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +61,7 @@ const ProjectsList = () => {
 
   const updatedModalOpen = (row: any) => {
     setVisibleModalUpdate(true);
-    setItem(row.original);
+    setdataProject(row.original);
   };
 
   const fetchData = async () => {
@@ -107,12 +113,26 @@ const ProjectsList = () => {
     []
   );
 
+<<<<<<< HEAD
+  // Call Api get Emp
+  const getProject = useQuery({
+    queryKey: ['project', idProject],
+    queryFn: () => projectApi.getProject(idProject),
+    enabled: Boolean(idProject),
+    retry: 0
+  });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: (id: any) => {
+      return projectApi.delete(id);
+=======
   const deleteUser = async (id: number) => {
     try {
       await axios.delete(`https://hrm-server-api.onrender.com/api/employees/${id}`);
       fetchData(); // Fetch updated data after deletion
     } catch (error) {
       console.error('Error deleting user:', error);
+>>>>>>> 5a89ae4929d95aa4006c652ffcd40d6d16f451f7
     }
   };
 
@@ -137,7 +157,16 @@ const ProjectsList = () => {
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
+<<<<<<< HEAD
+          <IconButton
+            onClick={() => {
+              updatedModalOpen(row);
+              setIdProject(row.original.id as string | number);
+            }}
+          >
+=======
           <IconButton onClick={() => table.setEditingRow(row)}>
+>>>>>>> 5a89ae4929d95aa4006c652ffcd40d6d16f451f7
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -156,6 +185,13 @@ const ProjectsList = () => {
       {visibleModalAddUpdate && (
         <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
       )}
+<<<<<<< HEAD
+
+      {visibleModalUpdate && getProject?.data?.data?.data && (
+        <EditProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={dataProject} />
+      )}
+=======
+>>>>>>> 5a89ae4929d95aa4006c652ffcd40d6d16f451f7
     </>
   );
 };

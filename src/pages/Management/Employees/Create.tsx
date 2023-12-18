@@ -1,26 +1,29 @@
 import {
   Box,
-  Button,
-  FormControlLabel,
   Grid,
-  InputLabel,
   Modal,
-  Paper,
   Radio,
-  RadioGroup,
+  Paper,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
+  Button,
   TableRow,
+  TableCell,
   TextField,
-  Typography
+  TableBody,
+  TableHead,
+  InputLabel,
+  RadioGroup,
+  Typography,
+  TableContainer,
+  FormControlLabel
 } from '@mui/material';
+import { toast } from 'react-toastify';
 import { useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useMutation } from '@tanstack/react-query';
+import { employeeApi } from '../../../apis/employee.api';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
@@ -32,9 +35,6 @@ import SkillModal from './SkillModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import withReactContent from 'sweetalert2-react-content';
-import { useMutation } from '@tanstack/react-query';
-import { employeeApi } from '../../../apis/employee.api';
-import toast from 'react-hot-toast';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -325,7 +325,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                 <Controller
                   control={control}
                   name='date_of_birth'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disableFuture={true} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>

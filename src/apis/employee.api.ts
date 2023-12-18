@@ -9,13 +9,14 @@ export const employeeApi = {
     });
   },
 
-  getUser: (idUser: string | number) => {
+  getEmp: (idUser: string | number) => {
     return api.get(`${EMPLOYEES}/${idUser}`);
   },
 
   add: (body: any) => {
     return api.post(EMPLOYEES, body);
   },
+
   update: (id: string | number, body: any) => {
     return api.patch(`${EMPLOYEES}/${id}`, body);
   },

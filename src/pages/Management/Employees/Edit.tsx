@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
   Box,
@@ -504,3 +506,4 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
 }
 
 export default EditEmployeeModel;
+>>>>>>> 5a89ae4929d95aa4006c652ffcd40d6d16f451f7
