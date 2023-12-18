@@ -2,12 +2,20 @@ import { useEffect, useState } from 'react';
 import Timeline from 'react-timelines';
 import 'react-timelines/lib/css/style.css';
 import { buildTimebar, buildTrack } from './builders';
-import { NUM_OF_TRACKS } from './constants';
 import { fill } from './utils';
 
+let timebar;
 const now = new Date();
 
-const timebar = buildTimebar();
+const clickElement = (element: any) => {
+  const notification = {
+    position: element.title,
+    start: element.start,
+    end: element.end
+  };
+
+  alert(JSON.stringify(notification, null, 2));
+};
 
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 20;
@@ -25,24 +33,25 @@ const ProjectTimeline = ({ data }: any) => {
   const [end, setEnd] = useState<Date | null>(null);
 
   useEffect(() => {
-    const tracksById = fill(NUM_OF_TRACKS).reduce((acc, i) => {
-      const track = buildTrack(i + 1);
-      acc[track.id] = track;
-      return acc;
-    }, {});
-
-    setState((prevState) => ({
-      ...prevState,
-      tracksById,
-      tracks: Object.values(tracksById)
-    }));
-  }, []);
-
-  useEffect(() => {
     if (data && data.start_date && data.end_date) {
+      timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date(data.end_date).getFullYear());
+
       setProject(data);
       setStart(new Date(data.start_date));
       setEnd(new Date(data.end_date));
+
+      const tracksById = fill(data.employeesInProject.length).reduce((acc, i) => {
+        const track = buildTrack(data.employeesInProject[i], data.start_date, data.end_date, i + 1);
+
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
     }
   }, [data]);
 
@@ -88,7 +97,8 @@ const ProjectTimeline = ({ data }: any) => {
         <>
           <Timeline
             scale={{
-              start: new Date("2022"),
+              // start: start as Date,
+              start: start as Date,
               end: end as Date,
               zoom: state.zoom,
               zoomMin: MIN_ZOOM,
@@ -103,6 +113,7 @@ const ProjectTimeline = ({ data }: any) => {
             toggleTrackOpen={handleToggleTrackOpen}
             enableSticky
             scrollToNow
+            clickElement={clickElement}
           />
         </>
       ) : (

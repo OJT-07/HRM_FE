@@ -1,3 +1,8 @@
+import { yupResolver } from '@hookform/resolvers/yup';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import SaveIcon from '@mui/icons-material/Save';
 import {
   Box,
   Button,
@@ -17,27 +22,20 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { useState } from 'react';
-import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
-import Swal from 'sweetalert2';
-import SaveIcon from '@mui/icons-material/Save';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { useState } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
 // import LineManagerModal from './LineManagerModal';
-import IconButton from '@mui/material/IconButton';
-import SkillModal from './SkillModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
-import withReactContent from 'sweetalert2-react-content';
+import IconButton from '@mui/material/IconButton';
 import { useMutation } from '@tanstack/react-query';
-import { employeeApi } from '../../../apis/employee.api';
 import toast from 'react-hot-toast';
+import withReactContent from 'sweetalert2-react-content';
+import { employeeApi } from '../../../apis/employee.api';
+import SkillModal from './SkillModal';
 
 const MySwal = withReactContent(Swal);
 interface Props {
