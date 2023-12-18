@@ -28,7 +28,6 @@ const EmployeesDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch employee data from the server
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees/${id}`);
         setEmployee(response.data.data);
       } catch (error) {
@@ -39,22 +38,19 @@ const EmployeesDetail = () => {
   }, [id]);
 
   const formatDate = (date: Date) => {
-    // Format date to a user-friendly string
     const formattedDate = new Date(date).toLocaleDateString('en-US');
     return formattedDate;
   };
-  
+
   return (
     <CardBody>
       {employee && (
         <div className="gap-5 flex flex-col">
-        <div>
+          <div>
             <b> <label className="mb-3 block text-black dark:text-white"> Image </label> </b>
-            <div className="border border-gray-300 rounded px-10 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
-              {employee.image}
-              <img src={employee.image} alt="Employee Image" style={{ maxWidth: '100%', maxHeight: '200px' }} />
-            </div>
+            <img src={`https://hrm-server-api.onrender.com/${employee?.image}`} alt={employee?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
           </div>
+
           {/* First Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
@@ -125,11 +121,11 @@ const EmployeesDetail = () => {
               {employee.description}
             </div>
           </div>
-         
+
         </div>
-        
-        
-        
+
+
+
       )}
     </CardBody>
   );

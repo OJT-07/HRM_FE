@@ -9,18 +9,17 @@ import toast from 'react-hot-toast';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
 import CreateEmployeeModal from './Create';
 import EditModal from './Edit'
-import axios from 'axios';
-import { employeeApi } from '../../../apis/employee.api';
-import toast from 'react-hot-toast';
+
+
+
 import { showToast } from '../../../components/ToastCustom';
-import { useMutation } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
+
+
 import withReactContent from 'sweetalert2-react-content';
 import EditEmployeeModel from './Edit';
-import CreateEmployeeModal from './Create';
+
 
 interface Skill {
   exp: string;
@@ -159,7 +158,7 @@ const EmployeesList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({ }) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Employee
       </Button>
