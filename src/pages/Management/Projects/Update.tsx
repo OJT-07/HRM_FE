@@ -1,8 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import SaveIcon from '@mui/icons-material/Save';
 import {
   Box,
   Button,
   Grid,
+  Input,
   InputLabel,
   Modal,
   Paper,
@@ -13,26 +18,20 @@ import {
   TableHead,
   TableRow,
   TextField,
-  Typography,
-  Input
+  Typography
 } from '@mui/material';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { FormProjectType, formProjectSchema } from '../../../utils/rules';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import IconButton from '@mui/material/IconButton';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import axios from 'axios';
+import { cloneDeep } from 'lodash';
 import { useEffect, useState } from 'react';
-import MemberModal from './MemberModal';
-import SaveIcon from '@mui/icons-material/Save';
-import { projectStatusOption, projectTechnicalOption } from '../../../enum';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import ReactSelect from 'react-select';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { cloneDeep } from 'lodash';
-import ReactSelect from 'react-select';
-import axios from 'axios';
 import { employeeApi } from '../../../apis/employee.api';
-import { projectApi } from '../../../apis/project.api';
+import { projectStatusOption, projectTechnicalOption } from '../../../enum';
+import { FormProjectType, formProjectSchema } from '../../../utils/rules';
+import MemberModal from './MemberModal';
 
 import { useQuery } from '@tanstack/react-query';
 
@@ -101,13 +100,15 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     register,
     handleSubmit,
     control,
-    setError, 
+    setError,
     trigger,
     getValues,
     setValue
   } = methods;
 
-  const onSubmit = handleSubmit((data?: any) => {
+  const onSubmit = (data?: any) => {
+    console.log(editProject);
+
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -118,21 +119,23 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(data);
         const submitData = {
-          ...data,
-          start_date: data?.start_date?.toISOString(),
-          end_date: data?.end_date?.toISOString() || null,
-          technical: data.technical.map((tech: any) => tech.value),
+          description: editProject?.description,
+          start_date: editProject?.start_date,
+          end_date: editProject?.end_date || null,
+          technical: data?.technical.map((tech: any) => tech.value),
           members: memberList.map((member: any) => ({
-            employeeId: member.member.id,
-            position: member.position
+            employeeId: member?.member.id,
+            position: member?.position
           })),
-          status: data.status.value
+          status: data?.status?.value
         };
+        console.log('🚀 ~ file: Update.tsx:124 ~ onSubmit ~ submitData:', submitData);
+        // CALL API
       }
     });
-  });
+  };
+
   const handleClose = (event?: any, reason?: string) => {
     // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
@@ -166,7 +169,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     setValue('employeesInProject', newMemberList);
     await trigger(['employeesInProject']);
   };
-  
 
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
@@ -209,7 +211,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${initialValue.id}`);
       setData(response.data.data.employeesInProject);
-      console.log(' Quang cute ', response.data.data);
       // const formattedData = response.data.data.map((member: Member) => ({
       //   ...member,
 
@@ -453,7 +454,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 </fieldset>
               </Grid>
 
-
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                   Description
@@ -485,7 +485,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='submit'
+                // type='submit'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -497,17 +497,11 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
               <Button
                 size='medium'
-                type='submit'
                 style={{ marginRight: 0 }}
                 variant='contained'
                 startIcon={<SaveIcon />}
                 color='primary'
-                onClick={() => {
-                  console.log("Phuc dep trai!!!")
-                  console.log(editMemberList)
-                  const value = getValues();
-                  onSubmit({ ...initialValue, ...value })
-                }}
+                onClick={() => onSubmit({ ...initialValue, ...getValues() })}
               >
                 Submit
               </Button>
