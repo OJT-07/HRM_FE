@@ -38,12 +38,8 @@ import withReactContent from 'sweetalert2-react-content';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
-// import LineManagerModal from './LineManagerModal';
 import SkillModal from './SkillModal';
 import { employeeApi } from '../../../apis/employee.api';
-// import {
-//   userApi
-// } from '../../../apis/user.api'
 
 
 const MySwal = withReactContent(Swal);
@@ -51,9 +47,10 @@ const MySwal = withReactContent(Swal);
 
 interface Props {
   visible: boolean;
-  onClose: () => void;
   initialValue?: any;
   dataEmployee?: any;
+  onEditSuccess: () => void;
+  onClose: () => void;
 }
 
 const style = {
@@ -71,7 +68,7 @@ const style = {
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
-function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Props) {
+function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEditSuccess }: Props) {
   const [visibleLineManager, setVisibleLineManager] = useState(false);
   const [visibleSkill, setVisibleSkill] = useState(false);
   const [skillList, setSkillList] = useState<any>([]);
@@ -124,29 +121,18 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
   } = methods;
 
   const onSubmit = async (data: any) => {
-    const body = {
-      ...employeeData,
-      name: data.fullName,
-      address: data.address,
-      contactNumber: data.contactNumber,
-      email: data.email,
-      join_date: data.joinDate,
-      date_of_birth: data.dateOfBirth,
-      isManager: data.isManager,
-      skills: skillList,
-      description: data.description,
-
-    }
     try {
-      await employeeApi.update(employeeData.id, body);
+      await employeeApi.update(employeeData.id, data);
+      await employeeApi.getAll({});
 
       MySwal.fire({
         title: 'User Updated!',
         text: 'User data has been updated successfully.',
         icon: 'success',
       });
-
+      onEditSuccess();
       onClose();
+
     } catch (error) {
       console.error('Error updating user:', error);
 
@@ -205,6 +191,13 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
     await trigger(['isManager']);
   };
 
+  const handleEditSkill = async (newSkill: any, index: number) => {
+    const newSkillList = cloneDeep(skillList).toSpliced(index, 1, newSkill);
+    setSkillList(newSkillList);
+    setValue('skills', newSkillList);
+    await trigger(['skills']);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const formattedDate = date.toISOString().slice(0, 10);
@@ -231,8 +224,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
         </Typography>
         <FormProvider {...methods}>
           <form onSubmit={() => {
-            // const value = getValues()
-            // onSubmit(value)
+
           }}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
@@ -486,7 +478,6 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                type='submit'
                 style={{ marginRight: '1rem' }}
                 variant='contained'
                 color='error'
@@ -504,7 +495,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
                 startIcon={<SaveIcon />}
                 color='primary'
                 onClick={() => {
-                  const value = getValues()
+                  const value = getValues();
                   onSubmit({ ...employeeData, ...value })
                 }}
               >
@@ -513,24 +504,17 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee }: Pro
             </div>
           </form>
         </FormProvider>
-        {/* {visibleSkill && (
-          // <SkillModal
+        {visibleSkill && (
+          <SkillModal
             visible={visibleSkill}
             onClose={handleCloseSkill}
-            onFinish={handleAddSkill}
+            onAdd={handleAddSkill}
+            onUpdate={handleEditSkill}
             initialValues={initSkill}
+            selectedSkillList={skillList}
           />
-        )} */}
+        )}
 
-        {/* {visibleLineManager && (
-            <LineManagerModal
-              visible={visibleLineManager}
-              onClose={handleCloseLineManager}
-              onFinish={handleApplyLineManagerList}
-              defaultLineManagerList={lineManagerList}
-              viewOnly={viewOnlyLineManager}
-            />
-          )} */}
       </Box>
     </Modal>
   );
