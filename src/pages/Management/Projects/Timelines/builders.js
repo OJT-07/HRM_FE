@@ -107,8 +107,8 @@ export const buildTrack = (data, start_date, end_date, trackId) => {
   // }
 
   return {
-    id: `${data.employee.id}`,
-    title: `${data.employee.name}`,
+    id: `${data?.employee?.id}`,
+    title: `${data?.employee?.name}`,
     // elements: buildElements(trackId)
     elements: v
   };

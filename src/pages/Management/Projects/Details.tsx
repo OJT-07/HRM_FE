@@ -4,6 +4,7 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'm
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectTimeline from './Timelines/Timeline';
+
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
   MEMBERS: 'MEMBERS',
@@ -46,6 +47,7 @@ const Timeline = () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
       setProject(response.data.data);
+      console.log('🚀 ~ file: Details.tsx:50 ~ fetchData ~ response:', response);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
