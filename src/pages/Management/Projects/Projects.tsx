@@ -1,5 +1,5 @@
 import { projectApi } from '../../../apis/project.api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import withReactContent from 'sweetalert2-react-content';
-import UpdateProjectModal from './Update';
+import EditProjectModal from './Update';
 import CreateProjectModal from './Create';
 
 interface Project {
@@ -28,7 +28,8 @@ const ProjectsList = () => {
   const [data, setData] = useState<Project[]>([]);
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
-  const [item, setItem] = useState<object>({});
+  const [dataProject, setdataProject] = useState<object>({});
+  const [idProject, setIdProject] = useState<string | number>('');
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
@@ -56,7 +57,7 @@ const ProjectsList = () => {
 
   const updatedModalOpen = (row: any) => {
     setVisibleModalUpdate(true);
-    setItem(row.original);
+    setdataProject(row.original);
   };
 
   const fetchData = async () => {
@@ -109,6 +110,14 @@ const ProjectsList = () => {
     []
   );
 
+  // Call Api get Emp
+  const getProject = useQuery({
+    queryKey: ['project', idProject],
+    queryFn: () => projectApi.getProject(idProject),
+    enabled: Boolean(idProject),
+    retry: 0
+  });
+
   const deleteProjectMutation = useMutation({
     mutationFn: (id: any) => {
       return projectApi.delete(id);
@@ -153,7 +162,12 @@ const ProjectsList = () => {
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
-          <IconButton onClick={() => updatedModalOpen(row)}>
+          <IconButton
+            onClick={() => {
+              updatedModalOpen(row);
+              setIdProject(row.original.id as string | number);
+            }}
+          >
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -173,8 +187,8 @@ const ProjectsList = () => {
         <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
       )}
 
-      {visibleModalUpdate && (
-        <UpdateProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={item} />
+      {visibleModalUpdate && getProject?.data?.data?.data && (
+        <EditProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={dataProject} />
       )}
     </>
   );

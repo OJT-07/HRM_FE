@@ -1,11 +1,11 @@
+import { toast } from 'react-toastify';
 import { employeeApi } from '../../../apis/employee.api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -21,7 +21,8 @@ interface Person {
   id: number;
   name: string;
   phone: string;
-  date_of_birth: string;
+  join_date: Date;
+  date_of_birth: Date;
   skills: Skill[];
 }
 
@@ -32,6 +33,7 @@ const EmployeesList = () => {
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
   const [dataEmployee, setDataEmployee] = useState();
+  const [idEmp, setIdEmp] = useState<string | number>('');
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
@@ -62,6 +64,14 @@ const EmployeesList = () => {
     setVisibleModalUpdate(true);
     setDataEmployee(row.original);
   };
+
+  // Call Api get Emp
+  const getEmployee = useQuery({
+    queryKey: ['employee', idEmp],
+    queryFn: () => employeeApi.getEmp(idEmp),
+    enabled: Boolean(idEmp),
+    retry: 0
+  });
 
   const fetchData = async () => {
     try {
@@ -158,7 +168,12 @@ const EmployeesList = () => {
     renderRowActions: ({ row }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
-          <IconButton onClick={() => handleOpenModalUpdate(row)}>
+          <IconButton
+            onClick={() => {
+              handleOpenModalUpdate(row);
+              setIdEmp(row.original.id as string | number);
+            }}
+          >
             {/* Use an arrow function to wrap the function call */}
             <EditIcon />
           </IconButton>
@@ -179,8 +194,13 @@ const EmployeesList = () => {
         <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
       )}
 
-      {visibleModalUpdate && (
-        <EditEmployeeModel visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+      {visibleModalUpdate && getEmployee?.data?.data?.data && (
+        <EditEmployeeModel
+          visible={visibleModalUpdate}
+          onClose={handleCloseModalUpdate}
+          // initData={getEmployee?.data?.data?.data}
+          initData={dataEmployee}
+        />
       )}
     </>
   );
