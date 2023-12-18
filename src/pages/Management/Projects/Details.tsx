@@ -1,19 +1,37 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import ProjectTimeline from './Timelines/Timeline';
+import ProjectTimeline from './Timelines/Timeline'
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Card, CardBody, CardHeader, Tab, TabPanel, Tabs, TabsBody, TabsHeader } from '@material-tailwind/react';
+import {
+  Card,
+  CardBody,
+  CardHeader,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsBody,
+  TabsHeader,
+} from "@material-tailwind/react";
 const TAB_KEYS = {
-  INFORMATION: 'INFORMATION',
-  MEMBERS: 'MEMBERS',
-  TIMELINE: 'TIMELINE'
+  INFORMATION: "INFORMATION",
+  MEMBERS: "MEMBERS",
+  TIMELINE: "TIMELINE",
 };
 
 const dataTabs = [
   {
-    label: 'Information',
-    value: TAB_KEYS.INFORMATION
+    label: "Information",
+    value: TAB_KEYS.INFORMATION,
+  },
+
+  {
+    label: "Members",
+    value: TAB_KEYS.MEMBERS,
+  },
+  {
+    label: "Timeline",
+    value: TAB_KEYS.TIMELINE,
   },
   {
     label: 'Members',
@@ -31,58 +49,96 @@ interface Member {
   name: string;
 }
 const Timeline = () => {
-  const [project, setProject] = useState<Project[]>([]);
+  const [project, setProject] = useState([]);
+  const [filteredProject, setFilteredProject] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const { id } = useParams();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
         setProject(response.data.data);
+        setFilteredProject(response.data.data.employeesInProject);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
+
     fetchData();
-  }, []);
+  }, [id]); 
+
   const formatDate = (dateString: string) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US');
     return formattedDate;
   };
 
+ 
+  const handleSearch = () => {
+    // Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm trên dữ liệu gốc, ngược lại sử dụng dữ liệu gốc
+    const dataToSearch = searchTerm ? project.employeesInProject : filteredProject;
+  
+    // Sử dụng biến cờ để kiểm tra xem có nhân viên nào khớp không
+    let hasMatchingEmployee = false;
+  
+    const filteredData = dataToSearch.filter((employee) => {
+      const isMatch = employee.employee.name.toLowerCase().includes(searchTerm.toLowerCase());
+  
+      // Nếu tên trùng khớp, log dữ liệu của nhân viên và đặt cờ thành true
+      if (isMatch) {
+        console.log('Matching employee data:', employee);
+        hasMatchingEmployee = true;
+      }
+  
+      return isMatch;
+    });
+  
+    // Kiểm tra biến cờ để xác định có in ra dòng 'No Matching employee data:' hay không
+    if (!hasMatchingEmployee) {
+      console.log('No Matching employee data:');
+    }
+  
+    setFilteredProject(filteredData);
+  };
+  
   return (
-    <div className='gap-5 flex justify-between flex-col'>
+    <div className="gap-5 flex justify-between flex-col">
+     <div>
+      <input
+        type="text"
+        placeholder="Search by employee name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+      <button onClick={handleSearch}>Search</button>
+      <ul>
+       
+      </ul>
+    </div>
       <div>
-        <b>
-          {' '}
-          <label className='mb-3 block text-black dark:text-white'> Project Name</label>{' '}
-        </b>
-        <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
+        <b> <label className="mb-3 block text-black dark:text-white"> Project Name</label> </b>
+        <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
           {project?.name}
         </div>
       </div>
-      <div className='grid grid-cols-2 gap-5'>
+      <div className="grid grid-cols-2 gap-5">
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'>Start Date</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+          <b> <label className="mb-3 block text-black dark:text-white">Start Date</label> </b>
+          <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
             {formatDate(project?.start_date)}
           </div>
         </div>
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> End Date</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+          <b> <label className="mb-3 block text-black dark:text-white"> End Date</label> </b>
+          <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
             {formatDate(project?.end_date)}
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const EmployeesList = () => {
   const [data, setData] = useState<Member[]>([]);
@@ -96,13 +152,13 @@ const EmployeesList = () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
       setData(response.data.data.employeesInProject);
-      console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
-     
-      // const formattedData = response.data.data.map((member: Member) => ({
-      //   ...member,
+      // console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
 
-      // }));
-      // setData(formattedData);
+      const formattedData = response.data.data.map((member: Member) => ({
+        ...member,
+
+      }));
+      setData(formattedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -136,8 +192,10 @@ const EmployeesList = () => {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 10,
-        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString()
-      }
+        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
+
+      },
+
     ],
     []
   );
@@ -177,7 +235,7 @@ const renderInformation = () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
         setProject(response.data.data);
-        console.log(response.data.data);
+        // console.log(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -189,85 +247,76 @@ const renderInformation = () => {
     return formattedDate;
   };
   return (
+
     <CardBody>
-      <div className='gap-5 flex justify-between flex-col'>
+      <div className="gap-5 flex justify-between flex-col">
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Project Name</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
+          <b> <label className="mb-3 block text-black dark:text-white"> Project Name</label> </b>
+          <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
             {project?.name}
           </div>
         </div>
-        <div className='grid grid-cols-2 gap-5'>
+        <div className="grid grid-cols-2 gap-5">
           <div>
-            <b>
-              {' '}
-              <label className='mb-3 block text-black dark:text-white'>Start Date</label>{' '}
-            </b>
-            <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+            <b> <label className="mb-3 block text-black dark:text-white">Start Date</label> </b>
+            <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
               {formatDate(project?.start_date)}
             </div>
           </div>
           <div>
-            <b>
-              {' '}
-              <label className='mb-3 block text-black dark:text-white'> End Date</label>{' '}
-            </b>
-            <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+            <b> <label className="mb-3 block text-black dark:text-white"> End Date</label> </b>
+            <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
               {formatDate(project?.end_date)}
             </div>
           </div>
         </div>
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Status</label>{' '}
-          </b>
+          <b> <label className="mb-3 block text-black dark:text-white"> Status</label> </b>
           <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary    '>
             {/* {getStatusColor(project?.status)} */}
             {project?.status}
           </div>
         </div>
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Description</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
+          <b> <label className="mb-3 block text-black dark:text-white"> Description</label> </b>
+          <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
             {project?.description}
           </div>
         </div>
         <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Technical</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
+          <b> <label className="mb-3 block text-black dark:text-white"> Technical</label> </b>
+          <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
             {project?.technical}
           </div>
         </div>
+
       </div>
     </CardBody>
-  );
+  )
 };
+
+
 const TabKey = () => {
   return (
     <Card>
-      <CardHeader className='dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary' color='amber'>
+      <CardHeader className="dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary" color="amber">
         <CardBody>
           <Tabs value={TAB_KEYS.INFORMATION}>
+
             <TabsHeader>
               {dataTabs.map(({ label, value }) => (
                 <Tab key={value} value={value}>
-                  <div className='flex items-center gap-2'>{label}</div>
+                  <div className="flex items-center gap-2">{label}</div>
                 </Tab>
               ))}
             </TabsHeader>
             <TabsBody>
-              <TabPanel value={TAB_KEYS.INFORMATION}>{renderInformation()}</TabPanel>
-              <TabPanel value={TAB_KEYS.MEMBERS}>{EmployeesList()}</TabPanel>
+              <TabPanel value={TAB_KEYS.INFORMATION}>
+                {renderInformation()}
+              </TabPanel>
+              <TabPanel value={TAB_KEYS.MEMBERS}>
+                {EmployeesList()}
+              </TabPanel>
               <TabPanel value={TAB_KEYS.TIMELINE}>
                 {Timeline()}
                 <ProjectTimeline />

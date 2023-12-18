@@ -2,9 +2,9 @@ import Timeline from 'react-timelines';
 
 import 'react-timelines/lib/css/style.css';
 
-import { NUM_OF_TRACKS } from './constants.js';
+import { NUM_OF_TRACKS } from '../Timelines/constants.js';
 
-import { buildTimebar, buildTrack } from './builders.js';
+import { buildTimebar, buildTrack } from '../Timelines/builders.js';
 
 import { Component } from 'react';
 import { fill } from './ultis.js';
