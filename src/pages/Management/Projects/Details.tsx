@@ -35,6 +35,7 @@ interface Member {
 
 const Timeline = () => {
   const [project, setProject] = useState<Project | null>(null);
+
   const { id } = useParams();
   useEffect(() => {
     fetchData();

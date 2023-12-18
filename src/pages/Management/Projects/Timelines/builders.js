@@ -83,15 +83,12 @@ export const buildTrack = (data, start_date, end_date, trackId) => {
   let i = 1;
 
   const start = new Date(data.join_date);
-  console.log('🚀 ~ file: builders.js:86 ~ buildTrack ~ start:', start);
 
   let end;
   if (data.end_date !== null) {
     end = new Date(data.end_date);
-    console.log('🚀 ~ file: builders.js:91 ~ buildTrack ~ end:', end);
   } else {
     end = new Date(end_date);
-    console.log('🚀 ~ file: builders.js:94 ~ buildTrack ~ end:', end);
   }
 
   v.push(

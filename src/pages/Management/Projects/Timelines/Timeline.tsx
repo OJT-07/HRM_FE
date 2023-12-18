@@ -4,7 +4,7 @@ import 'react-timelines/lib/css/style.css';
 import { buildTimebar, buildTrack } from './builders';
 import { fill } from './utils';
 
-let timebar;
+let timebar = '';
 const now = new Date();
 
 const clickElement = (element: any) => {
@@ -31,6 +31,8 @@ const ProjectTimeline = ({ data }: any) => {
   const [project, setProject] = useState<any>(null);
   const [start, setStart] = useState<Date | null>(null);
   const [end, setEnd] = useState<Date | null>(null);
+  const [filteredProject, setFilteredProject] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (data && data.start_date && data.end_date) {
@@ -39,8 +41,9 @@ const ProjectTimeline = ({ data }: any) => {
       setProject(data);
       setStart(new Date(data.start_date));
       setEnd(new Date(data.end_date));
+      setFilteredProject(data.employeesInProject);
 
-      const tracksById = fill(data.employeesInProject.length).reduce((acc, i) => {
+      const tracksById = fill(data.employeesInProject.length).reduce((acc: any, i: any) => {
         const track = buildTrack(data.employeesInProject[i], data.start_date, data.end_date, i + 1);
 
         acc[track.id] = track;
@@ -54,6 +57,51 @@ const ProjectTimeline = ({ data }: any) => {
       }));
     }
   }, [data]);
+
+  const handleSearch = () => {
+    const trimmedSearchTerm = searchTerm.trim();
+
+    const searchTermsArray = trimmedSearchTerm.split(/\s+/);
+
+    if (searchTermsArray[0].length > 0) {
+      const dataToSearch = trimmedSearchTerm ? project.employeesInProject : filteredProject;
+
+      const filteredData = dataToSearch.filter((employee: any) => {
+        const isMatch = searchTermsArray.every((term) =>
+          employee.employee.name.toLowerCase().includes(term.toLowerCase())
+        );
+
+        return isMatch;
+      });
+
+      setFilteredProject(filteredData);
+
+      const tracksById = fill(filteredData.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(filteredData[i], data.start_date, data.end_date, i + 1);
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
+    } else {
+      const tracksById = fill(project.employeesInProject.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(project.employeesInProject[i], project.start_date, project.end_date, i + 1);
+
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
+    }
+  };
 
   const handleToggleOpen = () => {
     setState((prevState) => ({ ...prevState, open: !prevState.open }));
@@ -95,6 +143,22 @@ const ProjectTimeline = ({ data }: any) => {
     <div className='app'>
       {project && start && end ? (
         <>
+          <div className='flex items-center mb-10'>
+            <input
+              type='text'
+              placeholder='Search by employee name'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+            />
+            <button
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r bg-primary'
+              onClick={handleSearch}
+            >
+              Search
+            </button>
+          </div>
+
           <Timeline
             scale={{
               // start: start as Date,
