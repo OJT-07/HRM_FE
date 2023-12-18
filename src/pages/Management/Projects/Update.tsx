@@ -31,6 +31,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
 import ReactSelect from 'react-select';
 import axios from 'axios';
+import { employeeApi } from '../../../apis/employee.api';
+import { projectApi } from '../../../apis/project.api';
+
+import { useQuery } from '@tanstack/react-query';
+
 const MySwal = withReactContent(Swal);
 
 interface Props {
@@ -63,19 +68,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const [viewOnlyTech, setViewOnlyTech] = useState(false);
   const [status, setStatus] = useState<{ label: string; value: string } | null>(null);
   const [technical, setTechnical] = useState<{ label: string; value: string }[] | null>(null);
-  // const [editMemberList, setEditMemberList] = useState([]);
+  const [editMemberList, setEditMemberList] = useState([]);
   const [editProject, setEditProject] = useState(initialValue);
-
-  // useEffect(() => {
-  //   setEditMemberList(initialValue);
-  // }, [])
-  // console.log(editMemberList);
-
-  // const handleEditProject = (e) => {
-  //     setEdiProject({
-  //       ...editProject,
-  //     })
-  // }
 
   const handleOpenMember = () => {
     setVisibleMember(true);
@@ -107,14 +101,13 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     register,
     handleSubmit,
     control,
-    setError,
+    setError, 
     trigger,
     getValues,
     setValue
   } = methods;
 
   const onSubmit = handleSubmit((data?: any) => {
-    console.log(data);
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -125,11 +118,21 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        onClose();
+        console.log(data);
+        const submitData = {
+          ...data,
+          start_date: data?.start_date?.toISOString(),
+          end_date: data?.end_date?.toISOString() || null,
+          technical: data.technical.map((tech: any) => tech.value),
+          members: memberList.map((member: any) => ({
+            employeeId: member.member.id,
+            position: member.position
+          })),
+          status: data.status.value
+        };
       }
     });
   });
-
   const handleClose = (event?: any, reason?: string) => {
     // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
 
@@ -152,22 +155,30 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
-    setValue('member', newMemberList);
-    await trigger(['member']);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
   };
 
   const handleRemoveMember = async (index: number) => {
-    const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
+    const newMemberList = cloneDeep(memberList);
+    newMemberList.splice(index, 1);
     setMemberList(newMemberList);
-    setValue('member', newMemberList);
-    await trigger(['member']);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
   };
+  
 
-  const handleOpenEditMember = (member: any) => {
-    console.log(member);
-    handleOpenMember();
-    setInitMember(member);
-  };
+  const { data: dataEmployee } = useQuery({
+    queryKey: ['employee'],
+    queryFn: () => employeeApi.getAll({})
+  });
+
+  const listEmployee =
+    dataEmployee?.data?.data.map((emp: any) => ({
+      ...emp,
+      label: emp?.name,
+      value: emp?.id
+    })) || [];
 
   const handleApplyTechnicalList = async (newTechList: any) => {
     setTechnicalList(newTechList);
@@ -365,6 +376,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   )}
                 />
               </Grid>
+
               <Grid item xs={12}>
                 <fieldset>
                   <legend>
@@ -399,9 +411,28 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {employee?.employee.name}
+                                {employee?.employee?.name}
                               </TableCell>
                               <TableCell align='center'> {employee.position} </TableCell>
+                              <TableCell align='center'>
+                                <Box>
+                                  <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
+                                    <DeleteIcon />
+                                  </IconButton>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+
+                          {memberList.map((member: any, index: number) => (
+                            <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                              <TableCell component='th' scope='row'>
+                                {index + 1 + data.length}
+                              </TableCell>
+                              <TableCell component='th' scope='row'>
+                                {member?.member.name}
+                              </TableCell>
+                              <TableCell align='center'> {member.position} </TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
@@ -415,8 +446,13 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                       </Table>
                     </TableContainer>
                   ) : null}
+
+                  <div className={classNameError} style={{ color: 'red' }}>
+                    {errors.employeesInProject?.message}
+                  </div>
                 </fieldset>
               </Grid>
+
 
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
@@ -466,7 +502,12 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 variant='contained'
                 startIcon={<SaveIcon />}
                 color='primary'
-                onClick={onSubmit}
+                onClick={() => {
+                  console.log("Phuc dep trai!!!")
+                  console.log(editMemberList)
+                  const value = getValues();
+                  onSubmit({ ...initialValue, ...value })
+                }}
               >
                 Submit
               </Button>
@@ -479,8 +520,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
             onClose={handleCloseMember}
             onAdd={handleAddMember}
             initialValues={initMember}
-            listEmployee={null}
-            selectedMemberList= {null}
+            listEmployee={listEmployee}
+            selectedMemberList={memberList}
           />
         )}
 
