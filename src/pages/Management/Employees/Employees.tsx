@@ -1,19 +1,19 @@
-import { useMemo, useState, useEffect } from 'react';
-import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import { Box, IconButton, Tooltip } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import Button from '@mui/material/Button';
+import { MRT_Row, MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { useEffect, useMemo, useState } from 'react';
 import CreateEmployeeModal from './Create';
-import EditModal from './Edit'
+import EditModal from './Edit';
 
-import axios from 'axios';
-import { employeeApi } from 'apis/employee.api';
-import toast from 'react-hot-toast';
-import { showToast } from '../../../components/ToastCustom';
 import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { employeeApi } from '../../../apis/employee.api';
+import { showToast } from '../../../components/ToastCustom';
 interface Skill {
   exp: string;
   name: string;
@@ -33,7 +33,6 @@ const EmployeesList = () => {
   const [visibleModalAddUpdate, setVisibleModalAddUpdate] = useState<boolean>(false);
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
   const [dataEmployee, setDataEmployee] = useState();
- 
 
   // Fetch data from your API when the component mounts
   useEffect(() => {
@@ -42,7 +41,7 @@ const EmployeesList = () => {
         // Fetch employee data from the server
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
         setData(response.data.data);
-        console.log("🚀 ~ file: Employees.tsx:37 ~ fetchData ~ response:", response)
+        console.log('🚀 ~ file: Employees.tsx:37 ~ fetchData ~ response:', response);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -61,11 +60,10 @@ const EmployeesList = () => {
     setVisibleModalUpdate(false);
   };
 
-  const handleOpenModalUpdate = (row : any) => {
+  const handleOpenModalUpdate = (row: any) => {
     setVisibleModalUpdate(true);
     setDataEmployee(row.original);
   };
-
 
   const fetchData = async () => {
     try {
@@ -184,12 +182,11 @@ const EmployeesList = () => {
       <MaterialReactTable table={table} />
       {visibleModalAddUpdate && (
         <CreateEmployeeModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
-
       )}
-    
+
       {visibleModalUpdate && (
-          <EditModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
-        )}
+        <EditModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} dataEmployee={dataEmployee} />
+      )}
     </>
   );
 };

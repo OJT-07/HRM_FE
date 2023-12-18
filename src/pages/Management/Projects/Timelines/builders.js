@@ -1,27 +1,19 @@
-import {
-  MAX_ELEMENT_GAP,
-  MAX_MONTH_SPAN,
-  MAX_NUM_OF_SUBTRACKS,
-  MAX_TRACK_START_GAP,
-  MIN_MONTH_SPAN,
-  MONTHS_PER_QUARTER,
-  MONTHS_PER_YEAR,
-  MONTH_NAMES,
-  NUM_OF_MONTHS,
-  NUM_OF_YEARS,
-  QUARTERS_PER_YEAR,
-  START_YEAR
-} from './constants';
+import { MONTHS_PER_QUARTER, MONTHS_PER_YEAR, MONTH_NAMES, QUARTERS_PER_YEAR } from './constants';
 
-import { addMonthsToYear, addMonthsToYearAsDate, colourIsLight, fill, hexToRgb, nextColor, randomTitle } from './ultis';
+import { addMonthsToYear, addMonthsToYearAsDate, colourIsLight, hexToRgb, nextColor } from './utils';
 
-export const buildQuarterCells = () => {
+export const buildQuarterCells = (start, end) => {
   const v = [];
-  for (let i = 0; i < QUARTERS_PER_YEAR * NUM_OF_YEARS; i += 1) {
+
+  const numOfYear = end - start + 1;
+
+  for (let i = 0; i < QUARTERS_PER_YEAR * numOfYear; i += 1) {
     const quarter = (i % 4) + 1;
     const startMonth = i * MONTHS_PER_QUARTER;
-    const s = addMonthsToYear(START_YEAR, startMonth);
-    const e = addMonthsToYear(START_YEAR, startMonth + MONTHS_PER_QUARTER);
+    const s = addMonthsToYear(start, startMonth);
+
+    const e = addMonthsToYear(start, startMonth + MONTHS_PER_QUARTER);
+
     v.push({
       id: `${s.year}-q${quarter}`,
       title: `Q${quarter} ${s.year}`,
@@ -32,12 +24,16 @@ export const buildQuarterCells = () => {
   return v;
 };
 
-export const buildMonthCells = () => {
+export const buildMonthCells = (start_date, end_date) => {
+  const numOfYear = end_date - start_date + 1;
+
   const v = [];
-  for (let i = 0; i < MONTHS_PER_YEAR * NUM_OF_YEARS; i += 1) {
+  for (let i = 0; i < MONTHS_PER_YEAR * numOfYear; i += 1) {
     const startMonth = i;
-    const start = addMonthsToYearAsDate(START_YEAR, startMonth);
-    const end = addMonthsToYearAsDate(START_YEAR, startMonth + 1);
+
+    const start = addMonthsToYearAsDate(start_date, startMonth);
+    const end = addMonthsToYearAsDate(start_date, startMonth + 1);
+
     v.push({
       id: `m${startMonth}`,
       title: MONTH_NAMES[i % 12],
@@ -48,28 +44,28 @@ export const buildMonthCells = () => {
   return v;
 };
 
-export const buildTimebar = () => [
+export const buildTimebar = (start, end) => [
   {
     id: 'quarters',
     title: 'Quarters',
-    cells: buildQuarterCells(),
+    cells: buildQuarterCells(start, end),
     style: {}
   },
   {
     id: 'months',
     title: 'Months',
-    cells: buildMonthCells(),
+    cells: buildMonthCells(start, end),
     useAsGrid: true,
     style: {}
   }
 ];
 
-export const buildElement = ({ trackId, start, end, i }) => {
+export const buildElement = ({ data, start, end, i }) => {
   const bgColor = nextColor();
   const color = colourIsLight(...hexToRgb(bgColor)) ? '#000000' : '#ffffff';
   return {
-    id: `t-${trackId}-el-${i}`,
-    title: randomTitle(),
+    id: `${i}`,
+    title: `${data.position}`,
     start,
     end,
     style: {
@@ -82,54 +78,38 @@ export const buildElement = ({ trackId, start, end, i }) => {
   };
 };
 
-export const buildTrackStartGap = () => Math.floor(Math.random() * MAX_TRACK_START_GAP);
-export const buildElementGap = () => Math.floor(Math.random() * MAX_ELEMENT_GAP);
-
-export const buildElements = (trackId) => {
+export const buildTrack = (data, start_date, end_date, trackId) => {
   const v = [];
   let i = 1;
-  let month = buildTrackStartGap();
 
-  while (month < NUM_OF_MONTHS) {
-    let monthSpan = Math.floor(Math.random() * (MAX_MONTH_SPAN - (MIN_MONTH_SPAN - 1))) + MIN_MONTH_SPAN;
+  const start = new Date(data.join_date);
 
-    if (month + monthSpan > NUM_OF_MONTHS) {
-      monthSpan = NUM_OF_MONTHS - month;
-    }
-
-    const start = addMonthsToYearAsDate(START_YEAR, month);
-    const end = addMonthsToYearAsDate(START_YEAR, month + monthSpan);
-    v.push(
-      buildElement({
-        trackId,
-        start,
-        end,
-        i
-      })
-    );
-    const gap = buildElementGap();
-    month += monthSpan + gap;
-    i += 1;
+  let end;
+  if (data.end_date !== null) {
+    end = new Date(data.end_date);
+  } else {
+    end = new Date(end_date);
   }
 
-  return v;
-};
+  v.push(
+    buildElement({
+      data,
+      start,
+      end,
+      i
+    })
+  );
 
-export const buildSubtrack = (trackId, subtrackId) => ({
-  id: `track-${trackId}-${subtrackId}`,
-  title: `Subtrack ${subtrackId}`,
-  elements: buildElements(subtrackId)
-});
+  i += 1;
+  // const gap = buildElementGap();
+  // month += monthSpan + gap;
+  // i += 1;
+  // }
 
-export const buildTrack = (trackId) => {
-  const tracks = fill(Math.floor(Math.random() * MAX_NUM_OF_SUBTRACKS) + 1).map((i) => buildSubtrack(trackId, i + 1));
   return {
-    id: `track-${trackId}`,
-    title: `Employee ${trackId}`,
-    elements: buildElements(trackId),
-    tracks
-    // hasButton: true,
-    // link: 'www.google.com',
-    // isOpen: false
+    id: `${data.employee.id}`,
+    title: `${data.employee.name}`,
+    // elements: buildElements(trackId)
+    elements: v
   };
 };
