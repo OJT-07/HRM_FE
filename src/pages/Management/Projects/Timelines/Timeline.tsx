@@ -1,59 +1,130 @@
+import { useEffect, useState } from 'react';
 import Timeline from 'react-timelines';
-
 import 'react-timelines/lib/css/style.css';
+import { buildTimebar, buildTrack } from './builders';
+import { fill } from './utils';
 
-import { NUM_OF_TRACKS } from './constants.js';
+let timebar = '';
+const now = new Date();
 
-import { buildTimebar, buildTrack } from './builders.js';
+const clickElement = (element: any) => {
+  const notification = {
+    position: element.title,
+    start: element.start,
+    end: element.end
+  };
 
-import { Component } from 'react';
-import { fill } from './ultis.js';
-
-const now = new Date(2020, 8, 1, 3, 19);
-
-const timebar = buildTimebar();
-
-// eslint-disable-next-line no-alert
-const clickElement = (element) => alert(`Clicked element\n${JSON.stringify(element, null, 2)}`);
+  alert(JSON.stringify(notification, null, 2));
+};
 
 const MIN_ZOOM = 2;
 const MAX_ZOOM = 20;
 
-class ProjectTimeline extends Component {
-  constructor(props) {
-    super(props);
+const ProjectTimeline = ({ data }: any) => {
+  const [state, setState] = useState({
+    open: false,
+    zoom: 2,
+    tracksById: {},
+    tracks: []
+  });
 
-    const tracksById = fill(NUM_OF_TRACKS).reduce((acc, i) => {
-      const track = buildTrack(i + 1);
-      acc[track.id] = track;
-      return acc;
-    }, {});
+  const [project, setProject] = useState<any>(null);
+  const [start, setStart] = useState<Date | null>(null);
+  const [end, setEnd] = useState<Date | null>(null);
+  const [filteredProject, setFilteredProject] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-    this.state = {
-      open: false,
-      zoom: 2,
-      // eslint-disable-next-line react/no-unused-state
-      tracksById,
-      tracks: Object.values(tracksById)
-    };
-  }
+  useEffect(() => {
+    if (data && data.start_date && data.end_date) {
+      timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date(data.end_date).getFullYear());
 
-  handleToggleOpen = () => {
-    this.setState(({ open }) => ({ open: !open }));
+      setProject(data);
+      setStart(new Date(data.start_date));
+      setEnd(new Date(data.end_date));
+      setFilteredProject(data.employeesInProject);
+
+      const tracksById = fill(data.employeesInProject.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(data.employeesInProject[i], data.start_date, data.end_date, i + 1);
+
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
+    }
+  }, [data]);
+
+  const handleSearch = () => {
+    const trimmedSearchTerm = searchTerm.trim();
+
+    const searchTermsArray = trimmedSearchTerm.split(/\s+/);
+
+    if (searchTermsArray[0].length > 0) {
+      const dataToSearch = trimmedSearchTerm ? project.employeesInProject : filteredProject;
+
+      const filteredData = dataToSearch.filter((employee: any) => {
+        const isMatch = searchTermsArray.every((term) =>
+          employee.employee.name.toLowerCase().includes(term.toLowerCase())
+        );
+
+        return isMatch;
+      });
+
+      setFilteredProject(filteredData);
+
+      const tracksById = fill(filteredData.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(filteredData[i], data.start_date, data.end_date, i + 1);
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
+    } else {
+      const tracksById = fill(project.employeesInProject.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(project.employeesInProject[i], project.start_date, project.end_date, i + 1);
+
+        acc[track.id] = track;
+        return acc;
+      }, {});
+
+      setState((prevState) => ({
+        ...prevState,
+        tracksById,
+        tracks: Object.values(tracksById)
+      }));
+    }
   };
 
-  handleZoomIn = () => {
-    this.setState(({ zoom }) => ({ zoom: Math.min(zoom + 1, MAX_ZOOM) }));
+  const handleToggleOpen = () => {
+    setState((prevState) => ({ ...prevState, open: !prevState.open }));
   };
 
-  handleZoomOut = () => {
-    this.setState(({ zoom }) => ({ zoom: Math.max(zoom - 1, MIN_ZOOM) }));
+  const handleZoomIn = () => {
+    setState((prevState) => ({
+      ...prevState,
+      zoom: Math.min(prevState.zoom + 1, MAX_ZOOM)
+    }));
   };
 
-  handleToggleTrackOpen = (track) => {
-    this.setState((state) => {
+  const handleZoomOut = () => {
+    setState((prevState) => ({
+      ...prevState,
+      zoom: Math.max(prevState.zoom - 1, MIN_ZOOM)
+    }));
+  };
+
+  const handleToggleTrackOpen = (track: any) => {
+    setState((prevState) => {
       const tracksById = {
-        ...state.tracksById,
+        ...prevState.tracksById,
         [track.id]: {
           ...track,
           isOpen: !track.isOpen
@@ -61,46 +132,59 @@ class ProjectTimeline extends Component {
       };
 
       return {
+        ...prevState,
         tracksById,
         tracks: Object.values(tracksById)
       };
     });
   };
 
-  render() {
-    const { open, zoom, tracks } = this.state;
-    const start = new Date(2020, 3, 19, 8, 30);
-    const end = new Date(2020, 9, 19, 8, 30);
-    return (
-      <div className='app'>
-        <h1 className='title'>React Timelines</h1>
-        <Timeline
-          scale={{
-            start,
-            end,
-            zoom,
-            zoomMin: MIN_ZOOM,
-            zoomMax: MAX_ZOOM
-          }}
-          isOpen={open}
-          toggleOpen={this.handleToggleOpen}
-          zoomIn={this.handleZoomIn}
-          zoomOut={this.handleZoomOut}
-          clickElement={clickElement}
-          clickTrackButton={(track) => {
-            // eslint-disable-next-line no-alert
-            alert(JSON.stringify(track));
-          }}
-          timebar={timebar}
-          tracks={tracks}
-          now={now}
-          toggleTrackOpen={this.handleToggleTrackOpen}
-          enableSticky
-          scrollToNow
-        />
-      </div>
-    );
-  }
-}
+  return (
+    <div className='app'>
+      {project && start && end ? (
+        <>
+          <div className='flex items-center mb-10'>
+            <input
+              type='text'
+              placeholder='Search by employee name'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+            />
+            <button
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r bg-primary'
+              onClick={handleSearch}
+            >
+              Search
+            </button>
+          </div>
+
+          <Timeline
+            scale={{
+              // start: start as Date,
+              start: start as Date,
+              end: end as Date,
+              zoom: state.zoom,
+              zoomMin: MIN_ZOOM,
+              zoomMax: MAX_ZOOM
+            }}
+            toggleOpen={handleToggleOpen}
+            zoomIn={handleZoomIn}
+            zoomOut={handleZoomOut}
+            timebar={timebar}
+            tracks={state.tracks}
+            now={now}
+            toggleTrackOpen={handleToggleTrackOpen}
+            enableSticky
+            scrollToNow
+            clickElement={clickElement}
+          />
+        </>
+      ) : (
+        <h1>Loading...</h1>
+      )}
+    </div>
+  );
+};
 
 export default ProjectTimeline;

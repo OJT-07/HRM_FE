@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import ProjectTimeline from './Timelines/Timeline';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader, Tab, TabPanel, Tabs, TabsBody, TabsHeader } from '@material-tailwind/react';
+import axios from 'axios';
+import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import ProjectTimeline from './Timelines/Timeline';
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
   MEMBERS: 'MEMBERS',
@@ -15,6 +15,7 @@ const dataTabs = [
     label: 'Information',
     value: TAB_KEYS.INFORMATION
   },
+
   {
     label: 'Members',
     value: TAB_KEYS.MEMBERS
@@ -24,26 +25,32 @@ const dataTabs = [
     value: TAB_KEYS.TIMELINE
   }
 ];
+
 interface Member {
   id: number;
   join_date: Date;
   end_date: Date;
   name: string;
 }
+
 const Timeline = () => {
-  const [project, setProject] = useState<Project[]>([]);
+  const [project, setProject] = useState<Project | null>(null);
+
   const { id } = useParams();
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
-        setProject(response.data.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
+      setProject(response.data.data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US');
     return formattedDate;
@@ -51,6 +58,7 @@ const Timeline = () => {
 
   return (
     <div className='gap-5 flex justify-between flex-col'>
+      <div></div>
       <div>
         <b>
           {' '}
@@ -80,6 +88,7 @@ const Timeline = () => {
           </div>
         </div>
       </div>
+      <ProjectTimeline data={project} />
     </div>
   );
 };
@@ -96,13 +105,12 @@ const EmployeesList = () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
       setData(response.data.data.employeesInProject);
-      console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
-     
-      // const formattedData = response.data.data.map((member: Member) => ({
-      //   ...member,
+      // console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
 
-      // }));
-      // setData(formattedData);
+      const formattedData = response.data.data.map((member: Member) => ({
+        ...member
+      }));
+      setData(formattedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -157,6 +165,7 @@ interface Project {
   status: string;
   technical: string[];
 }
+
 const getStatusColorClass = (status: string) => {
   switch (status) {
     case 'pending':
@@ -172,22 +181,24 @@ const getStatusColorClass = (status: string) => {
 const renderInformation = () => {
   const [project, setProject] = useState<Project[]>([]);
   const { id } = useParams();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
         setProject(response.data.data);
-        console.log(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
   }, []);
+
   const formatDate = (dateString: string) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US');
     return formattedDate;
   };
+
   return (
     <CardBody>
       <div className='gap-5 flex justify-between flex-col'>
@@ -252,6 +263,7 @@ const renderInformation = () => {
     </CardBody>
   );
 };
+
 const TabKey = () => {
   return (
     <Card>
@@ -268,10 +280,7 @@ const TabKey = () => {
             <TabsBody>
               <TabPanel value={TAB_KEYS.INFORMATION}>{renderInformation()}</TabPanel>
               <TabPanel value={TAB_KEYS.MEMBERS}>{EmployeesList()}</TabPanel>
-              <TabPanel value={TAB_KEYS.TIMELINE}>
-                {Timeline()}
-                <ProjectTimeline />
-              </TabPanel>
+              <TabPanel value={TAB_KEYS.TIMELINE}>{Timeline()}</TabPanel>
             </TabsBody>
           </Tabs>
         </CardBody>

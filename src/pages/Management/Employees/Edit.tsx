@@ -1,19 +1,15 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import {
-  Avatar,
-  AvatarGroup,
   Box,
   Button,
   FormControlLabel,
   Grid,
+  Input,
   InputLabel,
-  MenuItem,
   Modal,
   Paper,
   Radio,
   RadioGroup,
-  Select,
-  Input,
   Table,
   TableBody,
   TableCell,
@@ -23,18 +19,15 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
-import Swal from 'sweetalert2';
-import SaveIcon from '@mui/icons-material/Save';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { cloneDeep } from 'lodash';
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import { useState } from 'react';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import Swal from 'sweetalert2';
+import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
 // import LineManagerModal from './LineManagerModal';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import IconButton from '@mui/material/IconButton';
+import { useEffect } from 'react';
 import { useEffect, useState } from 'react';
 import { projectStatusOption } from '../../../enum';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
@@ -42,10 +35,9 @@ import withReactContent from 'sweetalert2-react-content';
 
 import SkillModal from './SkillModal';
 import { employeeApi } from '../../../apis/employee.api';
-
+import SkillModal from './SkillModal';
 
 const MySwal = withReactContent(Swal);
-
 
 interface Props {
   visible: boolean;
@@ -76,15 +68,13 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
   const [lineManagerList, setLineManagerList] = useState<any>([]);
-  const [viewOnlyLineManager, setViewOnlyLineManager] = useState(false);
   const [employeeData, setEmployeeData] = useState(dataEmployee);
 
   useEffect(() => {
     setEmployeeData(dataEmployee);
-    setSkillList(employeeData.skills)
-    console.log("EMPLOYEE DATA ", employeeData);
+    setSkillList(employeeData.skills);
+    console.log('EMPLOYEE DATA ', employeeData);
   }, [dataEmployee]);
-
 
   const handleOpenSkill = () => {
     setVisibleSkill(true);
@@ -107,8 +97,12 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
     defaultValues: {
-      name: employeeData.name, address: employeeData.address, phone: dataEmployee.phone, email: dataEmployee.email, skills: employeeData.skills
-    },
+      name: employeeData.name,
+      address: employeeData.address,
+      phone: dataEmployee.phone,
+      email: dataEmployee.email,
+      skills: employeeData.skills
+    }
   });
 
   const {
@@ -119,7 +113,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
     setError,
     trigger,
     getValues,
-    setValue,
+    setValue
   } = methods;
 
   const onSubmit = async (data: any) => {
@@ -130,23 +124,20 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
       MySwal.fire({
         title: 'User Updated!',
         text: 'User data has been updated successfully.',
-        icon: 'success',
+        icon: 'success'
       });
       onEditSuccess();
       onClose();
-
     } catch (error) {
       console.error('Error updating user:', error);
-
 
       MySwal.fire({
         title: 'Error!',
         text: 'Failed to update user data. Please try again later.',
-        icon: 'error',
+        icon: 'error'
       });
     }
-  }
-
+  };
 
   const handleClose = (event?: any, reason?: string) => {
     // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
@@ -159,7 +150,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, close it!'
-    }).then((result: { isConfirmed: any; }) => {
+    }).then((result: { isConfirmed: any }) => {
       if (result.isConfirmed) {
         onClose();
       }
@@ -206,8 +197,6 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
     return formattedDate;
   };
 
-
-
   return (
     <Modal
       open={visible}
@@ -225,9 +214,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
           Edit Employee
         </Typography>
         <FormProvider {...methods}>
-          <form onSubmit={() => {
-
-          }}>
+          <form onSubmit={() => {}}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
@@ -339,11 +326,11 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
                   name='join_date'
                   render={({ field }) => (
                     <div>
-                      <div className="relative">
+                      <div className='relative'>
                         <Input
-                          type="date"
+                          type='date'
                           defaultValue={formatDate(employeeData?.join_date)}
-                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                         />
                       </div>
@@ -362,11 +349,11 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
                   name='date_of_birth'
                   render={({ field }) => (
                     <div>
-                      <div className="relative">
+                      <div className='relative'>
                         <Input
-                          type="date"
+                          type='date'
                           defaultValue={formatDate(employeeData?.date_of_birth)}
-                          className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full"
+                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                         />
                       </div>
@@ -393,7 +380,6 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
                   )}
                 />
               </Grid>
-
 
               <Grid item xs={12}>
                 <fieldset>
@@ -498,7 +484,7 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
                 color='primary'
                 onClick={() => {
                   const value = getValues();
-                  onSubmit({ ...employeeData, ...value })
+                  onSubmit({ ...employeeData, ...value });
                 }}
               >
                 Submit
@@ -516,13 +502,10 @@ function EditEmployeeModel({ visible, onClose, initialValue, dataEmployee, onEdi
             selectedSkillList={skillList}
           />
         )}
-
       </Box>
     </Modal>
   );
 }
 
 export default EditEmployeeModel;
-
-
 

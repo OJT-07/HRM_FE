@@ -1,21 +1,9 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import SaveIcon from '@mui/icons-material/Save';
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Grid,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Select,
-  TextField,
-  Typography
-} from '@mui/material';
-import { useState } from 'react';
+import { FormSkillType, formSkillSchema } from '../../../utils/rules';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { expOption, projectTechnicalOption } from '../../../enum';
-import { FormSkillType, formSkillSchema } from '../../../utils/rules';
+import { Box, Grid, Modal, Button, InputLabel, Typography } from '@mui/material';
+import SaveIcon from '@mui/icons-material/Save';
 import ReactSelect from 'react-select';
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
@@ -46,7 +34,6 @@ const findOption = (list: any, value: any) => {
 };
 
 function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate, selectedSkillList }: Props) {
-  const [skillValue, setSkillValue] = useState<any>(initialValues.member || '');
   const methods = useForm<FormSkillType>({
     resolver: yupResolver(formSkillSchema),
     defaultValues: {
@@ -61,9 +48,7 @@ function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate, selected
     setError,
     trigger,
     getValues,
-    reset,
-    setValue,
-    watch
+    reset
   } = methods;
 
   const handleClose = () => {
@@ -83,7 +68,6 @@ function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate, selected
     const name = getValues('name');
     const exp = getValues('exp');
 
-    // console.log({ member, position });
     const submitData = { name: (name as any)?.value as any, exp: (exp as any)?.value as any };
     if (initialValues?.name) {
       onUpdate(submitData, initialValues?.indexSkill as number);
@@ -112,8 +96,8 @@ function SkillModal({ visible, onClose, initialValues, onAdd, onUpdate, selected
                     <ReactSelect
                       {...field}
                       options={projectTechnicalOption.filter((skill: any) => {
-                        const techArr = selectedSkillList.map((tech: any) => tech.name);
-                        return !techArr.includes(skill.value);
+                        const techArr = selectedSkillList.map((tech: any) => tech.name.toLowerCase());
+                        return !techArr.includes(skill.value.toLowerCase());
                       })}
                     />
                   )}

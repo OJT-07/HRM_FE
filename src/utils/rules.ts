@@ -1,27 +1,26 @@
 import * as yup from 'yup';
 
 const currentDate = new Date();
+const minDate = new Date(currentDate);
+minDate.setDate(currentDate.getDate() - 1);
 
 export const formProjectSchema = yup.object({
   name: yup.string().required('Please enter a project name').trim(''),
   status: yup.mixed().required('Please select status'),
-  // start_date: yup
-  //   .date()
-  //   .required('Please enter a start date')
-  //   .min(currentDate.setDate(currentDate.getDate() - 1), 'Start date is not in the past'),
-  // end_date: yup.date().test({
-  //   name: 'endDate is invalid',
-  //   message: 'End date is larger than the start date',
-  //   test: function (value: any) {
-  //     const { start_date } = this.parent as any;
+  start_date: yup.date().required('Please enter a start date').min(minDate, 'The start date is not a past date'),
+  end_date: yup.date().test({
+    name: 'endDate is invalid',
+    message: 'The end date must be greater than the start date',
+    test: function (value: any) {
+      const { start_date } = this.parent as any;
 
-  //     if (start_date != null && value != null) {
-  //       return start_date < value;
-  //     }
+      if (start_date != null && value != null) {
+        return start_date < value;
+      }
 
-  //     return start_date != null || value != null;
-  //   }
-  // }),
+      return start_date != null || value != null;
+    }
+  }),
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
   employeesInProject: yup.array().required('Please enter member').min(1, 'Please enter member'),
   description: yup.string()
@@ -51,7 +50,13 @@ export const formEmployeeSchema = yup.object({
   date_of_birth: yup
     .date()
     .required('Please select date of birth')
-    .max(new Date(), 'Date of birth must be in the past'),
+    .max(new Date(), 'Date of birth must be in the past')
+    .test('is-at-least-18', 'You must be at least 18 years old', function (value: any) {
+      const today = new Date();
+      const minDate = new Date(today);
+      minDate.setFullYear(minDate.getFullYear() - 18);
+      return value <= minDate;
+    }),
   isManager: yup.boolean().required('Please select is manager'),
   skills: yup.array().required('Please enter skill').min(1, 'Please enter skill'),
   description: yup.string()
