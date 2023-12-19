@@ -42,7 +42,7 @@ const ProjectsList = () => {
       }
     };
     fetchData();
-  }, [visibleModalAddUpdate]);
+  }, [visibleModalAddUpdate, visibleModalUpdate]);
 
   const handleCloseModalAddUpdate = () => {
     setVisibleModalAddUpdate(false);
