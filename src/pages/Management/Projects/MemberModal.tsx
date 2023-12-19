@@ -15,8 +15,9 @@ import {
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import ReactSelect from 'react-select';
+
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -40,17 +41,39 @@ const style = {
   p: 4,
   zIndex: 21
 };
+// interface Member {
+//   id: number;
+//   position: string;
+//   name: string;
+// }
+
+// const [employeeData, setEmployeeData] = useState<Member | null>(null);
+
+// useEffect(() => {
+//   const fetchData = async () => {
+//     try {
+//       const response = await fetch('https://hrm-server-api.onrender.com/api/employees');
+//       const data = await response.json();
+//       setEmployeeData(data.data);
+//       console.log(data.data)
+//     } catch (error) {
+//       console.error('Error fetching data:', error);
+//     }
+//   };
+
+//   fetchData();
+// }, []);
 
 const findOption = (list: any, value: any) => {
   return list.find((item: any) => item?.value === value);
 };
 
 function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, selectedMemberList }: Props) {
-  const [memberValue, setMemberValue] = useState<any>(initialValues.member || '');
+  const [memberValue, setMemberValue] = useState<any>(initialValues.name || '');
   const methods = useForm<FormMemberType>({
     resolver: yupResolver(formMemberSchema),
     defaultValues: {
-      member: findOption(projectMemberOption, initialValues?.member),
+      member: findOption(projectMemberOption, initialValues?.name),
       position: findOption(projectPositionOption, initialValues?.position)
     }
   });
@@ -89,7 +112,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
     handleClose();
     reset();
   };
-
+ 
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>

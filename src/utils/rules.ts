@@ -23,7 +23,10 @@ export const formProjectSchema = yup.object({
   }),
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
   employeesInProject: yup.array().required('Please enter member').min(1, 'Please enter member'),
-  description: yup.string()
+  description: yup.string(),
+  member: yup.string(),
+  startDate: yup.date(),
+  endDate: yup.date(),
 });
 
 export type FormProjectType = yup.InferType<typeof formProjectSchema>;
