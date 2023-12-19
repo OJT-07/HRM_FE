@@ -5,14 +5,13 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Swal from 'sweetalert2';
+import axios from 'axios';
+import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import withReactContent from 'sweetalert2-react-content';
-// import UpdateProjectModal from './Update';
-
-import Button from '@mui/material/Button';
 import CreateProjectModal from './Create';
-import axios from 'axios';
+import UpdateProjectModal from './Update';
 interface Project {
   id: number;
   name: string;
@@ -161,7 +160,7 @@ const ProjectsList = () => {
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
-          <IconButton onClick={() => table.setEditingRow(row)}>
+          <IconButton onClick={() => updatedModalOpen(row)}>
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -179,6 +178,10 @@ const ProjectsList = () => {
       <MaterialReactTable table={table} />
       {visibleModalAddUpdate && (
         <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
+      )}
+
+      {visibleModalUpdate && (
+        <UpdateProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={dataProject} />
       )}
     </>
   );

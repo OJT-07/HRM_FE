@@ -70,3 +70,25 @@ export const formSkillSchema = yup.object({
 });
 
 export type FormSkillType = yup.InferType<typeof formSkillSchema>;
+
+export const formUpdateProjectSchema = yup.object({
+  name: yup.string().required('Please enter a project name').trim(''),
+  status: yup.mixed().required('Please select status'),
+  start_date: yup.date().required('Please enter a start date'),
+  end_date: yup.date().test({
+    name: 'endDate is invalid',
+    message: 'The end date must be greater than the start date',
+    test: function (value: any) {
+      const { start_date } = this.parent as any;
+
+      if (start_date != null && value != null) {
+        return start_date < value;
+      }
+
+      return start_date != null || value != null;
+    }
+  }),
+  technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
+  employeesInProject: yup.array().required('Please enter member').min(1, 'Please enter member'),
+  description: yup.string()
+});
