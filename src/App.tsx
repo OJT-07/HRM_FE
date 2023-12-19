@@ -1,12 +1,13 @@
-import { Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import { Suspense, lazy, useEffect, useState } from 'react';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { getTokenFromLocalStorage } from './utils/authUtils'; // Replace with the actual path
+
+import ECommerce from './pages/Dashboard/ChartProjects';
 import SignIn from './pages/Authentication/SignIn';
 import SignUp from './pages/Authentication/SignUp';
 import Loader from './common/Loader';
 import routes from './routes';
-import ECommerce from './pages/Dashboard/ChartProjects';
-import 'react-toastify/dist/ReactToastify.css';
 
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
@@ -17,31 +18,39 @@ function App() {
     setTimeout(() => setLoading(false), 1000);
   }, []);
 
+  const token = getTokenFromLocalStorage();
+
   return loading ? (
     <Loader />
   ) : (
     <>
-      <ToastContainer position='top-center' />
+      <Toaster position='top-center' reverseOrder={false} containerClassName='overflow-auto' />
       <Routes>
-        <Route path='/auth/signin' element={<SignIn />} />
-        <Route path='/auth/signup' element={<SignUp />} />
-        <Route element={<DefaultLayout />}>
-          <Route index element={<ECommerce />} />
-          {routes.map((routes, index) => {
-            const { path, component: Component } = routes;
-            return (
+        {token ? (
+          <Route element={<DefaultLayout />}>
+            <Route index element={<ECommerce />} />
+            {routes.map((route, index) => (
               <Route
                 key={index}
-                path={path}
+                path={route.path}
                 element={
                   <Suspense fallback={<Loader />}>
-                    <Component />
+                    <route.component />
                   </Suspense>
                 }
               />
-            );
-          })}
-        </Route>
+            ))}
+          </Route>
+        ) : (
+          <>
+            <Route path='/auth/signin' element={<SignIn />} />
+            <Route path='/auth/signup' element={<SignUp />} />
+            <Route
+              path='/'
+              element={<Navigate to='/auth/signin' />} // Redirect to /auth/signin if no token
+            />
+          </>
+        )}
       </Routes>
     </>
   );
