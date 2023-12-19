@@ -88,13 +88,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const handleCloseTechnical = () => {
     setVisibleTechnical(false);
   };
-
-  const methods = useForm<FormProjectType>({
-    resolver: yupResolver(formProjectSchema), 
-    defaultValues: {
-      status: { label: 'Pending', value: 'pending' }
-    }
-  });
+ 
 
   const {
     formState: { errors },
@@ -105,44 +99,57 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     trigger,
     getValues,
     setValue
-  } = methods;
+  } = useForm<FormProjectType>({
+    mode: 'onBlur',
+    resolver: yupResolver(formProjectSchema),
+    defaultValues: {
+      name: editProject?.name,
+      status: { label: 'Pending', value: 'pending' }
+    }
+  });;
 
-  const onSubmit = async (data?: any) => {
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm!'
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const submitData = {
-          name : editProject?.name,
-          description: editProject?.description,
-          start_date: editProject?.start_date,
-          end_date: editProject?.end_date || null,
-          technical: data?.technical?.map((tech: any) => tech.value), 
-        
-          // members: memberList.map((member: any) => ({
-          //   employeeId: member?.member.id,
-          //   position: member?.position
-          // })),
-          status: data?.status?.value
-        };
-        try {
+  const onSubmit = (data?: any) => {
+    console.log("111", data);
+    try {
+      MySwal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirm!'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          const submitData = {
+            name: editProject?.name,
+            description: editProject?.description,
+            start_date: editProject?.start_date,
+            end_date: editProject?.end_date || null,
+            technical: data?.technical?.map((tech: any) => tech.value),
+
+            // members: memberList.map((member: any) => ({
+            //   employeeId: member?.member.id,
+            //   position: member?.position
+            // })),
+            status: data?.status?.value
+          };
           const projectId = editProject?.id;
           await projectApi.update(projectId, submitData);
           await projectApi.getAll({});
           toast.success('Edit project successfully');
           onClose();
-        } catch (error) {
-          console.error('Error updating project:', error);
-          MySwal.fire('Error', 'An error occurred while updating the project', 'error');
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('Error updating user:', error);
+
+      MySwal.fire({
+        title: 'Error!',
+        text: 'Failed to update user data. Please try again later.',
+        icon: 'error'
+      });
+    }
   };
 
   const handleClose = (event?: any, reason?: string) => {
@@ -249,145 +256,145 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
         >
           Update Project
         </Typography>
-        <FormProvider {...methods}>
-          <form onSubmit={onSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-name'>
-                  Name <span style={{ color: 'red' }}>*</span>
-                </InputLabel>
-                <Controller
-                  control={control}
-                  name='name'
-                  render={({ field }) => (
-                    <TextField
-                      placeholder='Enter project name'
-                      translate='no'
-                      size='small'
-                      variant='outlined'
-                      fullWidth
-                      defaultValue={editProject?.name}
-                      {...field}
-                      onChange={(e) => {
-                        setEditProject({ ...editProject, name: e.target.value });
-                        console.log(e.target.value);
-                        // You can also add your custom logic here
-                      }}
-                    />
-                  )}
-                />
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.status?.message}
-                </div>
-              </Grid>
+        {/* <FormProvider {...methods}> */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Grid container spacing={2}>
+            <Grid item xs={6}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-name'>
+                Name <span style={{ color: 'red' }}>*</span>
+              </InputLabel>
 
-              <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
-                  Status
-                </InputLabel>
-                <Controller
-                  control={control}
-                  name='status'
-                  render={({ field }) => (
-                    <ReactSelect
-                      id='project-status' 
-                      {...field}
-                      options={projectStatusOption}
-                      value={status ?? projectStatusOption?.filter((option) => option.label === initialValue?.status)}
-                      // onChange={(val: any) => setStatus(val)}
-                      onChange={(val: any) => {
-                        field.onChange(val);
-                        setStatus(val);
-                        console.log(val);
-                      }}
-                    />
-                  )}
-                />
-                <div className={classNameError} style={{ color: 'red' }}>
-                  {errors.status?.message}
-                </div>
-              </Grid>
+              <TextField
+                fullWidth
+                id='name'
+                {...register('name')}
+                placeholder='Enter project name'
+                translate='no'
+                size='small'
+                variant='outlined'
+                error={errors.name ? true : false}
+                helperText={errors.name?.message}
+              />
 
-              <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
-                  Start Date <span style={{ color: 'red' }}>*</span>
-                </InputLabel>
+              
+            </Grid>
 
-                <Controller
-                  control={control}
-                  name='startDate'
-                  render={({ field }) => (
-                    <div>
-                      <div className='relative'>
-                        <Input
-                          type='date'
-                          defaultValue={formatDate(initialValue?.start_date)}
-                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
-                          {...field}
-                          onChange={(e) => {
-                            setEditProject({ ...editProject, start_date: e.target.value });
-                            console.log(editProject);
-                            // You can also add your custom logic here
-                          }}
-                        />
-                      </div>
+            <Grid item xs={6}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
+                Status
+              </InputLabel>
+              <Controller
+                control={control}
+                name='status'
+                render={({ field }) => (
+                  <ReactSelect
+                    id='project-status'
+                    {...field}
+                    options={projectStatusOption}
+                    value={status ?? projectStatusOption?.filter((option) => option.label === initialValue?.status)}
+                    // onChange={(val: any) => setStatus(val)}
+                    onChange={(val: any) => {
+                      field.onChange(val);
+                      setStatus(val);
+                      console.log(val);
+                    }}
+                  />
+                )}
+              />
+              <div className={classNameError} style={{ color: 'red' }}>
+                {errors.status?.message}
+              </div>
+            </Grid>
+
+            <Grid item xs={3}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
+                Start Date <span style={{ color: 'red' }}>*</span>
+              </InputLabel>
+
+              <Controller
+                control={control}
+                name='startDate'
+                render={({ field }) => (
+                  <div>
+                    <div className='relative'>
+                      <Input
+                        type='date'
+                        defaultValue={formatDate(initialValue?.start_date)}
+                        className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
+                        {...field}
+                        onChange={(e) => {
+                          setEditProject({ ...editProject, start_date: e.target.value });
+                          console.log(editProject);
+                          // You can also add your custom logic here
+                        }}
+                      />
                     </div>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
-                  End Date <span style={{ color: 'red' }}>*</span>
-                </InputLabel>
-                <Controller
-                  control={control}
-                  name='endDate'
-                  render={({ field }) => (
-                    <div>
-                      <div className='relative'>
-                        <Input
-                          type='date'
-                          defaultValue={formatDate(initialValue?.end_date)}
-                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
-                          {...field}
-                          onChange={(e) => {
-                            setEditProject({ ...editProject, end_date: e.target.value });
-                            console.log(editProject);
-                          }}
-                        />
-                      </div>
+                  </div>
+                )}
+              />
+              <div className={classNameError} style={{ color: 'red' }}>
+                {errors.startDate?.message}
+              </div>
+            </Grid>
+            <Grid item xs={3}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
+                End Date <span style={{ color: 'red' }}>*</span>
+              </InputLabel>
+              <Controller
+                control={control}
+                name='endDate'
+                render={({ field }) => (
+                  <div>
+                    <div className='relative'>
+                      <Input
+                        type='date'
+                        defaultValue={formatDate(initialValue?.end_date)}
+                        className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
+                        {...field}
+                        onChange={(e) => {
+                          setEditProject({ ...editProject, end_date: e.target.value });
+                          console.log(editProject);
+                        }}
+                      />
                     </div>
-                  )}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
-                  Technical <span style={{ color: 'red' }}>*</span>
-                </InputLabel>
-                <Controller
-                  control={control}
-                  name='technical'
-                  render={({ field }) => (
-                    <ReactSelect
-                      options={projectTechnicalOption}
-                      defaultValue={initialValue?.technical?.map((tech: any) => ({ value: tech, label: tech }))}
-                      isMulti
-                      {...field}
-                      // onChange={(e) => {
-                      //   setEditProject({ ...editProject, technical: e.target.value })
-                      //   console.log(editProject.technical);
-                      // }}
-                      onChange={(val: any) => {
-                        field.onChange(val);
-                        setTechnical(val);
-                        console.log(val);
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
+                  </div>
+                )}
+              />
+              <div className={classNameError} style={{ color: 'red' }}>
+                {errors.endDate?.message}
+              </div>
+            </Grid>
+            <Grid item xs={6}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
+                Technical <span style={{ color: 'red' }}>*</span>
+              </InputLabel>
+              <Controller
+                control={control}
+                name='technical'
+                render={({ field }) => (
+                  <ReactSelect
+                    options={projectTechnicalOption}
+                    defaultValue={initialValue?.technical?.map((tech: any) => ({ value: tech, label: tech }))}
+                    isMulti
+                    {...field}
+                  // onChange={(e) => {
+                  //   setEditProject({ ...editProject, technical: e.target.value })
+                  //   console.log(editProject.technical);
+                  // }}
+                  // onChange={(val: any) => {
+                  //   field.onChange(val);
+                  //   setTechnical(val);
+                  //   console.log(val);
+                  // }}
+                  />
+                )}
+              />
+              <div className={classNameError} style={{ color: 'red' }}>
+                {errors.technical?.message}
+              </div>
+            </Grid>
 
-              {/* <Grid item xs={12}>
+            {/* <Grid item xs={12}>
                 <fieldset>
                   <legend>
                     Members <span style={{ color: 'red' }}>*</span>
@@ -463,60 +470,61 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 </fieldset>
               </Grid> */}
 
-              <Grid item xs={12}>
-                <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
-                  Description
-                </InputLabel>
-                <Controller
-                  control={control}
-                  name='description'
-                  render={({ field }) => (
-                    <TextareaAutosize
-                      defaultValue={editProject?.description}
-                      placeholder='Description something about this project...'
-                      {...field}
-                      onChange={(e) => {
-                        setEditProject({ ...editProject, description: e.target.value });
-                        console.log(e.target.value);
-                      }}
-                      minRows={2}
-                      style={{
-                        width: '100%',
-                        border: '1px solid rgb(100, 116, 139)',
-                        borderRadius: '5px',
-                        padding: '8px 14px'
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
+            <Grid item xs={12}>
+              <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
+                Description
+              </InputLabel>
+              <Controller
+                control={control}
+                name='description'
+                render={({ field }) => (
+                  <TextareaAutosize
+                    defaultValue={editProject?.description}
+                    placeholder='Description something about this project...'
+                    {...field}
+                    onChange={(e) => {
+                      setEditProject({ ...editProject, description: e.target.value });
+                      console.log(e.target.value);
+                    }}
+                    minRows={2}
+                    style={{
+                      width: '100%',
+                      border: '1px solid rgb(100, 116, 139)',
+                      borderRadius: '5px',
+                      padding: '8px 14px'
+                    }}
+                  />
+                )}
+              />
             </Grid>
+          </Grid>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <Button
-                // type='submit'
-                style={{ marginRight: '1rem' }}
-                variant='contained'
-                color='error'
-                onClick={handleClose}
-                size='medium'
-              >
-                Cancel
-              </Button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+            <Button
+              // type='submit'
+              style={{ marginRight: '1rem' }}
+              variant='contained'
+              color='error'
+              onClick={handleClose}
+              size='medium'
+            >
+              Cancel
+            </Button>
 
-              <Button
-                size='medium'
-                style={{ marginRight: 0 }}
-                variant='contained'
-                startIcon={<SaveIcon />}
-                color='primary'
-                onClick={() => onSubmit({ ...initialValue, ...getValues() })}
-              >
-                Submit
-              </Button>
-            </div>
-          </form>
-        </FormProvider>
+            <Button
+              size='medium'
+              type='submit'
+              style={{ marginRight: 0 }}
+              variant='contained'
+              startIcon={<SaveIcon />}
+              color='primary'
+              onClick={onSubmit}
+            >
+              Submit
+            </Button>
+          </div>
+        </form>
+        {/* </FormProvider> */}
         {visibleMember && (
           <MemberModal
             visible={visibleMember}
