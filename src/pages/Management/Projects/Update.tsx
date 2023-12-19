@@ -21,19 +21,20 @@ import {
   Typography
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import Swal from 'sweetalert2';
 import axios from 'axios';
+import MemberModal from './MemberModal';
+import ReactSelect from 'react-select';
+import withReactContent from 'sweetalert2-react-content';
+import { toast } from 'react-toastify';
+import { useQuery } from '@tanstack/react-query';
 import { cloneDeep } from 'lodash';
+import { projectApi } from '../../../apis/project.api';
+import { employeeApi } from '../../../apis/employee.api';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
-import ReactSelect from 'react-select';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
-import { employeeApi } from '../../../apis/employee.api';
-import { projectStatusOption, projectTechnicalOption } from '../../../enum';
 import { FormProjectType, formProjectSchema } from '../../../utils/rules';
-import MemberModal from './MemberModal';
-
-import { useQuery } from '@tanstack/react-query';
+import { projectStatusOption, projectTechnicalOption } from '../../../enum';
 
 const MySwal = withReactContent(Swal);
 
@@ -89,9 +90,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   };
 
   const methods = useForm<FormProjectType>({
-    resolver: yupResolver(formProjectSchema),
+    resolver: yupResolver(formProjectSchema), 
     defaultValues: {
-      status: { label: 'Pending', value: 'Pending' }
+      status: { label: 'Pending', value: 'pending' }
     }
   });
 
@@ -106,9 +107,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     setValue
   } = methods;
 
-  const onSubmit = (data?: any) => {
-    console.log(editProject);
-
+  const onSubmit = async (data?: any) => {
     MySwal.fire({
       title: 'Are you sure?',
       text: "You won't be able to revert this!",
@@ -117,21 +116,31 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Confirm!'
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         const submitData = {
+          name : editProject?.name,
           description: editProject?.description,
           start_date: editProject?.start_date,
           end_date: editProject?.end_date || null,
-          technical: data?.technical.map((tech: any) => tech.value),
-          members: memberList.map((member: any) => ({
-            employeeId: member?.member.id,
-            position: member?.position
-          })),
+          technical: data?.technical?.map((tech: any) => tech.value), 
+        
+          // members: memberList.map((member: any) => ({
+          //   employeeId: member?.member.id,
+          //   position: member?.position
+          // })),
           status: data?.status?.value
         };
-        console.log('🚀 ~ file: Update.tsx:124 ~ onSubmit ~ submitData:', submitData);
-        // CALL API
+        try {
+          const projectId = editProject?.id;
+          await projectApi.update(projectId, submitData);
+          await projectApi.getAll({});
+          toast.success('Edit project successfully');
+          onClose();
+        } catch (error) {
+          console.error('Error updating project:', error);
+          MySwal.fire('Error', 'An error occurred while updating the project', 'error');
+        }
       }
     });
   };
@@ -281,7 +290,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   name='status'
                   render={({ field }) => (
                     <ReactSelect
-                      id='project-status'
+                      id='project-status' 
                       {...field}
                       options={projectStatusOption}
                       value={status ?? projectStatusOption?.filter((option) => option.label === initialValue?.status)}
@@ -378,7 +387,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 />
               </Grid>
 
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <fieldset>
                   <legend>
                     Members <span style={{ color: 'red' }}>*</span>
@@ -452,7 +461,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                     {errors.employeesInProject?.message}
                   </div>
                 </fieldset>
-              </Grid>
+              </Grid> */}
 
               <Grid item xs={12}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
