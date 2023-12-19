@@ -17,8 +17,8 @@ const clickElement = (element: any) => {
   alert(JSON.stringify(notification, null, 2));
 };
 
-const MIN_ZOOM = 2;
-const MAX_ZOOM = 20;
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 50;
 
 const ProjectTimeline = ({ data }: any) => {
   const [state, setState] = useState({
@@ -111,14 +111,14 @@ const ProjectTimeline = ({ data }: any) => {
   const handleZoomIn = () => {
     setState((prevState) => ({
       ...prevState,
-      zoom: Math.min(prevState.zoom + 1, MAX_ZOOM)
+      zoom: Math.min(prevState.zoom + 2, MAX_ZOOM)
     }));
   };
 
   const handleZoomOut = () => {
     setState((prevState) => ({
       ...prevState,
-      zoom: Math.max(prevState.zoom - 1, MIN_ZOOM)
+      zoom: Math.max(prevState.zoom - 2, MIN_ZOOM)
     }));
   };
 
@@ -140,20 +140,29 @@ const ProjectTimeline = ({ data }: any) => {
     });
   };
 
+  const formatDate = (dateString: string) => {
+    const formattedDate = new Date(dateString).toLocaleDateString('en-US');
+    return formattedDate;
+  };
+
   return (
     <div className='app'>
       {project && start && end ? (
         <>
-          <div className='flex items-center mb-10'>
+          <h1 className='mb-3  text-black dark:text-white  font-bold'>
+            Project deadline: {formatDate(project?.start_date)} to {formatDate(project?.end_date)}
+          </h1>
+
+          <div className='flex items-center mb-5 '>
             <input
               type='text'
               placeholder='Search by employee name'
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
+              className=' border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'
             />
             <button
-              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r bg-primary'
+              className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded bg-primary ml-2'
               onClick={handleSearch}
             >
               Search
