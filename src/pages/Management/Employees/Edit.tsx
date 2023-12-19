@@ -66,7 +66,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
   const [employeeData, setEmployeeData] = useState(dataEmployee);
-  console.log(typeof dayjs(employeeData.join_date), 'abc')
+  // console.log(typeof dayjs(employeeData.join_date), )
 
   useEffect(() => {
     setEmployeeData(dataEmployee);
@@ -92,6 +92,11 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
       phone: dataEmployee.phone,
       email: dataEmployee.email,
       skills: employeeData.skills,
+      join_date: dayjs(employeeData.join_date),
+      date_of_birth: dayjs(employeeData.date_of_birth),
+      // date_of_birth: dayjs(employeeData.date_of_birth)?.toDate() || null,
+
+
       isManager: false
     }
   });
@@ -324,7 +329,6 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
                 <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
                   Date of birth <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
-
                 <Controller
                   control={control}
                   name='date_of_birth'

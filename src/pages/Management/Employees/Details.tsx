@@ -48,8 +48,8 @@ const EmployeesDetail = () => {
         <div className="max-w-screen-lg mx-auto relative">
           <div>
             <Link to={`/management/employees/${id}/exportCV`}>
-              <button className="mt-4 mr-4 transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center justify-center rounded-md bg-black py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 dark:bg-boxdark">
-                Export CV
+              <button className="mt-0 mr-4 transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center justify-center rounded-md bg-black py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 dark:bg-boxdark">
+                Shows CV
               </button>
             </Link>
           </div>
@@ -59,22 +59,6 @@ const EmployeesDetail = () => {
             <img src={`https://hrm-server-api.onrender.com/${employee?.image}`} alt={employee?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
           </div>
           {/* First Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              {/* Employee Name */}
-              <b> <label className="mb-3 block text-black dark:text-white"> Employee Name </label> </b>
-              <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
-                {employee.name}
-              </div>
-            </div>
-            <div>
-              {/* Phone */}
-              <b> <label className="mb-3 block text-black dark:text-white"> Phone </label> </b>
-              <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                {employee.phone}
-              </div>
-            </div>
-          </div>
 
           <div className="col-span-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -149,14 +133,7 @@ const EmployeesDetail = () => {
               ))}
             </div>
           </div>
-          <div>
-            <b> <label className="mb-3 block text-black dark:text-white"> Skills</label> </b>
-            {employee.skills.map((skill: Skills, index: number) => (
-              <div key={index} className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mb-2'>
-                {skill.name} - {skill.exp} years
-              </div>
-            ))}
-          </div>
+
           <div></div>
           <div>
             <b> <label className="mb-3 block text-black dark:text-white"> Description </label> </b>

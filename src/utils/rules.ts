@@ -46,11 +46,11 @@ export const formEmployeeSchema = yup.object({
     .string()
     .required('Please enter email')
     .matches(/^[\w-]+@([\w-]+\.)+[\w-]{2,4}$/, 'Invalid email!'),
-  join_date: yup.date().required('Please select join date'),
+  join_date: yup.object().required('Please select join date'),
   date_of_birth: yup
-    .date()
+    .object()
     .required('Please select date of birth')
-    .max(new Date(), 'Date of birth must be in the past')
+    //  .max(new Date(), 'Date of birth must be in the past')
     .test('is-at-least-18', 'You must be at least 18 years old', function (value: any) {
       const today = new Date();
       const minDate = new Date(today);
