@@ -7,8 +7,10 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row 
 import Swal from 'sweetalert2';
 import axios from 'axios';
 import Button from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DetailIcon from '@mui/icons-material/Details';
 import withReactContent from 'sweetalert2-react-content';
 import CreateProjectModal from './Create';
 import UpdateProjectModal from './Update';
@@ -136,7 +138,7 @@ const ProjectsList = () => {
       }
     });
   };
-
+  const navigate = useNavigate();
   const table = useMaterialReactTable({
     columns,
     data,
@@ -164,6 +166,11 @@ const ProjectsList = () => {
             <EditIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip title='Details'>
+          <IconButton onClick={() => handleDetailsClick(row.original.id)}>
+            <DetailIcon />
+          </IconButton>
+        </Tooltip>
         <Tooltip title='Delete'>
           <IconButton color='error' onClick={() => onDelete(row)}>
             <DeleteIcon />
@@ -172,6 +179,12 @@ const ProjectsList = () => {
       </Box>
     )
   });
+
+  // Function to handle the "Details" icon click and navigate to the details page
+  const handleDetailsClick = (projectId: number) => {
+    // Replace this with your actual details page URL
+    navigate(`/management/projects/details/${projectId}`);
+  };
 
   return (
     <>

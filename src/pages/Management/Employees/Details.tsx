@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import { CardBody, Input } from "@material-tailwind/react";
+import { useParams, Link } from 'react-router-dom';
+import { CardBody } from "@material-tailwind/react";
 
 interface Skills {
   exp: string;
@@ -45,14 +45,34 @@ const EmployeesDetail = () => {
   return (
     <CardBody>
       {employee && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div className="col-span-1">
-            {/* <div className="mb-4 mx-auto mb-4 w-32 rounded-lg-center"> */}
-            <b>
-              <label className="mb-3 block text-black dark:text-white"> Image </label>
-            </b>
-            <img src={`https://hrm-server-api.onrender.com/${employee?.image}`} alt={employee?.name} className="rounded-full w-48 h-48 mx-auto" />
-            <div className="mb-4 mx-auto mb-4 w-32 rounded-lg-center">
+        <div className="max-w-screen-lg mx-auto relative">
+          <div>
+            <Link to={`/management/employees/${id}/exportCV`}>
+              <button className="mt-4 mr-4 transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center justify-center rounded-md bg-black py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 dark:bg-boxdark">
+                Export CV
+              </button>
+            </Link>
+          </div>
+
+          <div>
+            <b> <label className="mb-3 block text-black dark:text-white"> Image </label> </b>
+            <img src={`https://hrm-server-api.onrender.com/${employee?.image}`} alt={employee?.name} className="rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50" />
+          </div>
+          {/* First Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              {/* Employee Name */}
+              <b> <label className="mb-3 block text-black dark:text-white"> Employee Name </label> </b>
+              <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
+                {employee.name}
+              </div>
+            </div>
+            <div>
+              {/* Phone */}
+              <b> <label className="mb-3 block text-black dark:text-white"> Phone </label> </b>
+              <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+                {employee.phone}
+              </div>
             </div>
           </div>
 
@@ -128,17 +148,27 @@ const EmployeesDetail = () => {
                 </div>
               ))}
             </div>
-
-            <div>
-              <b>
-                <label className="mb-2 block text-black dark:text-white"> Description </label>
-              </b>
-              <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
-                {employee.description}
+          </div>
+          <div>
+            <b> <label className="mb-3 block text-black dark:text-white"> Skills</label> </b>
+            {employee.skills.map((skill: Skills, index: number) => (
+              <div key={index} className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary mb-2'>
+                {skill.name} - {skill.exp} years
               </div>
+            ))}
+          </div>
+          <div></div>
+          <div>
+            <b> <label className="mb-3 block text-black dark:text-white"> Description </label> </b>
+            <div className="border border-gray-300 rounded px-4 py-20 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary">
+              {employee.description}
             </div>
           </div>
+
         </div>
+
+
+
       )}
     </CardBody>
   );

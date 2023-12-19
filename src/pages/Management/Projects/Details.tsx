@@ -18,8 +18,8 @@ const dataTabs = [
   },
 
   {
-    label: 'Members',
-    value: TAB_KEYS.MEMBERS
+    label: "Members",
+    value: TAB_KEYS.MEMBERS,
   },
   {
     label: 'Timeline',
@@ -35,32 +35,69 @@ interface Member {
 }
 
 const Timeline = () => {
-  const [project, setProject] = useState<Project | null>(null);
+  const [project, setProject] = useState([]);
+  const [filteredProject, setFilteredProject] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { id } = useParams();
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
+        setProject(response.data.data);
+        setFilteredProject(response.data.data.employeesInProject);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
-      setProject(response.data.data);
-      console.log('🚀 ~ file: Details.tsx:50 ~ fetchData ~ response:', response);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
+    fetchData();
+  }, [id]);
 
   const formatDate = (dateString: string) => {
     const formattedDate = new Date(dateString).toLocaleDateString('en-US');
     return formattedDate;
   };
 
+
+  const handleSearch = () => {
+    // Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm trên dữ liệu gốc, ngược lại sử dụng dữ liệu gốc
+    const dataToSearch = searchTerm ? project.employeesInProject : filteredProject;
+
+    const filteredData = dataToSearch.filter((employee) => {
+      const isMatch = employee.employee.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+      // Nếu tên trùng khớp, log dữ liệu của nhân viên
+      if (isMatch) {
+        console.log('Matching employee data:', employee);
+      }
+
+
+      return isMatch;
+    });
+
+    setFilteredProject(filteredData);
+  };
+
   return (
-    <div className='gap-5 flex justify-between flex-col'>
-      <div></div>
+    <div className="gap-5 flex justify-between flex-col">
+      <div className="flex items-center gap-2">
+        <input
+          className="border p-2 rounded-md focus:outline-none focus:border-blue-500"
+          type="text"
+          placeholder="Search by employee name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button
+          className="bg-blue-500 text-black dark:text-white  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+          onClick={handleSearch}
+        >
+          Search
+        </button>
+      </div>
+
       <div>
         <b>
           {' '}

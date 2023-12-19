@@ -19,21 +19,23 @@ import {
   FormControlLabel
 } from '@mui/material';
 import dayjs from 'dayjs';
-import Swal from 'sweetalert2';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import SkillModal from './SkillModal';
 import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import withReactContent from 'sweetalert2-react-content';
 import { toast } from 'react-toastify';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { projectStatusOption } from '../../../enum';
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import withReactContent from 'sweetalert2-react-content';
+import SkillModal from './SkillModal';
 import { employeeApi } from '../../../apis/employee.api';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
+import Swal from 'sweetalert2';
 
 const MySwal = withReactContent(Swal);
 interface Props {
