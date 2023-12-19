@@ -30,14 +30,6 @@ const dataTabs = [
     value: TAB_KEYS.MEMBERS,
   },
   {
-    label: "Timeline",
-    value: TAB_KEYS.TIMELINE,
-  },
-  {
-    label: 'Members',
-    value: TAB_KEYS.MEMBERS
-  },
-  {
     label: 'Timeline',
     value: TAB_KEYS.TIMELINE
   }
@@ -87,7 +79,7 @@ const Timeline = () => {
   
       // Nếu tên trùng khớp, log dữ liệu của nhân viên và đặt cờ thành true
       if (isMatch) {
-        console.log('Matching employee data:', employee);
+        console.log('Matching employee data:', employee.employee);
         hasMatchingEmployee = true;
       }
   
@@ -104,18 +96,22 @@ const Timeline = () => {
   
   return (
     <div className="gap-5 flex justify-between flex-col">
-     <div>
-      <input
-        type="text"
-        placeholder="Search by employee name"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-      <button onClick={handleSearch}>Search</button>
-      <ul>
-       
-      </ul>
-    </div>
+      <div className="flex items-center gap-2">
+    <input
+      className="border p-2 rounded-md focus:outline-none focus:border-blue-500"
+      type="text"
+      placeholder="Search by employee name"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+    <button
+      className="bg-blue-500 text-black dark:text-white  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+      onClick={handleSearch}
+    >
+      Search
+    </button>
+  </div>
+  
       <div>
         <b> <label className="mb-3 block text-black dark:text-white"> Project Name</label> </b>
         <div className="border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">

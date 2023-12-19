@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { CardBody } from "@material-tailwind/react";
 
 interface Skills {
@@ -43,12 +43,20 @@ const EmployeesDetail = () => {
     const formattedDate = new Date(date).toLocaleDateString('en-US');
     return formattedDate;
   };
-  
+
   return (
     <CardBody>
       {employee && (
-        <div className="gap-5 flex flex-col">
-        <div>
+        <div className="max-w-screen-lg mx-auto relative">
+          <div>
+            <Link to={`/management/employees/${id}/exportCV`}>
+              <button className="mt-4 mr-4 transition duration-300 ease-in-out transform hover:scale-105 inline-flex items-center justify-center rounded-md bg-black py-4 px-10 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10 dark:bg-boxdark">
+                Export CV
+              </button>
+            </Link>
+          </div>
+
+          <div>
             <b> <label className="mb-3 block text-black dark:text-white"> Image </label> </b>
             <div className="border border-gray-300 rounded px-10 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary ">
               {employee.image}
@@ -125,11 +133,11 @@ const EmployeesDetail = () => {
               {employee.description}
             </div>
           </div>
-         
+
         </div>
-        
-        
-        
+
+
+
       )}
     </CardBody>
   );
