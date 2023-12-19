@@ -6,12 +6,16 @@ import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Swal from 'sweetalert2';
 import axios from 'axios';
-import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import withReactContent from 'sweetalert2-react-content';
 import EditEmployeeModel from './Edit';
+import Button from '@mui/material/Button';
+import DetailIcon from '@mui/icons-material/Details';
 import CreateEmployeeModal from './Create';
+import EditModal from './Edit'
+import { showToast } from '../../../components/ToastCustom';
+import { useNavigate } from 'react-router-dom';
 
 interface Skill {
   exp: string;
@@ -74,25 +78,28 @@ const EmployeesList = () => {
   const columns = useMemo<MRT_ColumnDef<Person>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 100
+        accessorKey: 'code',
+        header: 'Code',
+        size: 100,
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100
+        size: 100,
+
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
-        size: 100
+        size: 100,
+
       },
       {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
+
       },
       {
         accessorKey: 'skills[name]',
@@ -106,7 +113,8 @@ const EmployeesList = () => {
               </li>
             ))}
           </ul>
-        )
+        ),
+
       }
     ],
     []
@@ -141,19 +149,29 @@ const EmployeesList = () => {
       }
     });
   };
-
+  const navigate = useNavigate();  
   const table = useMaterialReactTable({
     columns,
     data,
     editDisplayMode: 'modal',
     enableEditing: true,
+    initialState: {
+      sorting: [
+        {
+          id: 'id', //sort by age by default on page load
+          desc: true,
+        },
+       
+      ],
+    },
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({}) => [(
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Employee
-      </Button>
-    ),
-    renderRowActions: ({ row }) => (
+     </Button>
+     
+    )],
+    renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
           <IconButton onClick={() => handleOpenModalUpdate(row)}>
@@ -163,6 +181,11 @@ const EmployeesList = () => {
         <Tooltip title='Delete'>
           <IconButton color='error' onClick={() => onDelete(row)}>
             <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title='Details'>
+          <IconButton onClick={() => handleDetailsClick(row.original.id)}>
+            <DetailIcon />
           </IconButton>
         </Tooltip>
       </Box>
@@ -178,6 +201,10 @@ const EmployeesList = () => {
     }
   };
 
+  const handleDetailsClick = (employeeId: number) => {
+    // Replace this with your actual details page URL
+    navigate(`/management/employees/${employeeId}/detail`);
+  };
   return (
     <>
       <MaterialReactTable table={table} />

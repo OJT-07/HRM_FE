@@ -5,8 +5,10 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DetailIcon from '@mui/icons-material/Details';
 import withReactContent from 'sweetalert2-react-content';
 // import UpdateProjectModal from './Update';
 
@@ -73,7 +75,7 @@ const ProjectsList = () => {
       {
         accessorKey: 'id',
         header: 'ID',
-        size: 100
+        size: 100,
       },
       {
         accessorKey: 'name',
@@ -137,7 +139,7 @@ const ProjectsList = () => {
       }
     });
   };
-
+  const navigate = useNavigate();  
   const table = useMaterialReactTable({
     columns,
     data,
@@ -148,11 +150,12 @@ const ProjectsList = () => {
       sorting: [
         {
           id: 'id', //sort by age by default on page load
-          desc: true
-        }
-      ]
+          desc: true,
+        },
+
+      ],
     },
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({ }) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
@@ -165,14 +168,25 @@ const ProjectsList = () => {
             <EditIcon />
           </IconButton>
         </Tooltip>
+        <Tooltip title='Details'>
+          <IconButton onClick={() => handleDetailsClick(row.original.id)}>
+            <DetailIcon />
+          </IconButton>
+        </Tooltip>
         <Tooltip title='Delete'>
           <IconButton color='error' onClick={() => onDelete(row)}>
             <DeleteIcon />
           </IconButton>
         </Tooltip>
       </Box>
-    )
+    ),
   });
+
+  // Function to handle the "Details" icon click and navigate to the details page
+  const handleDetailsClick = (projectId: number) => {
+    // Replace this with your actual details page URL
+    navigate(`/management/projects/details/${projectId}`);
+  };
 
   return (
     <>
