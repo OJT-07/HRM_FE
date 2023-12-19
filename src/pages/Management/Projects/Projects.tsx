@@ -5,16 +5,15 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import Swal from 'sweetalert2';
+import axios from 'axios';
+import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DetailIcon from '@mui/icons-material/Details';
 import withReactContent from 'sweetalert2-react-content';
-// import UpdateProjectModal from './Update';
-
-import Button from '@mui/material/Button';
 import CreateProjectModal from './Create';
-import axios from 'axios';
+import UpdateProjectModal from './Update';
 interface Project {
   id: number;
   name: string;
@@ -75,7 +74,7 @@ const ProjectsList = () => {
       {
         accessorKey: 'id',
         header: 'ID',
-        size: 100,
+        size: 100
       },
       {
         accessorKey: 'name',
@@ -139,7 +138,7 @@ const ProjectsList = () => {
       }
     });
   };
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const table = useMaterialReactTable({
     columns,
     data,
@@ -150,12 +149,11 @@ const ProjectsList = () => {
       sorting: [
         {
           id: 'id', //sort by age by default on page load
-          desc: true,
-        },
-
-      ],
+          desc: true
+        }
+      ]
     },
-    renderTopToolbarCustomActions: ({ }) => (
+    renderTopToolbarCustomActions: ({}) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
@@ -164,7 +162,7 @@ const ProjectsList = () => {
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
-          <IconButton onClick={() => table.setEditingRow(row)}>
+          <IconButton onClick={() => updatedModalOpen(row)}>
             <EditIcon />
           </IconButton>
         </Tooltip>
@@ -179,7 +177,7 @@ const ProjectsList = () => {
           </IconButton>
         </Tooltip>
       </Box>
-    ),
+    )
   });
 
   // Function to handle the "Details" icon click and navigate to the details page
@@ -193,6 +191,10 @@ const ProjectsList = () => {
       <MaterialReactTable table={table} />
       {visibleModalAddUpdate && (
         <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
+      )}
+
+      {visibleModalUpdate && (
+        <UpdateProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={dataProject} />
       )}
     </>
   );
