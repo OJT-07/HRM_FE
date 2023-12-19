@@ -16,6 +16,11 @@ import CreateEmployeeModal from './Create';
 import EditModal from './Edit'
 import { showToast } from '../../../components/ToastCustom';
 import { useNavigate } from 'react-router-dom';
+// import EditModal from './Edit'
+// import { employeeApi } from '../../../apis/employee.api';
+// import { useMutation } from '@tanstack/react-query';
+
+import { getTokenFromLocalStorage } from '../../../utils/authUtils';
 
 interface Skill {
   exp: string;
@@ -37,7 +42,17 @@ const EmployeesList = () => {
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
   const [dataEmployee, setDataEmployee] = useState();
 
+  const isAuthenticated = () => {
+    const token = getTokenFromLocalStorage();
+    return !!token;
+  };
+  // Fetch data from your API when the component mounts
   useEffect(() => {
+    if (!isAuthenticated()) {
+      console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
+
+      return;
+    }
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);

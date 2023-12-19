@@ -27,7 +27,6 @@ import { toast } from 'react-toastify';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { projectStatusOption } from '../../../enum';
-import Swal from 'sweetalert2';
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import withReactContent from 'sweetalert2-react-content';
 import SkillModal from './SkillModal';
@@ -36,6 +35,7 @@ import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
+import Swal from 'sweetalert2';
 
 const MySwal = withReactContent(Swal);
 interface Props {

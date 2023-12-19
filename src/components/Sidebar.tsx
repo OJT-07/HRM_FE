@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import Logo from '../images/logo/logo.svg';
 import SidebarLinkGroup from './SidebarLinkGroup';
+import { logout } from '../apis/authService';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -9,6 +11,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const { pathname } = location;
 
@@ -291,8 +294,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
                     pathname === '' || pathname.includes('')
                   }`}
-                  onClick={(e) => {
+                  onClick={async(e) => {
                     e.preventDefault();
+                    await logout();
+                    navigate('/auth/signin');
                   }}
                 >
                   <svg
