@@ -13,7 +13,7 @@ import EditEmployeeModel from './Edit';
 import Button from '@mui/material/Button';
 import DetailIcon from '@mui/icons-material/Details';
 import CreateEmployeeModal from './Create';
-import EditModal from './Edit'
+import EditModal from './Edit';
 import { showToast } from '../../../components/ToastCustom';
 import { useNavigate } from 'react-router-dom';
 // import EditModal from './Edit'
@@ -95,26 +95,23 @@ const EmployeesList = () => {
       {
         accessorKey: 'code',
         header: 'Code',
-        size: 100,
+        size: 100
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100,
-
+        size: 100
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
-        size: 100,
-
+        size: 100
       },
       {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
-
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString()
       },
       {
         accessorKey: 'skills[name]',
@@ -128,8 +125,7 @@ const EmployeesList = () => {
               </li>
             ))}
           </ul>
-        ),
-
+        )
       }
     ],
     []
@@ -164,7 +160,7 @@ const EmployeesList = () => {
       }
     });
   };
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const table = useMaterialReactTable({
     columns,
     data,
@@ -174,18 +170,16 @@ const EmployeesList = () => {
       sorting: [
         {
           id: 'id', //sort by age by default on page load
-          desc: true,
-        },
-       
-      ],
+          desc: true
+        }
+      ]
     },
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => [(
+    renderTopToolbarCustomActions: ({}) => [
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Employee
-     </Button>
-     
-    )],
+      </Button>
+    ],
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
