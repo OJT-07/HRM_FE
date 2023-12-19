@@ -1,26 +1,25 @@
+// api.ts
+
 import axios from 'axios';
+import { getTokenFromLocalStorage } from '../utils/authUtils';
 
 const BASE_URL = 'https://hrm-server-api.onrender.com/api/';
 
-const api = axios.create({
+const instance = axios.create({
   baseURL: BASE_URL,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' }
 });
 
-api.interceptors.request.use(
-  function (config) {
-    // Do something before request is sent
-    return config;
-  },
-  function (error) {
-    // Do something with request error
-    return Promise.reject(error);
+instance.interceptors.request.use((config) => {
+  const token = getTokenFromLocalStorage();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-);
+  return config;
+});
 
-// Add a response interceptor
-api.interceptors.response.use(
+instance.interceptors.response.use(
   function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
@@ -33,4 +32,4 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+export default instance;

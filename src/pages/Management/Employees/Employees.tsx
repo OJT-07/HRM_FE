@@ -9,18 +9,13 @@ import toast from 'react-hot-toast';
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import Button from '@mui/material/Button';
 import CreateEmployeeModal from './Create';
-import EditModal from './Edit'
-import axios from 'axios';
-import { employeeApi } from '../../../apis/employee.api';
-import toast from 'react-hot-toast';
-import { showToast } from '../../../components/ToastCustom';
-import { useMutation } from '@tanstack/react-query';
-import Swal from 'sweetalert2';
+// import EditModal from './Edit'
+// import { employeeApi } from '../../../apis/employee.api';
+// import { useMutation } from '@tanstack/react-query';
 import withReactContent from 'sweetalert2-react-content';
 import EditEmployeeModel from './Edit';
-import CreateEmployeeModal from './Create';
+import { getTokenFromLocalStorage } from '../../../utils/authUtils';
 
 interface Skill {
   exp: string;
@@ -42,8 +37,17 @@ const EmployeesList = () => {
   const [visibleModalUpdate, setVisibleModalUpdate] = useState<boolean>(false);
   const [dataEmployee, setDataEmployee] = useState();
 
+  const isAuthenticated = () => {
+    const token = getTokenFromLocalStorage();
+    return !!token;
+  };
   // Fetch data from your API when the component mounts
   useEffect(() => {
+    if (!isAuthenticated()) {
+      console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
+
+      return;
+    }
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
