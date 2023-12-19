@@ -66,11 +66,11 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
   const [employeeData, setEmployeeData] = useState(dataEmployee);
+  console.log(typeof dayjs(employeeData.join_date), 'abc')
 
   useEffect(() => {
     setEmployeeData(dataEmployee);
     setSkillList(employeeData.skills);
-    console.log('EMPLOYEE DATA ', employeeData);
   }, [dataEmployee]);
 
   const handleOpenSkill = () => {
@@ -82,6 +82,8 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
     setInitSkill({});
   };
 
+
+
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
     defaultValues: {
@@ -89,7 +91,8 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
       address: employeeData.address,
       phone: dataEmployee.phone,
       email: dataEmployee.email,
-      skills: employeeData.skills
+      skills: employeeData.skills,
+      isManager: false
     }
   });
 
@@ -102,7 +105,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
     setValue
   } = methods;
 
-  const onSubmit = async (data?: any) => {
+  const onSubmit = handleSubmit((data?: any) => {
     try {
       MySwal.fire({
         title: 'Are you sure?',
@@ -130,7 +133,8 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
         icon: 'error'
       });
     }
-  };
+  }
+  )
 
   const handleClose = () => {
     MySwal.fire({
@@ -187,7 +191,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
           Edit Employee
         </Typography>
         <FormProvider {...methods}>
-          <form onSubmit={() => {}}>
+          <form onSubmit={onSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <InputLabel style={{ marginBottom: 3 }} id='employee-fullname'>
@@ -291,7 +295,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
 
               <Grid item xs={3}>
                 <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
-                  Start Date <span style={{ color: 'red' }}>*</span>
+                  Join Date <span style={{ color: 'red' }}>*</span>
                 </InputLabel>
 
                 <Controller
@@ -452,15 +456,12 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
 
               <Button
                 size='medium'
-                // type='submit'
+                type='submit'
                 style={{ marginRight: 0 }}
                 variant='contained'
                 startIcon={<SaveIcon />}
                 color='primary'
-                onClick={() => {
-                  const value = getValues();
-                  onSubmit({ ...employeeData, ...value });
-                }}
+                onClick={onSubmit}
               >
                 Submit
               </Button>
@@ -478,7 +479,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
           />
         )}
       </Box>
-    </Modal>
+    </Modal >
   );
 }
 
