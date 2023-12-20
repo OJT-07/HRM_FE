@@ -113,7 +113,7 @@ const ProjectsList = () => {
         accessorKey: 'status',
         header: 'Status',
         size: 100
-        // , Cell: ({ row }) => formatStatus(row.original.status.toString())
+        , Cell: ({ row }) => formatStatus(row.original.status.toString())
       }
     ],
     []
@@ -167,7 +167,7 @@ const ProjectsList = () => {
         }
       ]
     },
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({ }) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
