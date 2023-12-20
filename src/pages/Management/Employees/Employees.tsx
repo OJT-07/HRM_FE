@@ -1,23 +1,19 @@
-import { toast } from 'react-toastify';
-import { employeeApi } from '../../../apis/employee.api';
-import { Box, IconButton, Tooltip } from '@mui/material';
-import { useMemo, useState, useEffect } from 'react';
-import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import withReactContent from 'sweetalert2-react-content';
-import EditEmployeeModel from './Edit';
-import Button from '@mui/material/Button';
 import DetailIcon from '@mui/icons-material/Details';
-import CreateEmployeeModal from './Create';
-import EditModal from './Edit'
-import { showToast } from '../../../components/ToastCustom';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { MRT_Row, MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import EditModal from './Edit'
-// import { employeeApi } from '../../../apis/employee.api';
-// import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { employeeApi } from '../../../apis/employee.api';
+import CreateEmployeeModal from './Create';
+import EditEmployeeModel from './Edit';
 
 import { getTokenFromLocalStorage } from '../../../utils/authUtils';
 
@@ -47,11 +43,11 @@ const EmployeesList = () => {
   };
   // Fetch data from your API when the component mounts
   useEffect(() => {
-    if (!isAuthenticated()) {
-      console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
+    // if (!isAuthenticated()) {
+    //   console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
 
-      return;
-    }
+    //   return;
+    // }
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
@@ -94,26 +90,23 @@ const EmployeesList = () => {
       {
         accessorKey: 'code',
         header: 'Code',
-        size: 100,
+        size: 100
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100,
-
+        size: 100
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
-        size: 100,
-
+        size: 100
       },
       {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
-
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString()
       },
       {
         accessorKey: 'skills[name]',
@@ -127,8 +120,7 @@ const EmployeesList = () => {
               </li>
             ))}
           </ul>
-        ),
-
+        )
       }
     ],
     []
@@ -163,7 +155,7 @@ const EmployeesList = () => {
       }
     });
   };
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const table = useMaterialReactTable({
     columns,
     data,
@@ -173,18 +165,16 @@ const EmployeesList = () => {
       sorting: [
         {
           id: 'id', //sort by age by default on page load
-          desc: true,
-        },
-       
-      ],
+          desc: true
+        }
+      ]
     },
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => [(
+    renderTopToolbarCustomActions: ({}) => [
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Employee
-     </Button>
-     
-    )],
+      </Button>
+    ],
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: 'flex', gap: '.5em' }}>
         <Tooltip title='Edit'>
