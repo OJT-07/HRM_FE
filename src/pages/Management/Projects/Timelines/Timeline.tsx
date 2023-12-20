@@ -151,7 +151,7 @@ const ProjectTimeline = ({ data }: any) => {
 
   return (
     <div className='app'>
-      {project && start && end ? (
+      {project && start ? (
         <>
           <h1 className='mb-3  text-black dark:text-white  font-bold'>
             Project deadline: {formatDate(project?.start_date)} to {formatDate(project?.end_date)}
