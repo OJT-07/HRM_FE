@@ -185,12 +185,24 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
-    const customData: TypeAssign = {
-      employeeId: newMember.member.id,
-      name: newMember.member.name,
-      position: newMember.position
-    };
-    newMemberList.push(customData);
+    const existingMemberIndex = newMemberList.findIndex((item: TypeAssign) => item.employeeId === newMember.member.id);
+
+    if (existingMemberIndex !== -1) {
+      // Nếu đã tồn tại, thì cập nhật thông tin
+      newMemberList[existingMemberIndex] = {
+        employeeId: newMember.member.id,
+        name: newMember.member.name,
+        position: newMember.position
+      };
+    } else {
+      // Nếu chưa tồn tại, thêm mới
+      newMemberList.push({
+        employeeId: newMember.member.id,
+        name: newMember.member.name,
+        position: newMember.position
+      });
+    }
+
     setMemberList(newMemberList);
     setValue('members', newMemberList);
     await trigger(['members']);
@@ -218,14 +230,13 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   useEffect(() => {
     if (project) {
-      const tempData = project?.histories?.filter((item: any) => item.end_date === null);
-      console.log(tempData);
-      const memberData = tempData?.map((item: any) => ({
+      const memberData = project?.histories.map((item: any) => ({
         employeeId: item.employee.id,
         name: item.employee.name,
         position: item.position.map((position: string) => ({ value: position, label: position } as PositionType))
       }))
       setMemberList(memberData)
+      console.log(memberData);
     }
   }, [project]);
 
@@ -372,7 +383,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                         </TableHead>
                         <TableBody>
                           {memberList.map((item: any, index: number) => (
-                            <TableRow key={item.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableRow key={item.employeeId} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                               <TableCell component='th' scope='row'>
                                 {index + 1}
                               </TableCell>
