@@ -62,6 +62,11 @@ const coreRoutes = [
     path: '/management/employees/:id/exportCV',
     title: 'Export CV',
     component: ExportCV
+  },
+  {
+    path: '/profile',
+    title: 'Profile',
+    component: Profile
   }
 ];
 

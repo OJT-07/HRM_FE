@@ -61,7 +61,7 @@ const EmployeesDetail = () => {
               <label className='mb-3 block text-black dark:text-white'> Image </label>{' '}
             </b>
             <img
-              src={employee.image !== null ? `https://hrm-server-api.onrender.com/${employee?.image}` : 'https://xsgames.co/randomusers/avatar.php?g=pixel&key=1'}
+              src={employee.image !== null ? `https://hrm-server-api.onrender.com/${employee?.image}` : 'https://xsgames.co/randomusers/avatar.php?g=male'}
               alt={employee?.name}
               className='rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50'
             />

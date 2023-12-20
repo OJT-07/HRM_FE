@@ -1,6 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
-import LogoDark from '../../images/logo/logo-dark.svg';
-import Logo from '../../images/logo/logo.svg';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { login } from '../../apis/authService';
 
