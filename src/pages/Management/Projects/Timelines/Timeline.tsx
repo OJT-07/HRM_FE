@@ -195,7 +195,7 @@ const ProjectTimeline = ({ data }: any) => {
           />
         </>
       ) : (
-        <h1>Loading...</h1>
+        <h1>Do not have employee in project</h1>
       )}
     </div>
   );
