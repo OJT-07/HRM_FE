@@ -1,24 +1,20 @@
-import { toast } from 'react-toastify';
-import { employeeApi } from '../../../apis/employee.api';
-import { useMutation } from '@tanstack/react-query';
-import { Box, IconButton, Tooltip } from '@mui/material';
-import { useMemo, useState, useEffect } from 'react';
-import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import withReactContent from 'sweetalert2-react-content';
-import EditEmployeeModel from './Edit';
-import Button from '@mui/material/Button';
 import DetailIcon from '@mui/icons-material/Details';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, IconButton, Tooltip } from '@mui/material';
+import Button from '@mui/material/Button';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
+import { MRT_Row, MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { employeeApi } from '../../../apis/employee.api';
 import CreateEmployeeModal from './Create';
 import EditModal from './Edit';
-import { showToast } from '../../../components/ToastCustom';
-import { useNavigate } from 'react-router-dom';
-// import EditModal from './Edit'
-// import { employeeApi } from '../../../apis/employee.api';
-// import { useMutation } from '@tanstack/react-query';
+import EditEmployeeModel from './Edit';
 
 import { getTokenFromLocalStorage } from '../../../utils/authUtils';
 
@@ -48,11 +44,11 @@ const EmployeesList = () => {
   };
   // Fetch data from your API when the component mounts
   useEffect(() => {
-    if (!isAuthenticated()) {
-      console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
+    // if (!isAuthenticated()) {
+    //   console.log('Người dùng chưa được xác thực. Chuyển hướng đến trang đăng nhập.');
 
-      return;
-    }
+    //   return;
+    // }
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees`);
@@ -94,8 +90,8 @@ const EmployeesList = () => {
     () => [
       {
         accessorKey: 'code',
-        header: 'Employee ID',
-        size: 150
+        header: 'Code',
+        size: 100
       },
       {
         accessorKey: 'name',
@@ -166,6 +162,14 @@ const EmployeesList = () => {
     data,
     editDisplayMode: 'modal',
     enableEditing: true,
+    initialState: {
+      sorting: [
+        {
+          id: 'id', //sort by age by default on page load
+          desc: true
+        }
+      ]
+    },
     positionActionsColumn: 'last',
     renderTopToolbarCustomActions: ({}) => [
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
