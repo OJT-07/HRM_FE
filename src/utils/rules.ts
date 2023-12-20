@@ -29,7 +29,8 @@ export const formProjectSchema = yup.object().shape({
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
   members: yup.array(),
   startDate: yup.date(),
-  endDate: yup.date()
+  endDate: yup.date(),
+  description: yup.string()
 });
 
 export type FormProjectType = yup.InferType<typeof formProjectSchema>;

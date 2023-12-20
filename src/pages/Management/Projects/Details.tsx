@@ -44,12 +44,14 @@ const EmployeesList = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
-      setData(response.data.data.histories);
-
-      const formattedData = response.data.data.map((member: Member) => ({
-        ...member
-      }));
+      const rawData = response.data.data.histories;
+      
+      // Lọc các phần tử có id duy nhất
+      const uniqueIds = Array.from(new Set(rawData.map(member => member.employee.id)));
+      const formattedData = uniqueIds.map(uniqueId => rawData.find(member => member.employee.id === uniqueId));
+  
       setData(formattedData);
+      console.log(formattedData);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
