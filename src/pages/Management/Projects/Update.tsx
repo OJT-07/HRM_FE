@@ -87,6 +87,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
   const [project, setProject] = useState<any>();
+
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
     queryFn: () => employeeApi.getAll({})
@@ -128,7 +129,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
           position: item.position,
           member: item.employee
         };
-      })
+      }),
+      // description:initialValue.name,
+
     }
   });
 
@@ -213,17 +216,20 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     fetchData();
   }, [initialValue.id]);
 
-  // useEffect(() => {
-  //   if (project) {
-  //     const tempData = project?.histories?.filter((item: any) => item.endate === null);
-  //     const memberData = tempData?.map((item: any) => ({
-  //       employeeId: item.employee.id,
-  //       name: item.employee.name,
-  //       position: item.position.map((position: string) => ({ value: position, label: position }) as PositionType)
-  //     }));
-  //     setMemberList(memberData);
-  //   }
-  // }, [project]);
+  useEffect(() => {
+    if (project) {
+      const tempData = project?.histories?.filter((item: any) => item.end_date === null);
+      console.log(tempData);
+      const memberData = tempData?.map((item: any) => ({
+        employeeId: item.employee.id,
+        name: item.employee.name,
+        position: item.position.map((position: string) => ({ value: position, label: position } as PositionType))
+      }))
+      setMemberList(memberData)
+    }
+  }, [project]);
+
+
 
   return (
     <>
