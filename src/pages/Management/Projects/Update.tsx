@@ -74,6 +74,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
   const [project, setProject] = useState<any>();
+
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
     queryFn: () => employeeApi.getAll({})
@@ -188,7 +189,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   useEffect(() => {
     if (project) {
-      const tempData = project?.histories?.filter((item: any) => item.endate === null)
+      const tempData = project?.histories?.filter((item: any) => item.end_date === null);
+      console.log(tempData);
       const memberData = tempData?.map((item: any) => ({
         employeeId: item.employee.id,
         name: item.employee.name,
@@ -198,7 +200,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     }
   }, [project]);
 
-  console.log(memberList);
+
 
   return (
     <>

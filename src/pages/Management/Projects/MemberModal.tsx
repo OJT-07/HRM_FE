@@ -17,6 +17,7 @@ import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
 import { useState, useEffect } from 'react';
 import ReactSelect from 'react-select';
+import employee from 'pages/Employees/employee.reducer';
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 interface Props {
   visible: boolean;
@@ -81,6 +82,9 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
   const handleClose = () => {
     onClose();
   };
+
+  const [employeeSelect, setEmployeeSelect] = useState([]);
+
   const onSubmit = async () => {
     const result = await trigger(['member', 'position']);
     if (!result) {
@@ -92,6 +96,8 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
 
     const { member, position } = getValues();
 
+
+
     const submitData = {
       member: member as any,
       position: position as { label: string; value: string }
@@ -102,6 +108,12 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
     handleClose();
     reset();
   };
+
+  useEffect(() => {
+    const results = listEmployee.filter(({ id }: any) => !selectedMemberList.some(({ employeeId }: any) => employeeId === id));
+    setEmployeeSelect(results);
+  }, [getValues()])
+
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
@@ -124,10 +136,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                   render={({ field }) => (
                     <ReactSelect
                       {...field}
-                      options={listEmployee.filter((member: any) => {
-                        const arrExistId = selectedMemberList.map((mem: any) => mem?.member?.id);
-                        return !arrExistId.includes(member.id);
-                      })}
+                      options={employeeSelect}
                     />
                   )}
                 />

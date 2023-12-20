@@ -15,7 +15,7 @@ import {
   Typography
 } from '@mui/material';
 import { toast } from 'react-toastify';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { projectApi } from '../../../apis/project.api';
@@ -125,9 +125,9 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
           technical: data.technical.map((tech: any) => tech.value),
           members: data.memberList
             ? data.memberList?.map((member: any) => ({
-                employeeId: member.member.id,
-                position: member.position.map((item: any) => item.value)
-              }))
+              employeeId: member.member.id,
+              position: member.position.map((item: any) => item.value)
+            }))
             : [],
           status: data.status.value
         };
@@ -161,6 +161,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setValue('members', newMemberList);
     await trigger(['members']);
   };
+
+
 
   return (
     <Modal
