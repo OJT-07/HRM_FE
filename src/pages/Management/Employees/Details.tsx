@@ -2,7 +2,7 @@ import { CardBody } from '@material-tailwind/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-
+import Timeline from './Timelines/Timeline';
 interface Skills {
   exp: string;
   name: string;
@@ -30,7 +30,6 @@ const EmployeesDetail = () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/employees/${id}`);
         setEmployee(response.data.data[0]);
-        console.log('🚀 ~ file: Details.tsx:33 ~ fetchData ~ response:', response);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -54,7 +53,6 @@ const EmployeesDetail = () => {
               </button>
             </Link>
           </div>
-
           <div>
             <b>
               {' '}
@@ -190,6 +188,7 @@ const EmployeesDetail = () => {
               {employee.description}
             </div>
           </div>
+          <Timeline data={employee} />
         </div>
       )}
     </CardBody>
