@@ -97,7 +97,6 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
       position: position as { label: string; value: string }
     };
 
-
     onAdd(submitData);
     handleClose();
     reset();
@@ -125,7 +124,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                     <ReactSelect
                       {...field}
                       options={listEmployee.filter((member: any) => {
-                        const arrExistId = selectedMemberList.map((mem: any) => mem?.member?.id);
+                        const arrExistId = selectedMemberList.map((mem: any) => mem?.member?.id || mem?.employeeId);
                         return !arrExistId.includes(member.id);
                       })}
                     />
@@ -145,7 +144,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                       {...field}
                       options={projectPositionOption}
                       isMulti
-                    // onChange={(val) => setPositionValues(val)}
+                      // onChange={(val) => setPositionValues(val)}
                     />
                   )}
                 />

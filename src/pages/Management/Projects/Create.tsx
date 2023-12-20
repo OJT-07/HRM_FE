@@ -62,6 +62,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
 
+  console.log(memberList);
+
   //Hook cura react-query dufng cho method get
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
@@ -123,8 +125,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
-          members: data.memberList
-            ? data.memberList?.map((member: any) => ({
+          members: data.members
+            ? data.members?.map((member: any) => ({
                 employeeId: member.member.id,
                 position: member.position.map((item: any) => item.value)
               }))

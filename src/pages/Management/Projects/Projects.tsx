@@ -1,6 +1,6 @@
 import { toast } from 'react-toastify';
 import { projectApi } from '../../../apis/project.api';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { useMemo, useState, useEffect } from 'react';
 import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef, MRT_Row } from 'material-react-table';
@@ -60,8 +60,17 @@ const ProjectsList = () => {
 
   const updatedModalOpen = (row: any) => {
     setVisibleModalUpdate(true);
-    setdataProject(row.original);
+    // setdataProject(row.original);
+    setIdProject(row.original.id);
   };
+
+  const projectResponse = useQuery({
+    queryKey: ['projectResponse', idProject],
+    queryFn: () => {
+      return projectApi.getProject(idProject);
+    },
+    retry: 0
+  });
 
   const fetchData = async () => {
     try {
@@ -74,15 +83,12 @@ const ProjectsList = () => {
 
   const columns = useMemo<MRT_ColumnDef<Project>[]>(
     () => [
-
       {
         accessorKey: 'name',
         header: 'Name',
         size: 100,
         enableGlobalFilter: true,
-        enableSorting: false,
-
-
+        enableSorting: false
       },
       {
         accessorKey: 'start_date',
@@ -90,16 +96,12 @@ const ProjectsList = () => {
         size: 100,
         Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString(),
         enableGlobalFilter: false,
-        enableSorting: false,
-
-
+        enableSorting: false
       },
       {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
-        
-
 
         Cell: ({ row }) =>
           row.original.end_date ? (
@@ -107,8 +109,8 @@ const ProjectsList = () => {
           ) : (
             <i style={{ color: 'tomato' }}>No date</i>
           ),
-          enableGlobalFilter: false,
-        enableSorting: false,
+        enableGlobalFilter: false,
+        enableSorting: false
       },
       {
         accessorKey: 'technical',
@@ -122,15 +124,15 @@ const ProjectsList = () => {
           </ul>
         ),
         enableSorting: false,
-        enableGlobalFilter: false,
+        enableGlobalFilter: false
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        size: 100
-        , Cell: ({ row }) => formatStatus(row.original.status.toString()),
+        size: 100,
+        Cell: ({ row }) => formatStatus(row.original.status.toString()),
         enableSorting: false,
-        enableGlobalFilter: false,
+        enableGlobalFilter: false
       }
     ],
     []
@@ -180,13 +182,13 @@ const ProjectsList = () => {
     enableRowNumbers: true,
     initialState: {
       sorting: [
-        {
-          id: 'id',
-          desc: true
-        }
+        // {
+        //   id: 'id',
+        //   desc: true
+        // }
       ]
     },
-    renderTopToolbarCustomActions: ({ }) => (
+    renderTopToolbarCustomActions: ({}) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
@@ -226,8 +228,12 @@ const ProjectsList = () => {
         <CreateProjectModal visible={visibleModalAddUpdate} onClose={handleCloseModalAddUpdate} />
       )}
 
-      {visibleModalUpdate && (
-        <UpdateProjectModal visible={visibleModalUpdate} onClose={handleCloseModalUpdate} initialValue={dataProject} />
+      {visibleModalUpdate && projectResponse?.data?.data?.data && (
+        <UpdateProjectModal
+          visible={visibleModalUpdate}
+          onClose={handleCloseModalUpdate}
+          initialValue={projectResponse?.data?.data?.data}
+        />
       )}
     </>
   );
