@@ -62,6 +62,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
 
+  console.log(memberList);
+
   //Hook cura react-query dufng cho method get
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],

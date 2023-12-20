@@ -32,11 +32,25 @@ import withReactContent from 'sweetalert2-react-content';
 import { formatStatus } from '../../../utils/formatValue';
 import { employeeApi } from '../../../apis/employee.api';
 import { projectApi } from '../../../apis/project.api';
-import { projectStatusOption, projectTechnicalOption } from '../../../enum';
+import { projectPositionOption, projectStatusOption, projectTechnicalOption } from '../../../enum';
 import { FormProjectType, formProjectSchema } from '../../../utils/rules';
 import MemberModal from './MemberModal';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import axios from 'axios';
+
+const generatePosition = (valueList: any) => {
+  if (!Array.isArray(valueList) || valueList.length === 0) return '';
+
+  const arr: any[] = [];
+
+  valueList.forEach((value: any) => {
+    if (value?.label) {
+      arr.push(value.label);
+    } else arr.push(projectPositionOption.find((position) => position.value === value)?.label || '');
+  });
+
+  return arr.join(', ');
+};
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -45,15 +59,14 @@ interface Props {
   initialValue?: any;
 }
 interface PositionType {
-
   value: string;
-  label: string
-
+  label: string;
 }
 interface TypeAssign {
   employeeId: string;
   name: string;
-  position: PositionType[]
+  position: PositionType[];
+  member?: any;
 }
 
 const style = {
@@ -79,14 +92,12 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     queryKey: ['employee'],
     queryFn: () => employeeApi.getAll({})
   });
-
   const listEmployee =
     dataEmployee?.data?.data.map((emp: any) => ({
       ...emp,
       label: emp?.name,
       value: emp?.id
     })) || [];
-
 
   const handleOpenMember = () => {
     setVisibleMember(true);
@@ -102,21 +113,39 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     control,
     trigger,
     setValue,
-    getValues
+    getValues,
+    resetField
   } = useForm<FormProjectType>({
     mode: 'onBlur',
     resolver: yupResolver(formProjectSchema),
     defaultValues: {
       name: initialValue.name,
       status: { value: initialValue.status, label: formatStatus(initialValue.status).toString() },
-      end_date: dayjs(initialValue.end_date),
+      end_date: initialValue.end_date ? dayjs(initialValue.end_date) : undefined,
       start_date: dayjs(initialValue.start_date),
       technical: initialValue.technical.map((item: any) => ({ value: item, label: item })),
-      description:initialValue.name,
+      members: (initialValue?.histories || []).map((item: any) => {
+        return {
+          position: item.position,
+          member: item.employee
+        };
+      }),
+      // description:initialValue.name,
 
     }
   });
 
+  useEffect(() => {
+    if (initialValue?.histories?.length) {
+      const newMembers = (initialValue?.histories || []).map((item: any) => {
+        return {
+          position: item.position,
+          member: item.employee
+        };
+      });
+      setMemberList(newMembers);
+    }
+  }, [initialValue]);
 
   const onSubmit = handleSubmit(async (data?: any) => {
     MySwal.fire({
@@ -135,8 +164,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
           members: memberList.map((item: TypeAssign) => ({
-            employeeId: item.employeeId,
-            position: item.position.map((position: PositionType) => position.value)
+            employeeId: item?.member?.id || item?.employeeId,
+            position: item.position.map((position: PositionType) => position?.value || position)
           })),
           status: data.status.value
         };
@@ -154,25 +183,24 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     });
   });
 
-
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
     const customData: TypeAssign = {
       employeeId: newMember.member.id,
       name: newMember.member.name,
       position: newMember.position
-    }
+    };
     newMemberList.push(customData);
     setMemberList(newMemberList);
-    setValue('histories', newMemberList);
-    await trigger(['histories']);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
-    setValue('histories', newMemberList);
-    await trigger(['histories']);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   useEffect(() => {
@@ -293,7 +321,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 </InputLabel>
 
                 <Controller
-
                   control={control}
                   name='end_date'
                   render={({ field }) => <DatePicker {...field} disablePast={true} />}
@@ -350,9 +377,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {item.name}
+                                {item?.member?.name || item?.name}
                               </TableCell>
-                              <TableCell align='center'>{item.position.map((item: PositionType) => item.label + ' ')}</TableCell>
+                              <TableCell align='center'>{generatePosition(item.position)}</TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
@@ -367,7 +394,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                     </TableContainer>
                   ) : null}
 
-                  <div style={{ color: 'red' }}>{errors.histories?.message}</div>
+                  <div style={{ color: 'red' }}>{errors.members?.message}</div>
                 </fieldset>
               </Grid>
               {/* End Assign Member */}
@@ -428,7 +455,6 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
         </Box>
       </Modal>
     </>
-
   );
 }
 
