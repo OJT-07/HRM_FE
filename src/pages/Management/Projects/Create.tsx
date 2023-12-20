@@ -125,12 +125,12 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
-          members: data.memberList
-            ? data.memberList?.map((member: any) => ({
+          members:
+            memberList?.map((member: any) => ({
               employeeId: member.member.id,
               position: member.position.map((item: any) => item.value)
-            }))
-            : [],
+            })),
+
           status: data.status.value
         };
 
@@ -156,6 +156,8 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setValue('members', newMemberList);
     await trigger(['members']);
   };
+
+  console.log("memberList", memberList);
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
