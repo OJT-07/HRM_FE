@@ -74,32 +74,41 @@ const ProjectsList = () => {
 
   const columns = useMemo<MRT_ColumnDef<Project>[]>(
     () => [
-      {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 100
-      },
+
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100
+        size: 100,
+        enableGlobalFilter: true,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'start_date',
         header: 'Start Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString(),
+        enableGlobalFilter: false,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
+        
+
+
         Cell: ({ row }) =>
           row.original.end_date ? (
             new Date(row.original.end_date).toLocaleDateString()
           ) : (
             <i style={{ color: 'tomato' }}>No date</i>
-          )
+          ),
+          enableGlobalFilter: false,
+        enableSorting: false,
       },
       {
         accessorKey: 'technical',
@@ -111,13 +120,17 @@ const ProjectsList = () => {
               <li key={index}>{tech}</li>
             ))}
           </ul>
-        )
+        ),
+        enableSorting: false,
+        enableGlobalFilter: false,
       },
       {
         accessorKey: 'status',
         header: 'Status',
         size: 100
-        , Cell: ({ row }) => formatStatus(row.original.status.toString())
+        , Cell: ({ row }) => formatStatus(row.original.status.toString()),
+        enableSorting: false,
+        enableGlobalFilter: false,
       }
     ],
     []
@@ -163,15 +176,17 @@ const ProjectsList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
+    enableColumnFilters: false,
+    enableRowNumbers: true,
     initialState: {
       sorting: [
         {
-          id: 'id', //sort by age by default on page load
+          id: 'id',
           desc: true
         }
       ]
     },
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({ }) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
