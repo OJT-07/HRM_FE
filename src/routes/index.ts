@@ -8,14 +8,14 @@ const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const Profile = lazy(() => import('../pages/Profile'));
 const Settings = lazy(() => import('../pages/Settings'));
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
-const ChartEmployees = lazy(() => import('../pages/Dashboard/ChartEmployees'));
+const Dashboard = lazy(() => import('../pages/Dashboard/ChartEmployees'));
 const EmployeesDetail = lazy(() => import('../pages/Management/Employees/Details'));
 const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'))
 const coreRoutes = [
   {
-    path: '/chart-employees',
-    title: 'Chart Employees',
-    component: ChartEmployees
+    path: '/dashboard',
+    title: 'Dashboard',
+    component: Dashboard
   },
   {
     path: '/chart-projets',

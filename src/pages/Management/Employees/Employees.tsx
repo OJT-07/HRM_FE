@@ -88,14 +88,6 @@ const EmployeesList = () => {
   const columns = useMemo<MRT_ColumnDef<Person>[]>(
     () => [
       {
-        accessorKey: 'code',
-        header: 'Code',
-        size: 100,
-        enableSorting: false,
-        enableGlobalFilter: false,
-
-      },
-      {
         accessorKey: 'name',
         header: 'Name',
         size: 100,
@@ -110,7 +102,7 @@ const EmployeesList = () => {
         enableSorting: false,
         enableGlobalFilter: false,
 
-        
+
       },
       {
         accessorKey: 'date_of_birth',
@@ -179,7 +171,8 @@ const EmployeesList = () => {
     data,
     editDisplayMode: 'modal',
     enableEditing: true,
-    enableColumnFilters:false,
+    enableColumnFilters: false,
+    enableRowNumbers: true,
     initialState: {
       sorting: [
         {
@@ -189,7 +182,7 @@ const EmployeesList = () => {
       ]
     },
     positionActionsColumn: 'last',
-    renderTopToolbarCustomActions: ({}) => [
+    renderTopToolbarCustomActions: ({ }) => [
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Employee
       </Button>

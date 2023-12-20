@@ -71,13 +71,7 @@ const ProjectsList = () => {
 
   const columns = useMemo<MRT_ColumnDef<Project>[]>(
     () => [
-      {
-        accessorKey: 'id',
-        header: 'ID',
-        size: 100,
-        enableGlobalFilter: false,
 
-      },
       {
         accessorKey: 'name',
         header: 'Name',
@@ -162,16 +156,17 @@ const ProjectsList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
-    enableColumnFilters:false,
+    enableColumnFilters: false,
+    enableRowNumbers: true,
     initialState: {
       sorting: [
         {
-          id: 'id', 
+          id: 'id',
           desc: true
         }
       ]
     },
-    renderTopToolbarCustomActions: ({}) => (
+    renderTopToolbarCustomActions: ({ }) => (
       <Button variant='contained' onClick={handleOpenModalAddUpdate}>
         Create New Project
       </Button>
