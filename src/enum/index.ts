@@ -1,7 +1,7 @@
 export const projectStatusOption = [
   {
-    label: 'In Progress',
-    value: 'in progress'
+    label: 'Active',
+    value: 'active'
   },
   {
     label: 'Pending',

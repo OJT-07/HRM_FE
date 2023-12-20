@@ -17,9 +17,7 @@ import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
 import { useState, useEffect } from 'react';
 import ReactSelect from 'react-select';
-
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
-
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -28,7 +26,6 @@ interface Props {
   listEmployee: any;
   selectedMemberList: any;
 }
-
 const style = {
   position: 'absolute' as 'absolute',
   top: '50%',
@@ -45,9 +42,7 @@ const style = {
 //   position: string;
 //   name: string;
 // }
-
 // const [employeeData, setEmployeeData] = useState<Member | null>(null);
-
 // useEffect(() => {
 //   const fetchData = async () => {
 //     try {
@@ -59,14 +54,11 @@ const style = {
 //       console.error('Error fetching data:', error);
 //     }
 //   };
-
 //   fetchData();
 // }, []);
-
 const findOption = (list: any, value: any) => {
   return list.find((item: any) => item?.value === value);
 };
-
 function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, selectedMemberList }: Props) {
   const [positionValues, setPositionValues] = useState<any>(initialValues.name || '');
   const methods = useForm<FormMemberType>({
@@ -76,7 +68,6 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
       position: findOption(projectPositionOption, initialValues?.position)
     }
   });
-
   const {
     formState: { errors },
     control,
@@ -87,18 +78,15 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
     setValue,
     watch
   } = methods;
-
   const handleClose = () => {
     onClose();
   };
-
   const onSubmit = async () => {
     const result = await trigger(['member', 'position']);
     if (!result) {
       Object.keys(errors).map((name: any) => {
         setError(name, { type: 'custom', message: errors[name as keyof FormMemberType]?.message || '' });
       });
-
       return;
     }
 
@@ -108,13 +96,12 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
       member: member as any,
       position: position as { label: string; value: string }
     };
-    
+
 
     onAdd(submitData);
     handleClose();
     reset();
   };
-
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
@@ -158,7 +145,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                       {...field}
                       options={projectPositionOption}
                       isMulti
-                      // onChange={(val) => setPositionValues(val)}
+                    // onChange={(val) => setPositionValues(val)}
                     />
                   )}
                 />
@@ -166,7 +153,6 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                   {errors.position?.message}
                 </div>
               </Grid>
-
               <Button
                 size='medium'
                 type='button'
@@ -184,5 +170,4 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
     </Modal>
   );
 }
-
 export default MemberModal;
