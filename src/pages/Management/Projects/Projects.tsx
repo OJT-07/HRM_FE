@@ -74,24 +74,38 @@ const ProjectsList = () => {
       {
         accessorKey: 'id',
         header: 'ID',
-        size: 100
+        size: 100,
+        enableGlobalFilter: false,
+
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100
+        size: 100,
+        enableGlobalFilter: true,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'start_date',
         header: 'Start Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.start_date).toLocaleDateString(),
+        enableGlobalFilter: false,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
+        enableGlobalFilter: false,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'technical',
@@ -103,7 +117,10 @@ const ProjectsList = () => {
               <li key={index}>{tech}</li>
             ))}
           </ul>
-        )
+        ),
+        enableSorting: false,
+        enableGlobalFilter: false,
+
       }
     ],
     []
@@ -145,10 +162,11 @@ const ProjectsList = () => {
     editDisplayMode: 'modal',
     enableEditing: true,
     positionActionsColumn: 'last',
+    enableColumnFilters:false,
     initialState: {
       sorting: [
         {
-          id: 'id', //sort by age by default on page load
+          id: 'id', 
           desc: true
         }
       ]

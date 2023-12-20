@@ -90,23 +90,37 @@ const EmployeesList = () => {
       {
         accessorKey: 'code',
         header: 'Code',
-        size: 100
+        size: 100,
+        enableSorting: false,
+        enableGlobalFilter: false,
+
       },
       {
         accessorKey: 'name',
         header: 'Name',
-        size: 100
+        size: 100,
+        enableSorting: false,
+
+
       },
       {
         accessorKey: 'phone',
         header: 'Phone Number',
-        size: 100
+        size: 100,
+        enableSorting: false,
+        enableGlobalFilter: false,
+
+        
       },
       {
         accessorKey: 'date_of_birth',
         header: 'Date of Birth',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.date_of_birth).toLocaleDateString(),
+        enableSorting: false,
+        enableGlobalFilter: false,
+
+
       },
       {
         accessorKey: 'skills[name]',
@@ -120,7 +134,11 @@ const EmployeesList = () => {
               </li>
             ))}
           </ul>
-        )
+        ),
+        enableSorting: false,
+        enableGlobalFilter: false,
+
+
       }
     ],
     []
@@ -161,6 +179,7 @@ const EmployeesList = () => {
     data,
     editDisplayMode: 'modal',
     enableEditing: true,
+    enableColumnFilters:false,
     initialState: {
       sorting: [
         {

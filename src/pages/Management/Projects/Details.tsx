@@ -4,6 +4,7 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'm
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectTimeline from './Timelines/Timeline';
+import React from 'react';
 
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
@@ -21,10 +22,7 @@ const dataTabs = [
     label: 'Members',
     value: TAB_KEYS.MEMBERS
   },
-  {
-    label: 'Timeline',
-    value: TAB_KEYS.TIMELINE
-  }
+
 ];
 
 interface Member {
@@ -34,30 +32,6 @@ interface Member {
   name: string;
 }
 
-const Timeline = () => {
-  const [project, setProject] = useState([]);
-
-  const { id } = useParams();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
-        setProject(response.data.data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, [id]);
-
-  return (
-    <div className='gap-5 flex justify-between flex-col'>
-      <ProjectTimeline data={project} />
-    </div>
-  );
-};
 
 const EmployeesList = () => {
   const [data, setData] = useState<Member[]>([]);
@@ -88,7 +62,9 @@ const EmployeesList = () => {
       {
         accessorKey: 'id',
         header: 'No.',
-        size: 10
+        size: 10,
+        enableGlobalFilter: false,
+
       },
       {
         accessorKey: 'employee.name',
@@ -98,19 +74,25 @@ const EmployeesList = () => {
       {
         accessorKey: 'position',
         header: 'Position',
-        size: 10
+        size: 10,
+        enableGlobalFilter: false,
+
       },
       {
         accessorKey: 'join_date',
         header: 'Join Date',
         size: 10,
-        Cell: ({ row }) => new Date(row.original.join_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.join_date).toLocaleDateString(),
+        enableGlobalFilter: false,
+
       },
       {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 10,
-        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString()
+        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
+        enableGlobalFilter: false,
+
       }
     ],
     []
@@ -168,45 +150,52 @@ const renderInformation = () => {
   return (
     <CardBody>
       <div className='gap-5 flex justify-between flex-col'>
-        <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Project Name</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
-            {project?.name}
+        <div className='grid grid-cols-2 gap-5'>
+          <div>
+            <b>
+              {' '}
+              <label className='mb-3 block text-black dark:text-white'>Project Name</label>{' '}
+            </b>
+            <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+              {project?.name}
+            </div>
+          </div>
+          <div>
+            <b>
+              {' '}
+              <label className='mb-3 block text-black dark:text-white'> Project Time</label>{' '}
+            </b>
+            <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
+              {formatDate(project?.start_date)} to {formatDate(project?.end_date)}
+            </div>
           </div>
         </div>
         <div className='grid grid-cols-2 gap-5'>
           <div>
             <b>
               {' '}
-              <label className='mb-3 block text-black dark:text-white'>Start Date</label>{' '}
+              <label className='mb-3 block text-black dark:text-white'>Status</label>{' '}
             </b>
             <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-              {formatDate(project?.start_date)}
+              {project?.status}
             </div>
           </div>
           <div>
             <b>
               {' '}
-              <label className='mb-3 block text-black dark:text-white'> End Date</label>{' '}
+              <label className='mb-3 block text-black dark:text-white'> Technical</label>{' '}
             </b>
             <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-              {formatDate(project?.end_date)}
+              {project?.technical && project.technical.map((tech, index) => (
+                <React.Fragment key={index}>
+                  {index > 0 && ", "}
+                  {tech}
+                </React.Fragment>
+              ))}
             </div>
           </div>
         </div>
-        <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Status</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary    '>
-            {/* {getStatusColor(project?.status)} */}
-            {project?.status}
-          </div>
-        </div>
+
         <div>
           <b>
             {' '}
@@ -216,16 +205,13 @@ const renderInformation = () => {
             {project?.description}
           </div>
         </div>
-        <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> Technical</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
-            {project?.technical}
-          </div>
+
+        <br />
+        <div className='gap-5 flex justify-between flex-col border border-gray-300 rounded px-4 py-2'>
+          <ProjectTimeline data={project} />
         </div>
       </div>
+
     </CardBody>
   );
 };
@@ -246,7 +232,6 @@ const TabKey = () => {
             <TabsBody>
               <TabPanel value={TAB_KEYS.INFORMATION}>{renderInformation()}</TabPanel>
               <TabPanel value={TAB_KEYS.MEMBERS}>{EmployeesList()}</TabPanel>
-              <TabPanel value={TAB_KEYS.TIMELINE}>{Timeline()}</TabPanel>
             </TabsBody>
           </Tabs>
         </CardBody>
