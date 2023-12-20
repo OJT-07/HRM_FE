@@ -36,8 +36,6 @@ interface Member {
 
 const Timeline = () => {
   const [project, setProject] = useState([]);
-  const [filteredProject, setFilteredProject] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const { id } = useParams();
 
@@ -46,7 +44,6 @@ const Timeline = () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
         setProject(response.data.data);
-        setFilteredProject(response.data.data.employeesInProject);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
