@@ -13,6 +13,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { employeeApi } from '../../../apis/employee.api';
 import CreateEmployeeModal from './Create';
+import EditModal from './Edit';
 import EditEmployeeModel from './Edit';
 
 import { getTokenFromLocalStorage } from '../../../utils/authUtils';

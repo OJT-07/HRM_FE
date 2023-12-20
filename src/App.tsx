@@ -11,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 const DefaultLayout = lazy(() => import('./layout/DefaultLayout'));
 
 function App() {
+  const auth = localStorage.getItem('token');
+
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
