@@ -44,7 +44,7 @@ const EmployeesList = () => {
   const fetchData = async () => {
     try {
       const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
-      setData(response.data.data.employeesInProject);
+      setData(response.data.data.histories);
       // console.log("🚀 ~ file: Details.tsx:49 ~ fetchData ~ response.data.data.employeeInProject:", response.data.data.employeeInProject)
 
       const formattedData = response.data.data.map((member: Member) => ({

@@ -647,7 +647,7 @@ export default function ExportCV() {
           <>
             <div className='lg:w-1/4 mb-8 lg:mb-12'>
               <img
-                src={employeeData.image !== null ? `https://hrm-server-api.onrender.com/${employeeData?.image}` : 'https://xsgames.co/randomusers/avatar.php?g=pixel&key=1'}
+                src={employeeData.image !== null ? `https://hrm-server-api.onrender.com/${employeeData?.image}` : 'https://xsgames.co/randomusers/avatar.php?g=male'}
                 alt={employeeData?.name}
                 className='rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50'
               />
