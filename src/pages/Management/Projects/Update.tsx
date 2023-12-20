@@ -44,6 +44,17 @@ interface Props {
   onClose: () => void;
   initialValue?: any;
 }
+interface PositionType {
+
+  value: string;
+  label: string
+
+}
+interface TypeAssign {
+  employeeId: string;
+  name: string;
+  position: PositionType[]
+}
 
 const style = {
   position: 'absolute' as 'absolute',
@@ -121,9 +132,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
-          members: memberList.map((item: any) => ({
-            employeeId: item.id,
-            position: item.position.map((position: any) => position.value)
+          members: memberList.map((item: TypeAssign) => ({
+            employeeId: item.employeeId,
+            position: item.position.map((position: PositionType) => position.value)
           })),
           status: data.status.value
         };
@@ -141,10 +152,11 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     });
   });
 
+
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
-    const customData = {
-      id: newMember.member.id,
+    const customData: TypeAssign = {
+      employeeId: newMember.member.id,
       name: newMember.member.name,
       position: newMember.position
     }
@@ -176,17 +188,17 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   useEffect(() => {
     if (project) {
-      const memberData = project?.histories?.map((item: any) => ({
+      const tempData = project?.histories?.filter((item: any) => item.endate === null)
+      const memberData = tempData?.map((item: any) => ({
         employeeId: item.employee.id,
         name: item.employee.name,
-        position: item.position.map((position: string) => ({ value: position, label: position }))
+        position: item.position.map((position: string) => ({ value: position, label: position } as PositionType))
       }))
-      console.log("memberData", memberData);
       setMemberList(memberData)
     }
   }, [project]);
 
-
+  console.log(memberList);
 
   return (
     <>
@@ -337,7 +349,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                               <TableCell component='th' scope='row'>
                                 {item.name}
                               </TableCell>
-                              <TableCell align='center'>{item.position.map((item: any) => item.label + ' ')}</TableCell>
+                              <TableCell align='center'>{item.position.map((item: PositionType) => item.label + ' ')}</TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
