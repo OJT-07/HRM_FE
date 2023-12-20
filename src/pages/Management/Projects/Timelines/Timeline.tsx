@@ -45,10 +45,10 @@ const ProjectTimeline = ({ data }: any) => {
       setProject(data);
       setStart(new Date(data.start_date));
       setEnd(new Date(data.end_date));
-      setFilteredProject(data.employeesInProject);
+      setFilteredProject(data.histories);
 
-      const tracksById = fill(data.employeesInProject.length).reduce((acc: any, i: any) => {
-        const track = buildTrack(data.employeesInProject[i], data.start_date, data.end_date, i + 1);
+      const tracksById = fill(data.histories.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(data.histories[i], data.start_date, data.end_date, i + 1);
 
         acc[track.id] = track;
         return acc;
@@ -69,7 +69,7 @@ const ProjectTimeline = ({ data }: any) => {
     console.log('🚀 ~ file: Timeline.tsx:65 ~ handleSearch ~ searchTermsArray:', searchTermsArray);
 
     if (searchTermsArray[0].length > 0) {
-      const dataToSearch = trimmedSearchTerm ? project.employeesInProject : filteredProject;
+      const dataToSearch = trimmedSearchTerm ? project.histories : filteredProject;
 
       const filteredData = dataToSearch.filter((employee: any) => {
         const isMatch = searchTermsArray.every(
@@ -93,8 +93,8 @@ const ProjectTimeline = ({ data }: any) => {
         tracks: Object.values(tracksById)
       }));
     } else {
-      const tracksById = fill(project.employeesInProject.length).reduce((acc: any, i: any) => {
-        const track = buildTrack(project.employeesInProject[i], project.start_date, project.end_date, i + 1);
+      const tracksById = fill(project.histories.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(project.histories[i], project.start_date, project.end_date, i + 1);
 
         acc[track.id] = track;
         return acc;
