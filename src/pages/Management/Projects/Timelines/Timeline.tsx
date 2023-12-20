@@ -36,7 +36,11 @@ const ProjectTimeline = ({ data }: any) => {
 
   useEffect(() => {
     if (data && data.start_date && data.end_date) {
-      timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date(data.end_date).getFullYear());
+      if (data.end_date !== null) {
+        timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date(data.end_date).getFullYear());
+      } else {
+        timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date().getFullYear());
+      }
 
       setProject(data);
       setStart(new Date(data.start_date));
