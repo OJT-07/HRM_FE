@@ -14,6 +14,8 @@ import DetailIcon from '@mui/icons-material/Details';
 import withReactContent from 'sweetalert2-react-content';
 import CreateProjectModal from './Create';
 import UpdateProjectModal from './Update';
+import { formatStatus } from '../../../utils/formatValue';
+
 interface Project {
   id: number;
   name: string;
@@ -21,6 +23,7 @@ interface Project {
   end_date: Date;
   description: string;
   technical: string[];
+  status: string;
 }
 
 const MySwal = withReactContent(Swal);
@@ -95,11 +98,17 @@ const ProjectsList = () => {
         accessorKey: 'end_date',
         header: 'End Date',
         size: 100,
-        Cell: ({ row }) => new Date(row.original.end_date).toLocaleDateString(),
-        enableGlobalFilter: false,
+        
+
+
+        Cell: ({ row }) =>
+          row.original.end_date ? (
+            new Date(row.original.end_date).toLocaleDateString()
+          ) : (
+            <i style={{ color: 'tomato' }}>No date</i>
+          ),
+          enableGlobalFilter: false,
         enableSorting: false,
-
-
       },
       {
         accessorKey: 'technical',
@@ -114,7 +123,14 @@ const ProjectsList = () => {
         ),
         enableSorting: false,
         enableGlobalFilter: false,
-
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        size: 100
+        , Cell: ({ row }) => formatStatus(row.original.status.toString()),
+        enableSorting: false,
+        enableGlobalFilter: false,
       }
     ],
     []
@@ -137,15 +153,19 @@ const ProjectsList = () => {
       confirmButtonText: 'Confirm!'
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteProjectMutation.mutate(row.original.id, {
-          onSuccess: (res) => {
-            toast.success(res.data.message || 'Delete Project successfully');
-            fetchData();
-          },
-          onError: (err: any) => {
-            toast.error(err?.response?.data?.message || 'Delete Project failed');
-          }
-        });
+        if (row.original.status == 'active') {
+          toast.warning('This project status is active so it cannot be deleted');
+        } else {
+          deleteProjectMutation.mutate(row.original.id, {
+            onSuccess: (res) => {
+              toast.success(res.data.message || 'Delete Project successfully');
+              fetchData();
+            },
+            onError: (err: any) => {
+              toast.error(err?.response?.data?.message || 'Delete Project failed');
+            }
+          });
+        }
       }
     });
   };

@@ -17,7 +17,7 @@ export const projectApi = {
     return api.post(PROJECTS, body);
   },
   update: (id: string | number, body: any) => {
-    return api.put(`${PROJECTS}/${id}`, body);
+    return api.patch(`${PROJECTS}/${id}`, body);
   },
 
   delete: (id: any) => {

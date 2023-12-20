@@ -15,9 +15,8 @@ import {
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ReactSelect from 'react-select';
-
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -69,7 +68,7 @@ const findOption = (list: any, value: any) => {
 };
 
 function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, selectedMemberList }: Props) {
-  const [memberValue, setMemberValue] = useState<any>(initialValues.name || '');
+  const [positionValues, setPositionValues] = useState<any>(initialValues.name || '');
   const methods = useForm<FormMemberType>({
     resolver: yupResolver(formMemberSchema),
     defaultValues: {
@@ -103,16 +102,19 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
       return;
     }
 
-    const member = getValues('member');
-    const position = getValues('position');
+    const { member, position } = getValues();
 
-    // console.log({ member, position });
-    const submitData = { member: member as any, position: (position as any)?.value as any };
+    const submitData = {
+      member: member as any,
+      position: position as { label: string; value: string }
+    };
+    
+
     onAdd(submitData);
     handleClose();
     reset();
   };
- 
+
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
@@ -151,7 +153,14 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                 <Controller
                   control={control}
                   name='position'
-                  render={({ field }) => <ReactSelect {...field} options={projectPositionOption} />}
+                  render={({ field }) => (
+                    <ReactSelect
+                      {...field}
+                      options={projectPositionOption}
+                      isMulti
+                      // onChange={(val) => setPositionValues(val)}
+                    />
+                  )}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.position?.message}

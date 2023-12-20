@@ -119,14 +119,16 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       if (result.isConfirmed) {
         console.log(data);
         const submitData = {
-          ...data,
+          name: data?.name,
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
-          members: memberList.map((member: any) => ({
-            employeeId: member.member.id,
-            position: member.position
-          })),
+          members: data.memberList
+            ? data.memberList?.map((member: any) => ({
+                employeeId: member.member.id,
+                position: member.position.map((item: any) => item.value)
+              }))
+            : [],
           status: data.status.value
         };
 
@@ -145,43 +147,19 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     });
   });
 
-  const handleClose = (event?: any, reason?: string) => {
-    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
-
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  };
-
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
-  };
-
-  const handleOpenEditMember = (member: any) => {
-    console.log(member);
-    handleOpenMember();
-    setInitMember(member);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   return (
@@ -310,9 +288,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               {/* Start Assign Member */}
               <Grid item xs={12}>
                 <fieldset>
-                  <legend>
-                    Members <span style={{ color: 'red' }}>*</span>
-                  </legend>
+                  <legend>Members</legend>
                   <Button
                     size='medium'
                     type='button'
@@ -324,7 +300,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                     Assign member
                   </Button>
 
-                  {memberList.length ? (
+                  {memberList.length > 0 ? (
                     <TableContainer component={Paper}>
                       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                         <TableHead>
@@ -336,15 +312,17 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {memberList.map((member: any, index: number) => (
-                            <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                          {memberList.map((item: any, index: number) => (
+                            <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                               <TableCell component='th' scope='row'>
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {member.member.name}
+                                {item?.member?.name}
                               </TableCell>
-                              <TableCell align='center'>{member.position}</TableCell>
+                              <TableCell align='center'>
+                                {item?.position.map((x: { label: string; value: string }) => x.label + ' ')}
+                              </TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
@@ -367,7 +345,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   ) : null}
 
                   <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.employeesInProject?.message}
+                    {errors.members?.message}
                   </div>
                 </fieldset>
               </Grid>
@@ -401,17 +379,6 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
 
             {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <Button
-                type='button'
-                style={{ marginRight: '1rem' }}
-                variant='contained'
-                color='error'
-                onClick={handleClose}
-                size='medium'
-              >
-                Cancel
-              </Button>
-
               <Button
                 size='medium'
                 type='submit'

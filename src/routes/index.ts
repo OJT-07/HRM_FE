@@ -2,7 +2,6 @@ import { lazy } from 'react';
 const Employees = lazy(() => import('../pages/Management/Employees/Employees'));
 const Projects = lazy(() => import('../pages/Management/Projects/Projects'));
 const detailsProjects = lazy(() => import('../pages/Management/Projects/Details'));
-// const detailsEmployee = lazy(() => import('../pages/Management/Employee/employeeDetails'))
 const Alerts = lazy(() => import('../pages/UiElements/Alerts'));
 const Buttons = lazy(() => import('../pages/UiElements/Buttons'));
 const Profile = lazy(() => import('../pages/Profile'));
@@ -10,7 +9,7 @@ const Settings = lazy(() => import('../pages/Settings'));
 const ChartProjects = lazy(() => import('../pages/Dashboard/ChartProjects'));
 const Dashboard = lazy(() => import('../pages/Dashboard/ChartEmployees'));
 const EmployeesDetail = lazy(() => import('../pages/Management/Employees/Details'));
-const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'))
+const ExportCV = lazy(() => import('../pages/Management/Projects/ExportCV'));
 const coreRoutes = [
   {
     path: '/dashboard',
@@ -38,13 +37,6 @@ const coreRoutes = [
     title: 'Projects Management',
     component: detailsProjects
   },
-
-  // {
-  //   path: '/management/employee-details',
-  //   title: 'Employee Management',
-  //   component: detailsEmployee
-  // },
-
   {
     path: '/ui/alerts',
     title: 'Alerts',

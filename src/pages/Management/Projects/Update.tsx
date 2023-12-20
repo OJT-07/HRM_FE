@@ -1,13 +1,7 @@
-import { yupResolver } from '@hookform/resolvers/yup';
-import { TextareaAutosize } from '@mui/base/TextareaAutosize';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import DeleteIcon from '@mui/icons-material/Delete';
-import SaveIcon from '@mui/icons-material/Save';
 import {
   Box,
   Button,
   Grid,
-  Input,
   InputLabel,
   Modal,
   Paper,
@@ -20,24 +14,30 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { TextareaAutosize } from '@mui/base/TextareaAutosize';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
-import Swal from 'sweetalert2';
-import axios from 'axios';
-import MemberModal from './MemberModal';
-import ReactSelect from 'react-select';
-import withReactContent from 'sweetalert2-react-content';
-import { toast } from 'react-toastify';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash';
-import { projectApi } from '../../../apis/project.api';
+import { useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import ReactSelect from 'react-select';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { formatStatus } from '../../../utils/formatValue';
 import { employeeApi } from '../../../apis/employee.api';
-import { useEffect, useState } from 'react';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
-import { FormProjectType, formProjectSchema } from '../../../utils/rules';
+import { projectApi } from '../../../apis/project.api';
 import { projectStatusOption, projectTechnicalOption } from '../../../enum';
+import { FormProjectType, formProjectSchema } from '../../../utils/rules';
+import MemberModal from './MemberModal';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const MySwal = withReactContent(Swal);
-
 interface Props {
   visible: boolean;
   onClose: () => void;
@@ -57,135 +57,11 @@ const style = {
   maxHeight: '90vh'
 };
 
-const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
-
-function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
-  const [visibleTechnical, setVisibleTechnical] = useState(false);
+function CreateProjectModal({ visible, onClose, initialValue }: Props) {
   const [visibleMember, setVisibleMember] = useState(false);
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
-  const [technicalList, setTechnicalList] = useState<any>([]);
-  const [viewOnlyTech, setViewOnlyTech] = useState(false);
-  const [status, setStatus] = useState<{ label: string; value: string } | null>(null);
-  const [technical, setTechnical] = useState<{ label: string; value: string }[] | null>(null);
-  const [editMemberList, setEditMemberList] = useState([]);
-  const [editProject, setEditProject] = useState(initialValue);
-
-  const handleOpenMember = () => {
-    setVisibleMember(true);
-  };
-
-  const handleCloseMember = () => {
-    setVisibleMember(false);
-    setInitMember({});
-  };
-
-  const handleOpenTechnical = (view?: boolean) => {
-    setVisibleTechnical(true);
-    setViewOnlyTech(Boolean(view));
-  };
-
-  const handleCloseTechnical = () => {
-    setVisibleTechnical(false);
-  };
- 
-
-  const {
-    formState: { errors },
-    register,
-    handleSubmit,
-    control,
-    setError,
-    trigger,
-    getValues,
-    setValue
-  } = useForm<FormProjectType>({
-    mode: 'onBlur',
-    resolver: yupResolver(formProjectSchema),
-    defaultValues: {
-      name: editProject?.name,
-      status: { label: 'Pending', value: 'pending' }
-    }
-  });;
-
-  const onSubmit = (data?: any) => {
-    console.log("111", data);
-    try {
-      MySwal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Confirm!'
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          const submitData = {
-            name: editProject?.name,
-            description: editProject?.description,
-            start_date: editProject?.start_date,
-            end_date: editProject?.end_date || null,
-            technical: data?.technical?.map((tech: any) => tech.value),
-
-            // members: memberList.map((member: any) => ({
-            //   employeeId: member?.member.id,
-            //   position: member?.position
-            // })),
-            status: data?.status?.value
-          };
-          const projectId = editProject?.id;
-          await projectApi.update(projectId, submitData);
-          await projectApi.getAll({});
-          toast.success('Edit project successfully');
-          onClose();
-        }
-      });
-    } catch (error) {
-      console.error('Error updating user:', error);
-
-      MySwal.fire({
-        title: 'Error!',
-        text: 'Failed to update user data. Please try again later.',
-        icon: 'error'
-      });
-    }
-  };
-
-  const handleClose = (event?: any, reason?: string) => {
-    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
-
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  };
-
-  const handleAddMember = async (newMember: any) => {
-    const newMemberList = cloneDeep(memberList);
-    newMemberList.push(newMember);
-    setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
-  };
-
-  const handleRemoveMember = async (index: number) => {
-    const newMemberList = cloneDeep(memberList);
-    newMemberList.splice(index, 1);
-    setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
-  };
-
+  //Hook cura react-query dufng cho method get
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
     queryFn: () => employeeApi.getAll({})
@@ -198,47 +74,89 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       value: emp?.id
     })) || [];
 
-  const handleApplyTechnicalList = async (newTechList: any) => {
-    setTechnicalList(newTechList);
-    handleCloseTechnical();
-    setValue('technical', newTechList);
-    await trigger(['technical']);
+  const handleOpenMember = () => {
+    setVisibleMember(true);
   };
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const formattedDate = date.toISOString().slice(0, 10);
-    return formattedDate;
+
+  const handleCloseMember = () => {
+    setVisibleMember(false);
+    setInitMember({});
   };
-  interface Member {
-    id: number;
-    position: string;
-    name: string;
-  }
-  interface UpdateSubmit {
-    id: number;
-    name: string;
-    status: string;
-    start_date: Date;
-    end_date: Date;
-  }
-
-  const [data, setData] = useState<Member[]>([]);
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${initialValue.id}`);
-      setData(response.data.data.employeesInProject);
-      // const formattedData = response.data.data.map((member: Member) => ({
-      //   ...member,
-
-      // }));
-      // setData(formattedData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+  const {
+    formState: { errors },
+    handleSubmit,
+    control,
+    trigger,
+    setValue,
+    getValues
+  } = useForm<FormProjectType>({
+    mode: 'onBlur',
+    resolver: yupResolver(formProjectSchema),
+    defaultValues: {
+      name: initialValue.name,
+      status: { value: initialValue.status, label: formatStatus(initialValue.status).toString() },
+      end_date: dayjs(initialValue.end_date),
+      start_date: dayjs(initialValue.start_date),
+      technical: initialValue.technical.map((item: any) => ({ value: item, label: item })),
+      members: initialValue.memberList.map((member: any) => ({
+        employeeId: member.member.id,
+        position: member.position.map((item: any) => ({ value: item, label: item }))
+      }))
     }
+  });
+
+  const onSubmit = handleSubmit(async (data?: any) => {
+    console.log(data);
+    MySwal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Confirm!'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        console.log(data);
+        const submitData = {
+          ...data,
+          start_date: data?.start_date?.toISOString(),
+          end_date: data?.end_date?.toISOString() || null,
+          technical: data.technical.map((tech: any) => tech.value),
+          members: memberList.map((member: any) => ({
+            employeeId: member.member.id,
+            position: member.position
+          })),
+          status: data.status.value
+        };
+        try {
+          const projectId = initialValue?.id;
+          await projectApi.update(projectId, submitData);
+          await projectApi.getAll({});
+          toast.success('Edit project successfully');
+          onClose();
+        } catch (error) {
+          console.error('Error updating project:', error);
+          MySwal.fire('Error', 'An error occurred while updating the project', 'error');
+        }
+      }
+    });
+  });
+
+  const handleAddMember = async (newMember: any) => {
+    const newMemberList = cloneDeep(memberList);
+    newMemberList.push(newMember);
+    setMemberList(newMemberList);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
   };
-  useEffect(() => {
-    fetchData();
-  }, []);
+
+  const handleRemoveMember = async (index: number) => {
+    const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
+    setMemberList(newMemberList);
+    setValue('employeesInProject', newMemberList);
+    await trigger(['employeesInProject']);
+  };
 
   return (
     <Modal
@@ -248,6 +166,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ ...style }}>
+        {/* Start Header */}
         <Typography
           id='modal-modal-title'
           variant='h4'
@@ -256,29 +175,35 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
         >
           Update Project
         </Typography>
-        {/* <FormProvider {...methods}> */}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        {/* End Header */}
+
+        <form onSubmit={onSubmit}>
           <Grid container spacing={2}>
+            {/* Start Name */}
             <Grid item xs={6}>
               <InputLabel style={{ marginBottom: 3 }} id='project-name'>
                 Name <span style={{ color: 'red' }}>*</span>
               </InputLabel>
-
-              <TextField
-                fullWidth
-                id='name'
-                {...register('name')}
-                placeholder='Enter project name'
-                translate='no'
-                size='small'
-                variant='outlined'
-                error={errors.name ? true : false}
-                helperText={errors.name?.message}
+              <Controller
+                control={control}
+                name='name'
+                render={({ field }) => (
+                  <TextField
+                    placeholder='Enter project name'
+                    size='small'
+                    translate='no'
+                    id='project-name'
+                    variant='outlined'
+                    fullWidth
+                    {...field}
+                  />
+                )}
               />
-
-              
+              <div style={{ color: 'red' }}>{errors.name?.message}</div>
             </Grid>
+            {/* End Name */}
 
+            {/* Start Status */}
             <Grid item xs={6}>
               <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                 Status
@@ -291,21 +216,15 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                     id='project-status'
                     {...field}
                     options={projectStatusOption}
-                    value={status ?? projectStatusOption?.filter((option) => option.label === initialValue?.status)}
-                    // onChange={(val: any) => setStatus(val)}
-                    onChange={(val: any) => {
-                      field.onChange(val);
-                      setStatus(val);
-                      console.log(val);
-                    }}
+                    isDisabled={!initialValue?.name}
                   />
                 )}
               />
-              <div className={classNameError} style={{ color: 'red' }}>
-                {errors.status?.message}
-              </div>
+              <div style={{ color: 'red' }}>{errors.status?.message}</div>
             </Grid>
+            {/* End Status */}
 
+            {/* Start Start Date */}
             <Grid item xs={3}>
               <InputLabel style={{ marginBottom: 3 }} id='project-startdate-label'>
                 Start Date <span style={{ color: 'red' }}>*</span>
@@ -313,57 +232,31 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
               <Controller
                 control={control}
-                name='startDate'
-                render={({ field }) => (
-                  <div>
-                    <div className='relative'>
-                      <Input
-                        type='date'
-                        defaultValue={formatDate(initialValue?.start_date)}
-                        className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
-                        {...field}
-                        onChange={(e) => {
-                          setEditProject({ ...editProject, start_date: e.target.value });
-                          console.log(editProject);
-                          // You can also add your custom logic here
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
+                name='start_date'
+                render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disablePast={true} />}
               />
-              <div className={classNameError} style={{ color: 'red' }}>
-                {errors.startDate?.message}
-              </div>
+
+              <div style={{ color: 'red' }}>{errors.start_date?.message}</div>
             </Grid>
+            {/* End Start Date */}
+
+            {/* Start End Date */}
             <Grid item xs={3}>
               <InputLabel style={{ marginBottom: 3 }} id='project-enddata-label'>
-                End Date <span style={{ color: 'red' }}>*</span>
+                End Date
               </InputLabel>
+
               <Controller
                 control={control}
-                name='endDate'
-                render={({ field }) => (
-                  <div>
-                    <div className='relative'>
-                      <Input
-                        type='date'
-                        defaultValue={formatDate(initialValue?.end_date)}
-                        className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
-                        {...field}
-                        onChange={(e) => {
-                          setEditProject({ ...editProject, end_date: e.target.value });
-                          console.log(editProject);
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
+                name='end_date'
+                render={({ field }) => <DatePicker {...field} disablePast={true} />}
               />
-              <div className={classNameError} style={{ color: 'red' }}>
-                {errors.endDate?.message}
-              </div>
+
+              <div style={{ color: 'red' }}>{errors.end_date?.message}</div>
             </Grid>
+            {/* End End Date */}
+
+            {/* Start Technical */}
             <Grid item xs={6}>
               <InputLabel style={{ marginBottom: 3 }} id='project-technical-label'>
                 Technical <span style={{ color: 'red' }}>*</span>
@@ -371,105 +264,68 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
               <Controller
                 control={control}
                 name='technical'
-                render={({ field }) => (
-                  <ReactSelect
-                    options={projectTechnicalOption}
-                    defaultValue={initialValue?.technical?.map((tech: any) => ({ value: tech, label: tech }))}
-                    isMulti
-                    {...field}
-                  // onChange={(e) => {
-                  //   setEditProject({ ...editProject, technical: e.target.value })
-                  //   console.log(editProject.technical);
-                  // }}
-                  // onChange={(val: any) => {
-                  //   field.onChange(val);
-                  //   setTechnical(val);
-                  //   console.log(val);
-                  // }}
-                  />
-                )}
+                render={({ field }) => <ReactSelect {...field} options={projectTechnicalOption} isMulti />}
               />
-              <div className={classNameError} style={{ color: 'red' }}>
-                {errors.technical?.message}
-              </div>
+              <div style={{ color: 'red' }}>{errors.technical?.message}</div>
             </Grid>
+            {/* End Technical */}
 
-            {/* <Grid item xs={12}>
-                <fieldset>
-                  <legend>
-                    Members <span style={{ color: 'red' }}>*</span>
-                  </legend>
-                  <Button
-                    size='medium'
-                    type='button'
-                    style={{ margin: '0.5rem 0' }}
-                    variant='contained'
-                    startIcon={<AddCircleIcon />}
-                    onClick={handleOpenMember}
-                  >
-                    Assign member
-                  </Button>
+            {/* Start Assign Member */}
+            <Grid item xs={12}>
+              <fieldset>
+                <legend>Members</legend>
+                <Button
+                  size='medium'
+                  type='button'
+                  style={{ margin: '0.5rem 0' }}
+                  variant='contained'
+                  startIcon={<AddCircleIcon />}
+                  onClick={handleOpenMember}
+                >
+                  Assign member
+                </Button>
 
-                  {data.length ? (
-                    <TableContainer component={Paper}>
-                      <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>No.</TableCell>
-                            <TableCell>Member</TableCell>
-                            <TableCell align='center'>Position</TableCell>
-                            <TableCell align='center'>Action</TableCell>
+                {memberList.length ? (
+                  <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>No.</TableCell>
+                          <TableCell>Member</TableCell>
+                          <TableCell align='center'>Position</TableCell>
+                          <TableCell align='center'>Action</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {memberList.map((member: any, index: number) => (
+                          <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableCell component='th' scope='row'>
+                              {index + 1}
+                            </TableCell>
+                            <TableCell component='th' scope='row'>
+                              {member.member.name}
+                            </TableCell>
+                            <TableCell align='center'>{member.position}</TableCell>
+                            <TableCell align='center'>
+                              <Box>
+                                <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Box>
+                            </TableCell>
                           </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {data.map((employee: any, index: number) => (
-                            <TableRow key={employee.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                              <TableCell component='th' scope='row'>
-                                {index + 1}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                {employee?.employee?.name}
-                              </TableCell>
-                              <TableCell align='center'> {employee.position} </TableCell>
-                              <TableCell align='center'>
-                                <Box>
-                                  <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          ))}
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : null}
 
-                          {memberList.map((member: any, index: number) => (
-                            <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                              <TableCell component='th' scope='row'>
-                                {index + 1 + data.length}
-                              </TableCell>
-                              <TableCell component='th' scope='row'>
-                                {member?.member.name}
-                              </TableCell>
-                              <TableCell align='center'> {member.position} </TableCell>
-                              <TableCell align='center'>
-                                <Box>
-                                  <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
-                                    <DeleteIcon />
-                                  </IconButton>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : null}
+                <div style={{ color: 'red' }}>{errors.employeesInProject?.message}</div>
+              </fieldset>
+            </Grid>
+            {/* End Assign Member */}
 
-                  <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.employeesInProject?.message}
-                  </div>
-                </fieldset>
-              </Grid> */}
-
+            {/* Start Description */}
             <Grid item xs={12}>
               <InputLabel style={{ marginBottom: 3 }} id='project-status-label'>
                 Description
@@ -479,13 +335,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 name='description'
                 render={({ field }) => (
                   <TextareaAutosize
-                    defaultValue={editProject?.description}
-                    placeholder='Description something about this project...'
                     {...field}
-                    onChange={(e) => {
-                      setEditProject({ ...editProject, description: e.target.value });
-                      console.log(e.target.value);
-                    }}
+                    placeholder='Description something about this project...'
                     minRows={2}
                     style={{
                       width: '100%',
@@ -497,20 +348,11 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                 )}
               />
             </Grid>
+            {/* End Description */}
           </Grid>
 
+          {/* Start Button */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-            <Button
-              // type='submit'
-              style={{ marginRight: '1rem' }}
-              variant='contained'
-              color='error'
-              onClick={handleClose}
-              size='medium'
-            >
-              Cancel
-            </Button>
-
             <Button
               size='medium'
               type='submit'
@@ -518,13 +360,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
               variant='contained'
               startIcon={<SaveIcon />}
               color='primary'
-              onClick={onSubmit}
+              onClick={() => onSubmit({ ...initialValue, ...getValues() })}
             >
               Submit
             </Button>
           </div>
+          {/* End Button */}
         </form>
-        {/* </FormProvider> */}
+
         {visibleMember && (
           <MemberModal
             visible={visibleMember}
@@ -535,19 +378,9 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
             selectedMemberList={memberList}
           />
         )}
-
-        {/* {visibleTechnical && (
-          <TechnicalModal
-            visible={visibleTechnical}
-            onClose={handleCloseTechnical}
-            onFinish={handleApplyTechnicalList}
-            defaultTechnicalList={technicalList}
-            viewOnly={viewOnlyTech}
-          />
-        )} */}
       </Box>
     </Modal>
   );
 }
 
-export default UpdateProjectModal;
+export default CreateProjectModal;
