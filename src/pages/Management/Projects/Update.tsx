@@ -112,6 +112,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
       end_date: dayjs(initialValue.end_date),
       start_date: dayjs(initialValue.start_date),
       technical: initialValue.technical.map((item: any) => ({ value: item, label: item })),
+      description:initialValue.name,
 
     }
   });
