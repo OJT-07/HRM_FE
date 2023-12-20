@@ -123,10 +123,12 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
-          members: memberList.map((member: any) => ({
-            employeeId: member.member.id,
-            position: member?.position?.map((item: any) => item.value)
-          })),
+          members: data.memberList
+            ? data.memberList?.map((member: any) => ({
+                employeeId: member.member.id,
+                position: member.position.map((item: any) => item.value)
+              }))
+            : [],
           status: data.status.value
         };
 
@@ -158,12 +160,6 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     setMemberList(newMemberList);
     setValue('members', newMemberList);
     await trigger(['members']);
-  };
-
-  const handleOpenEditMember = (member: any) => {
-    console.log(member);
-    handleOpenMember();
-    setInitMember(member);
   };
 
   return (
@@ -304,7 +300,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                     Assign member
                   </Button>
 
-                  {memberList.length ? (
+                  {memberList.length > 0 ? (
                     <TableContainer component={Paper}>
                       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                         <TableHead>
@@ -316,15 +312,17 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {memberList.map((member: any, index: number) => (
-                            <TableRow key={member.member} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                          {memberList.map((item: any, index: number) => (
+                            <TableRow key={index} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                               <TableCell component='th' scope='row'>
                                 {index + 1}
                               </TableCell>
                               <TableCell component='th' scope='row'>
-                                {member.member.name}
+                                {item?.member?.name}
                               </TableCell>
-                              <TableCell align='center'>{member.position}</TableCell>
+                              <TableCell align='center'>
+                                {item?.position.map((x: { label: string; value: string }) => x.label + ' ')}
+                              </TableCell>
                               <TableCell align='center'>
                                 <Box>
                                   <IconButton color='error' size='medium' onClick={() => handleRemoveMember(index)}>
@@ -347,7 +345,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
                   ) : null}
 
                   <div className={classNameError} style={{ color: 'red' }}>
-                    {errors.employeesInProject?.message}
+                    {errors.members?.message}
                   </div>
                 </fieldset>
               </Grid>

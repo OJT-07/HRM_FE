@@ -95,7 +95,11 @@ const ProjectsList = () => {
         header: 'End Date',
         size: 100,
         Cell: ({ row }) =>
-          row.original.end_date !== null ? new Date(row.original.end_date).toLocaleDateString() : 'Undefined'
+          row.original.end_date ? (
+            new Date(row.original.end_date).toLocaleDateString()
+          ) : (
+            <i style={{ color: 'tomato' }}>No date</i>
+          )
       },
       {
         accessorKey: 'technical',

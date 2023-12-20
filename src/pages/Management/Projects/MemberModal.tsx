@@ -89,11 +89,15 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
       });
       return;
     }
+
     const { member, position } = getValues();
+
     const submitData = {
       member: member as any,
       position: position as { label: string; value: string }
     };
+
+
     onAdd(submitData);
     handleClose();
     reset();

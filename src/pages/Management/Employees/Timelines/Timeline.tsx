@@ -20,7 +20,10 @@ const clickElement = (element: any) => {
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 50;
 
-const ProjectTimeline = ({ data }: any) => {
+const currentDate = new Date();
+
+const EmployeeTimeline = ({ data }: any) => {
+  console.log('🚀 ~ file: Timeline.tsx:26 ~ EmployeeTimeline ~ data:', data);
   const [state, setState] = useState({
     open: false,
     zoom: 2,
@@ -28,27 +31,23 @@ const ProjectTimeline = ({ data }: any) => {
     tracks: []
   });
 
-  const [project, setProject] = useState<any>(null);
+  const [employee, setEmployee] = useState<any>(null);
   const [start, setStart] = useState<Date | null>(null);
   const [end, setEnd] = useState<Date | null>(null);
-  const [filteredProject, setFilteredProject] = useState([]);
+  const [filteredEmployee, setFilteredEmployee] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    if (data && data.start_date && data.end_date) {
-      if (data.end_date !== null) {
-        timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date(data.end_date).getFullYear());
-      } else {
-        timebar = buildTimebar(new Date(data.start_date).getFullYear(), new Date().getFullYear());
-      }
+    if (data && data.join_date) {
+      timebar = buildTimebar(new Date(data.join_date).getFullYear(), currentDate.getFullYear());
 
-      setProject(data);
-      setStart(new Date(data.start_date));
-      setEnd(new Date(data.end_date));
-      setFilteredProject(data.histories);
+      setEmployee(data);
+      setStart(new Date(data.join_date));
+      setEnd(new Date());
+      setFilteredEmployee(data.histories);
 
       const tracksById = fill(data.histories.length).reduce((acc: any, i: any) => {
-        const track = buildTrack(data.histories[i], data.start_date, data.end_date, i + 1);
+        const track = buildTrack(data.histories[i], new Date(data.histories[i]?.join_date), currentDate, i + 1);
 
         acc[track.id] = track;
         return acc;
@@ -66,23 +65,22 @@ const ProjectTimeline = ({ data }: any) => {
     const trimmedSearchTerm = searchTerm.trim();
 
     const searchTermsArray = trimmedSearchTerm.split(/\s+/);
-    console.log('🚀 ~ file: Timeline.tsx:65 ~ handleSearch ~ searchTermsArray:', searchTermsArray);
 
     if (searchTermsArray[0].length > 0) {
-      const dataToSearch = trimmedSearchTerm ? project.histories : filteredProject;
+      const dataToSearch = trimmedSearchTerm ? employee.histories : filteredEmployee;
 
       const filteredData = dataToSearch.filter((employee: any) => {
         const isMatch = searchTermsArray.every(
-          (term) => employee?.employee?.name.toLowerCase().includes(term.toLowerCase())
+          (term) => employee?.project?.name.toLowerCase().includes(term.toLowerCase())
         );
 
         return isMatch;
       });
 
-      setFilteredProject(filteredData);
+      setFilteredEmployee(filteredData);
 
       const tracksById = fill(filteredData.length).reduce((acc: any, i: any) => {
-        const track = buildTrack(filteredData[i], data.start_date, data.end_date, i + 1);
+        const track = buildTrack(filteredData[i], new Date(data?.join_date), currentDate, i + 1);
         acc[track.id] = track;
         return acc;
       }, {});
@@ -93,8 +91,8 @@ const ProjectTimeline = ({ data }: any) => {
         tracks: Object.values(tracksById)
       }));
     } else {
-      const tracksById = fill(project.histories.length).reduce((acc: any, i: any) => {
-        const track = buildTrack(project.histories[i], project.start_date, project.end_date, i + 1);
+      const tracksById = fill(data.histories.length).reduce((acc: any, i: any) => {
+        const track = buildTrack(data.histories[i], new Date(data?.join_date), currentDate, i + 1);
 
         acc[track.id] = track;
         return acc;
@@ -151,13 +149,9 @@ const ProjectTimeline = ({ data }: any) => {
 
   return (
     <div className='app'>
-      {project && start ? (
+      {employee && start ? (
         <>
-          <h1 className='mb-3  text-black dark:text-white  font-bold'>
-            Project deadline: {formatDate(project?.start_date)} to {formatDate(project?.end_date)}
-          </h1>
-
-          <div className='flex items-center mb-5 '>
+          <div className='flex items-center mb-5 mt-5 '>
             <input
               type='text'
               placeholder='Search by employee name'
@@ -195,10 +189,10 @@ const ProjectTimeline = ({ data }: any) => {
           />
         </>
       ) : (
-        <h1>Do not have employee in project</h1>
+        <h1>This employee does not join any employee!</h1>
       )}
     </div>
   );
 };
 
-export default ProjectTimeline;
+export default EmployeeTimeline;

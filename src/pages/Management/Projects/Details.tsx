@@ -4,7 +4,6 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'm
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectTimeline from './Timelines/Timeline';
-import dayjs from 'dayjs';
 
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
@@ -37,8 +36,6 @@ interface Member {
 
 const Timeline = () => {
   const [project, setProject] = useState([]);
-  const [filteredProject, setFilteredProject] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
 
   const { id } = useParams();
 
@@ -47,7 +44,6 @@ const Timeline = () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${id}`);
         setProject(response.data.data);
-        setFilteredProject(response.data.data.employeesInProject);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -56,76 +52,8 @@ const Timeline = () => {
     fetchData();
   }, [id]);
 
-  const formatDate = (dateString: string) => {
-    const formattedDate = new Date(dateString).toLocaleDateString('en-US');
-    return formattedDate;
-  };
-
-  const handleSearch = () => {
-    // Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm trên dữ liệu gốc, ngược lại sử dụng dữ liệu gốc
-    const dataToSearch = searchTerm ? project.employeesInProject : filteredProject;
-
-    const filteredData = dataToSearch.filter((employee) => {
-      const isMatch = employee.employee.name.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Nếu tên trùng khớp, log dữ liệu của nhân viên
-      if (isMatch) {
-        console.log('Matching employee data:', employee);
-      }
-
-      return isMatch;
-    });
-
-    setFilteredProject(filteredData);
-  };
-
   return (
     <div className='gap-5 flex justify-between flex-col'>
-      <div className='flex items-center gap-2'>
-        <input
-          className='border p-2 rounded-md focus:outline-none focus:border-blue-500'
-          type='text'
-          placeholder='Search by employee name'
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button
-          className='bg-blue-500 text-black dark:text-white  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none'
-          onClick={handleSearch}
-        >
-          Search
-        </button>
-      </div>
-
-      <div>
-        <b>
-          {' '}
-          <label className='mb-3 block text-black dark:text-white'> Project Name</label>{' '}
-        </b>
-        <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary '>
-          {project?.name}
-        </div>
-      </div>
-      <div className='grid grid-cols-2 gap-5'>
-        <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'>Start Date</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-            {dayjs(project?.start_date)}
-          </div>
-        </div>
-        <div>
-          <b>
-            {' '}
-            <label className='mb-3 block text-black dark:text-white'> End Date</label>{' '}
-          </b>
-          <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-            {dayjs(project?.end_date)}
-          </div>
-        </div>
-      </div>
       <ProjectTimeline data={project} />
     </div>
   );

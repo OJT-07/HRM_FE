@@ -27,9 +27,8 @@ export const formProjectSchema = yup.object().shape({
     }
   }),
   technical: yup.array().required('Please enter technical').min(1, 'Please enter technical'),
-  histories: yup.array(),
   description: yup.string(),
-  members: yup.string(),
+  members: yup.array(),
   startDate: yup.date(),
   endDate: yup.date()
 });
