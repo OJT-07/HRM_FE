@@ -16,11 +16,7 @@ const coreRoutes = [
     title: 'Dashboard',
     component: Dashboard
   },
-  {
-    path: '/chart-projets',
-    title: 'Chart Projects',
-    component: ChartProjects
-  },
+
   {
     path: '/management/employees',
     title: 'Employees Management',
