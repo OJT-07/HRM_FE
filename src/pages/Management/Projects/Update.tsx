@@ -87,6 +87,7 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
   const [memberList, setMemberList] = useState<any>([]);
   const [initMember, setInitMember] = useState<any>({});
   const [project, setProject] = useState<any>();
+  const addedEmployeeIds = new Set();
 
   const { data: dataEmployee } = useQuery({
     queryKey: ['employee'],
@@ -185,27 +186,22 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
-    const existingMemberIndex = newMemberList.findIndex((item: TypeAssign) => item.employeeId === newMember.member.id);
 
-    if (existingMemberIndex !== -1) {
-      // Nếu đã tồn tại, thì cập nhật thông tin
-      newMemberList[existingMemberIndex] = {
-        employeeId: newMember.member.id,
-        name: newMember.member.name,
-        position: newMember.position
-      };
-    } else {
-      // Nếu chưa tồn tại, thêm mới
+    if (!addedEmployeeIds.has(newMember.member.id)) {
+      addedEmployeeIds.add(newMember.member.id);
+
       newMemberList.push({
         employeeId: newMember.member.id,
         name: newMember.member.name,
         position: newMember.position
       });
-    }
 
-    setMemberList(newMemberList);
-    setValue('members', newMemberList);
-    await trigger(['members']);
+      setMemberList(newMemberList);
+      setValue('members', newMemberList);
+      await trigger(['members']);
+    } else {
+      console.log('Employee has already been added.');
+    }
   };
 
   const handleRemoveMember = async (index: number) => {
@@ -215,10 +211,14 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
     await trigger(['members']);
   };
 
+  
+  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`https://hrm-server-api.onrender.com/api/projects/${initialValue.id}`);
+        
         setProject(response.data.data);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -230,7 +230,13 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
 
   useEffect(() => {
     if (project) {
-      const memberData = project?.histories.map((item: any) => ({
+      const rawData = project.histories;
+      
+      // Lọc các phần tử có id duy nhất
+      const uniqueIds = Array.from(new Set(rawData.map(member => member.employee.id)));
+      const formattedData = uniqueIds.map(uniqueId => rawData.find(member => member.employee.id === uniqueId));
+  
+      const memberData = formattedData.map((item: any) => ({
         employeeId: item.employee.id,
         name: item.employee.name,
         position: item.position.map((position: string) => ({ value: position, label: position } as PositionType))
@@ -371,8 +377,8 @@ function UpdateProjectModal({ visible, onClose, initialValue }: Props) {
                   </Button>
 
                   {memberList?.length > 0 ? (
-                    <TableContainer component={Paper}>
-                      <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} aria-label='simple table'>
                         <TableHead>
                           <TableRow>
                             <TableCell>No.</TableCell>
