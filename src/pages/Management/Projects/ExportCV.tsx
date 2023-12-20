@@ -630,6 +630,7 @@ export default function ExportCV() {
     </tr>
   ));
 
+
   return (
     <div className='App'>
       <div className='max-w-screen-lg mx-auto relative'>
@@ -646,7 +647,7 @@ export default function ExportCV() {
           <>
             <div className='lg:w-1/4 mb-8 lg:mb-12'>
               <img
-                src={`https://hrm-server-api.onrender.com/${employeeData?.image}`}
+                src={employeeData.image !== null ? `https://hrm-server-api.onrender.com/${employeeData?.image}` : 'https://xsgames.co/randomusers/avatar.php?g=pixel&key=1'}
                 alt={employeeData?.name}
                 className='rounded-full mx-auto lg:mx-0 mb-4 w-auto h-50'
               />
