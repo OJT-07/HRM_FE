@@ -15,9 +15,8 @@ import {
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { projectMemberOption, projectPositionOption } from '../../../enum';
 import { FormMemberType, formMemberSchema } from '../../../utils/rules';
-import { useState,useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import ReactSelect from 'react-select';
-
 
 const classNameError = 'mt-1 min-h-[1.25rem] text-red-500';
 
@@ -112,7 +111,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
     handleClose();
     reset();
   };
- 
+
   return (
     <Modal open={visible} onClose={handleClose} disableEscapeKeyDown>
       <Box sx={{ ...style }}>
@@ -151,7 +150,7 @@ function MemberModal({ visible, onClose, initialValues, onAdd, listEmployee, sel
                 <Controller
                   control={control}
                   name='position'
-                  render={({ field }) => <ReactSelect {...field} options={projectPositionOption} />}
+                  render={({ field }) => <ReactSelect {...field} options={projectPositionOption} isMulti />}
                 />
                 <div className={classNameError} style={{ color: 'red' }}>
                   {errors.position?.message}

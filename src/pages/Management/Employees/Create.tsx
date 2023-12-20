@@ -104,7 +104,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Confirm!'
+      confirmButtonText: 'Confirm'
     }).then((result) => {
       if (result.isConfirmed) {
         const submitData = {
@@ -126,24 +126,6 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
       }
     });
   });
-
-  const handleClose = (event?: any, reason?: string) => {
-    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
-
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  };
 
   const handleAddSkill = async (newSkill: any) => {
     const newSkillList = cloneDeep(skillList);
@@ -307,7 +289,7 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
                 <Controller
                   control={control}
                   name='join_date'
-                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} />}
+                  render={({ field }) => <DatePicker format='DD/MM/YYYY' {...field} disableFuture={true} />}
                 />
 
                 <div className={classNameError} style={{ color: 'red' }}>
@@ -443,17 +425,6 @@ function CreateEmployeeModal({ visible, onClose }: Props) {
 
             {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <Button
-                type='button'
-                style={{ marginRight: '1rem' }}
-                variant='contained'
-                color='error'
-                onClick={handleClose}
-                size='medium'
-              >
-                Cancel
-              </Button>
-
               <Button
                 size='medium'
                 type='submit'

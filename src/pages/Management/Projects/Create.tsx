@@ -119,13 +119,13 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
       if (result.isConfirmed) {
         console.log(data);
         const submitData = {
-          ...data,
+          name: data?.name,
           start_date: data?.start_date?.toISOString(),
           end_date: data?.end_date?.toISOString() || null,
           technical: data.technical.map((tech: any) => tech.value),
           members: memberList.map((member: any) => ({
             employeeId: member.member.id,
-            position: member.position
+            position: member?.position?.map((item: any) => item.value)
           })),
           status: data.status.value
         };
@@ -145,37 +145,19 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
     });
   });
 
-  const handleClose = (event?: any, reason?: string) => {
-    // if (reason === 'escapeKeyDown' || reason === 'backdropClick') return;
-
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  };
-
   const handleAddMember = async (newMember: any) => {
     const newMemberList = cloneDeep(memberList);
     newMemberList.push(newMember);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   const handleRemoveMember = async (index: number) => {
     const newMemberList = cloneDeep(memberList).toSpliced(index, 1);
     setMemberList(newMemberList);
-    setValue('employeesInProject', newMemberList);
-    await trigger(['employeesInProject']);
+    setValue('members', newMemberList);
+    await trigger(['members']);
   };
 
   const handleOpenEditMember = (member: any) => {
@@ -310,9 +292,7 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
               {/* Start Assign Member */}
               <Grid item xs={12}>
                 <fieldset>
-                  <legend>
-                    Members <span style={{ color: 'red' }}>*</span>
-                  </legend>
+                  <legend>Members</legend>
                   <Button
                     size='medium'
                     type='button'
@@ -401,17 +381,6 @@ function CreateProjectModal({ visible, onClose, initialValue }: Props) {
 
             {/* Start Button */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <Button
-                type='button'
-                style={{ marginRight: '1rem' }}
-                variant='contained'
-                color='error'
-                onClick={handleClose}
-                size='medium'
-              >
-                Cancel
-              </Button>
-
               <Button
                 size='medium'
                 type='submit'

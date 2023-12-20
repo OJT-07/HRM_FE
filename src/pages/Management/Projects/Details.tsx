@@ -4,6 +4,7 @@ import { MaterialReactTable, useMaterialReactTable, type MRT_ColumnDef } from 'm
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectTimeline from './Timelines/Timeline';
+import dayjs from 'dayjs';
 
 const TAB_KEYS = {
   INFORMATION: 'INFORMATION',
@@ -18,8 +19,8 @@ const dataTabs = [
   },
 
   {
-    label: "Members",
-    value: TAB_KEYS.MEMBERS,
+    label: 'Members',
+    value: TAB_KEYS.MEMBERS
   },
   {
     label: 'Timeline',
@@ -60,7 +61,6 @@ const Timeline = () => {
     return formattedDate;
   };
 
-
   const handleSearch = () => {
     // Nếu có từ khóa tìm kiếm, thực hiện tìm kiếm trên dữ liệu gốc, ngược lại sử dụng dữ liệu gốc
     const dataToSearch = searchTerm ? project.employeesInProject : filteredProject;
@@ -73,7 +73,6 @@ const Timeline = () => {
         console.log('Matching employee data:', employee);
       }
 
-
       return isMatch;
     });
 
@@ -81,17 +80,17 @@ const Timeline = () => {
   };
 
   return (
-    <div className="gap-5 flex justify-between flex-col">
-      <div className="flex items-center gap-2">
+    <div className='gap-5 flex justify-between flex-col'>
+      <div className='flex items-center gap-2'>
         <input
-          className="border p-2 rounded-md focus:outline-none focus:border-blue-500"
-          type="text"
-          placeholder="Search by employee name"
+          className='border p-2 rounded-md focus:outline-none focus:border-blue-500'
+          type='text'
+          placeholder='Search by employee name'
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button
-          className="bg-blue-500 text-black dark:text-white  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
+          className='bg-blue-500 text-black dark:text-white  px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none'
           onClick={handleSearch}
         >
           Search
@@ -114,7 +113,7 @@ const Timeline = () => {
             <label className='mb-3 block text-black dark:text-white'>Start Date</label>{' '}
           </b>
           <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-            {formatDate(project?.start_date)}
+            {dayjs(project?.start_date)}
           </div>
         </div>
         <div>
@@ -123,7 +122,7 @@ const Timeline = () => {
             <label className='mb-3 block text-black dark:text-white'> End Date</label>{' '}
           </b>
           <div className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary'>
-            {formatDate(project?.end_date)}
+            {dayjs(project?.end_date)}
           </div>
         </div>
       </div>

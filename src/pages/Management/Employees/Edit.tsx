@@ -18,24 +18,22 @@ import {
   TableContainer,
   FormControlLabel
 } from '@mui/material';
+import Swal from 'sweetalert2';
 import dayjs from 'dayjs';
 import SaveIcon from '@mui/icons-material/Save';
+import SkillModal from './SkillModal';
 import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import withReactContent from 'sweetalert2-react-content';
 import { toast } from 'react-toastify';
 import { cloneDeep } from 'lodash';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { projectStatusOption } from '../../../enum';
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
-import withReactContent from 'sweetalert2-react-content';
-import SkillModal from './SkillModal';
 import { employeeApi } from '../../../apis/employee.api';
 import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
-import Swal from 'sweetalert2';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -66,7 +64,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
   const [skillList, setSkillList] = useState<any>([]);
   const [initSkill, setInitSkill] = useState<any>({});
   const [employeeData, setEmployeeData] = useState(dataEmployee);
-  console.log(typeof dayjs(employeeData.join_date), 'abc')
+  console.log(typeof dayjs(employeeData.join_date), 'abc');
 
   useEffect(() => {
     setEmployeeData(dataEmployee);
@@ -82,8 +80,6 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
     setInitSkill({});
   };
 
-
-
   const methods = useForm<FormEmployeeType>({
     resolver: yupResolver(formEmployeeSchema),
     defaultValues: {
@@ -92,7 +88,9 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
       phone: dataEmployee.phone,
       email: dataEmployee.email,
       skills: employeeData.skills,
-      isManager: false
+      isManager: false,
+      join_date: dayjs(employeeData?.join_date),
+      date_of_birth: dayjs(employeeData?.date_of_birth)
     }
   });
 
@@ -101,7 +99,6 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
     handleSubmit,
     control,
     trigger,
-    getValues,
     setValue
   } = methods;
 
@@ -133,24 +130,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
         icon: 'error'
       });
     }
-  }
-  )
-
-  const handleClose = () => {
-    MySwal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, close it!'
-    }).then((result: { isConfirmed: any }) => {
-      if (result.isConfirmed) {
-        onClose();
-      }
-    });
-  };
+  });
 
   const handleAddSkill = async (newSkill: any) => {
     const newSkillList = cloneDeep(skillList);
@@ -306,8 +286,8 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
                       <div className='relative'>
                         <DatePicker
                           format='DD/MM/YYYY'
+                          disableFuture={true}
                           defaultValue={dayjs(employeeData?.join_date)}
-                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                         />
                       </div>
@@ -335,7 +315,6 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
                           format='DD/MM/YYYY'
                           disableFuture={true}
                           defaultValue={dayjs(employeeData?.date_of_birth)}
-                          className='border border-gray-300 rounded px-4 py-2 bg-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary w-full'
                           {...field}
                         />
                       </div>
@@ -445,16 +424,6 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
               <Button
-                style={{ marginRight: '1rem' }}
-                variant='contained'
-                color='error'
-                onClick={handleClose}
-                size='medium'
-              >
-                Cancel
-              </Button>
-
-              <Button
                 size='medium'
                 type='submit'
                 style={{ marginRight: 0 }}
@@ -479,7 +448,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
           />
         )}
       </Box>
-    </Modal >
+    </Modal>
   );
 }
 
