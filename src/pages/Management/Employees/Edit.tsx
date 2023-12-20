@@ -34,6 +34,7 @@ import { TextareaAutosize } from '@mui/base/TextareaAutosize';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormEmployeeType, formEmployeeSchema } from '../../../utils/rules';
+import { login } from 'apis/authService';
 
 const MySwal = withReactContent(Swal);
 interface Props {
@@ -89,6 +90,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
       skills: employeeData.skills,
       join_date: dayjs(employeeData.join_date),
       date_of_birth: dayjs(employeeData.date_of_birth),
+      description: employeeData.description,
 
 
       isManager: false
@@ -154,6 +156,7 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
     setValue('skills', newSkillList);
     await trigger(['skills']);
   };
+
 
   return (
     <Modal
@@ -407,18 +410,27 @@ function EditEmployeeModel({ visible, onClose, dataEmployee, onEditSuccess }: Pr
                 <InputLabel style={{ marginBottom: 3 }} id='employee-description-label'>
                   Description
                 </InputLabel>
-                <TextareaAutosize
+                <Controller
+                  control={control}
                   name='description'
-                  placeholder='Description something about the employee...'
-                  defaultValue={employeeData.description}
-                  minRows={2}
-                  style={{
-                    width: '100%',
-                    border: '1px solid rgb(100, 116, 139)',
-                    borderRadius: '5px',
-                    padding: '8px 14px'
-                  }}
+                  render={({ field }) => (
+                    <TextareaAutosize
+                      name='description'
+                      placeholder='Description something about the employee...'
+                      minRows={2}
+                      style={{
+                        width: '100%',
+                        border: '1px solid rgb(100, 116, 139)',
+                        borderRadius: '5px',
+                        padding: '8px 14px'
+                      }}
+                      {...field}
+                    />
+                  )}
                 />
+                <div className={classNameError} style={{ color: 'red' }}>
+                  {errors.description?.message}
+                </div>
               </Grid>
             </Grid>
 
